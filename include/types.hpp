@@ -3,11 +3,12 @@
 
 #include <string>
 
-// Declare type for coordinates
-typedef int c_type;
-
 //Declare type for velocity
 typedef double v_type;
+typedef struct {
+    v_type x;
+    v_type y;
+} Velocity;
 
 // types of surfaces like Moon, etc...
 enum class SurfaceType {

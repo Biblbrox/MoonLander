@@ -14,10 +14,10 @@ namespace Utils {
         void pause();
         void unpause();
 
-        Uint32 getTicks();
+        Uint32 getTicks() const;
 
-        bool isStarted();
-        bool isPaused();
+        bool isStarted() const;
+        bool isPaused() const;
 
     private:
         Uint32 startTicks;

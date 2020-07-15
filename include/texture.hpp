@@ -8,29 +8,29 @@
 
 class Texture : public Freelable {
 public:
-    Texture(Renderer& renderer, const std::string& path);
-    ~Texture();
-    bool loadFromFile(const std::string& path);
+    explicit Texture(Renderer& renderer);
+    //TODO: create another Texture class for ttf. Create base Texture, TextureImage, TextureText
+    virtual ~Texture();
 
-    void renderTexture(int x, int y, SDL_Rect *clip);
-    void renderTexture(SDL_Rect& dst,
-                       SDL_Rect* clip = nullptr);
+    virtual void renderTexture(int x, int y, SDL_Rect *clip);
+    virtual void renderTexture(SDL_Rect& dst,
+                       SDL_Rect* clip);
 
-    void free() override;
+    virtual void free() override;
 
-    int getWidth() const;
-    int getHeight() const;
+    virtual int getWidth() const;
+    virtual int getHeight() const;
 
-    int getX() const;
-    int getY() const;
+    virtual int getX() const;
+    virtual int getY() const;
 
-private:
+protected:
     SDL_Renderer* renderer;
-    SDL_Texture* texture;
-    int width;
-    int height;
-    int x;
-    int y;
+    SDL_Texture* texture = nullptr;
+    int width = 0;
+    int height = 0;
+    int x = 0;
+    int y = 0;
 };
 
 #endif //MOONLANDER_TEXTURE_HPP

@@ -1,11 +1,18 @@
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "../include/texture.hpp"
 
-void Texture::renderTexture(int x, int y, SDL_Rect *clip)
+Texture::~Texture()
+{
+    if (this->texture)
+        SDL_DestroyTexture(this->texture);
+}
+
+void Texture::renderTexture(int x_, int y_, SDL_Rect *clip)
 {
     SDL_Rect dst;
-    dst.x = x;
-    dst.y = y;
+    dst.x = x_;
+    dst.y = y_;
     if (clip != nullptr) {
         dst.w = clip->w;
         dst.h = clip->h;
@@ -21,25 +28,6 @@ void Texture::renderTexture(SDL_Rect &dst, SDL_Rect *clip)
     SDL_RenderCopy(this->renderer, this->texture, clip, &dst);
 }
 
-bool Texture::loadFromFile(const std::string& path)
-{
-    this->free();
-
-    this->texture = IMG_LoadTexture(this->renderer, path.c_str());
-
-    if (this->texture == nullptr)
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "LoadTexture");
-
-
-    return this->texture != nullptr;
-}
-
-Texture::~Texture()
-{
-    if (this->texture)
-        SDL_DestroyTexture(this->texture);
-}
-
 void Texture::free()
 {
     if (this->texture)
@@ -48,13 +36,9 @@ void Texture::free()
     this->texture = nullptr;
 }
 
-Texture::Texture(Renderer &renderer, const std::string& path)
+Texture::Texture(Renderer &renderer)
 {
     this->renderer = renderer.getRenderer();
-    this->texture = IMG_LoadTexture(this->renderer, path.c_str());
-
-    if (this->texture == nullptr)
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "LoadTexture");
 }
 
 int Texture::getWidth() const
@@ -76,5 +60,4 @@ int Texture::getY() const
 {
     return this->y;
 }
-
 
