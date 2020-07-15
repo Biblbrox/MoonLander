@@ -67,6 +67,7 @@ void Level::render(Renderer& renderer)
 
 int Level::renderSky()
 {
+
     return 0;
 }
 

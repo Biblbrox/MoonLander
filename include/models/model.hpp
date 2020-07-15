@@ -6,11 +6,12 @@
 
 class Model {
 public:
-    Model(Texture* tex = nullptr) : texture(tex) {};
+    explicit Model(Texture* tex = nullptr, SDL_Rect* clip = nullptr) : texture(tex), clip(clip) {};
     virtual void render(Renderer& renderer) = 0;
 
 protected:
     Texture* texture;
+    SDL_Rect* clip;
 };
 
 #endif //MOONLANDER_MODEL_HPP

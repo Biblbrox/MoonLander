@@ -1,28 +1,24 @@
 #include <imagetexture.h>
 #include <SDL_image.h>
 
-ImageTexture::ImageTexture(Renderer& renderer, const std::string& path) :
+ImageTexture::ImageTexture(Renderer* renderer, const std::string& path) :
         Texture(renderer)
 {
-    if (!path.empty()) {
-        this->texture = IMG_LoadTexture(this->renderer, path.c_str());
-
-        if (this->texture == nullptr)
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "LoadTexture");
-    }
+    load(path);
+    renderer_ = renderer;
 }
-
-
 
 
 bool ImageTexture::load(const std::string& path)
 {
-    this->free();
+    if (!path.empty()) {
+        this->free();
 
-    this->texture = IMG_LoadTexture(this->renderer, path.c_str());
-    if (this->texture == nullptr)
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "LoadTexture");
+        texture_ = IMG_LoadTexture(renderer_->getRenderer(), path.c_str());
+        if (texture_ == nullptr)
+            SDL_Log("LoadTexture: %s\n", SDL_GetError());
 
+    }
 
-    return this->texture != nullptr;
+    return texture_ != nullptr;
 }

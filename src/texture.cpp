@@ -4,20 +4,20 @@
 
 Texture::~Texture()
 {
-    if (this->texture)
-        SDL_DestroyTexture(this->texture);
+    if (texture_)
+        SDL_DestroyTexture(texture_);
 }
 
-void Texture::renderTexture(int x_, int y_, SDL_Rect *clip)
+void Texture::renderTexture(int x, int y, SDL_Rect *clip)
 {
     SDL_Rect dst;
-    dst.x = x_;
-    dst.y = y_;
+    dst.x = x;
+    dst.y = y;
     if (clip != nullptr) {
         dst.w = clip->w;
         dst.h = clip->h;
     } else {
-        SDL_QueryTexture(this->texture, nullptr, nullptr, &dst.w, &dst.h);
+        SDL_QueryTexture(texture_, nullptr, nullptr, &dst.w, &dst.h);
     }
 
     this->renderTexture(dst, clip);
@@ -25,39 +25,59 @@ void Texture::renderTexture(int x_, int y_, SDL_Rect *clip)
 
 void Texture::renderTexture(SDL_Rect &dst, SDL_Rect *clip)
 {
-    SDL_RenderCopy(this->renderer, this->texture, clip, &dst);
+    SDL_RenderCopy(renderer_->getRenderer(), texture_, clip, &dst);
 }
 
 void Texture::free()
 {
-    if (this->texture)
-        SDL_DestroyTexture(this->texture);
+    if (texture_)
+        SDL_DestroyTexture(texture_);
 
-    this->texture = nullptr;
+    texture_ = nullptr;
 }
 
-Texture::Texture(Renderer &renderer)
+Texture::Texture(Renderer* renderer)
 {
-    this->renderer = renderer.getRenderer();
+    renderer_ = renderer;
 }
 
 int Texture::getWidth() const
 {
-    return this->width;
+    return width_;
 }
 
 int Texture::getHeight() const
 {
-    return this->height;
+    return height_;
 }
 
 int Texture::getX() const
 {
-    return this->x;
+    return x_;
 }
 
 int Texture::getY() const
 {
-    return this->y;
+    return y_;
+}
+
+void Texture::setX(int x)
+{
+    x_ = x;
+}
+
+void Texture::setY(int y)
+{
+    y_ = y;
+}
+
+void Texture::setWidth(int width)
+{
+    width_ = width;
+}
+
+void Texture::setHeight(int height)
+{
+    height_ = height;
 }
 
