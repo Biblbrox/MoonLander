@@ -5,7 +5,7 @@
 
 class ImageTexture: public Texture {
 public:
-    explicit ImageTexture(Renderer* renderer, const std::string& path);
+    explicit ImageTexture(const std::string& path);
     bool load(const std::string& path);
 };
 

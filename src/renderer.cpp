@@ -46,3 +46,8 @@ void Renderer::renderPresent()
     SDL_RenderPresent(this->renderer);
 }
 
+SDL_Color Renderer::getDrawColor() const
+{
+    return draw_color;
+}
+

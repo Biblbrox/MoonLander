@@ -2,12 +2,16 @@
 #define MOONLANDER_GEOMETRY_PPH
 
 
+#include <GL/gl.h>
+#include <vector>
 #include "renderer.hpp"
+#include "utils.hpp"
 
 class Geometry {
 public:
-    void drawLine(Renderer& renderer,
-                  int x1, int y1, int x2, int y2);
+    void drawLine(GLuint x1, GLuint y1, GLuint x2, GLuint y2,
+            SDL_Color color = {255, 255, 255, 255});
+    void drawLinen(const std::vector<Utils::Rect>& points, SDL_Color color);
 };
 
 

@@ -4,7 +4,7 @@
 #include <string>
 
 //Declare type for velocity
-typedef double v_type;
+typedef int v_type;
 typedef struct {
     v_type x;
     v_type y;

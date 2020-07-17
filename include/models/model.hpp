@@ -4,14 +4,16 @@
 #include <texture.hpp>
 #include "renderer.hpp"
 
+using Utils::Rect;
+
 class Model {
 public:
-    explicit Model(Texture* tex = nullptr, SDL_Rect* clip = nullptr) : texture(tex), clip(clip) {};
-    virtual void render(Renderer& renderer) = 0;
+    explicit Model(Texture* tex = nullptr, Rect* clip = nullptr) : texture(tex), clip(clip) {};
+    virtual void render() = 0;
 
 protected:
     Texture* texture;
-    SDL_Rect* clip;
+    Rect* clip;
 };
 
 #endif //MOONLANDER_MODEL_HPP

@@ -6,10 +6,23 @@
 #include <iostream>
 #include <SDL_image.h>
 #include <random>
+#include <GL/gl.h>
 #include "types.hpp"
 #include "freelable.hpp"
 
 namespace Utils {
+
+    inline GLuint powerOfTwo(GLuint num)
+    {
+
+    }
+
+    typedef struct {
+        GLfloat x;
+        GLfloat y;
+        GLfloat w;
+        GLfloat h;
+    } Rect;
 
     class RandomUniform {
     public:

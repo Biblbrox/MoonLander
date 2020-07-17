@@ -18,6 +18,9 @@ public:
 
     void setDrawColor(SDL_Color color);
     void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+    SDL_Color getDrawColor() const;
+
     void renderPresent();
     void renderClear();
 

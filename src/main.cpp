@@ -2,9 +2,14 @@
 #include <SDL2/SDL.h>
 #include <SDL_ttf.h>
 #include <sstream>
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include <texttexture.h>
 #include <imagetexture.h>
 #include <models/ship.hpp>
+#include <cutils.h>
 #include "models/level.hpp"
 #include "../include/renderer.hpp"
 #include "../include/window.hpp"
@@ -14,59 +19,53 @@
 
 //#define VSYNC
 
-#define WINDOW_FLAGS SDL_WINDOW_SHOWN
+#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
 #ifdef VSYNC
 #define RENDER_FLAGS SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 #else
 #define RENDER_FLAGS SDL_RENDERER_ACCELERATED
 #endif
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 550;
 const int SCREEN_FPS = 60;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+
+const int SHIP_WIDTH = 20;
+const int SHIP_HEIGHT = 20;
 
 using Utils::cleanup;
 using Utils::getResourcePath;
 using Utils::Timer;
 
+
 int main(int argc, char* args[]) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init");
-        return 1;
-    }
-
-    SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
-
-    int IMG_FLAGS = IMG_INIT_PNG;
-
-    if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "IMG_Init");
-        SDL_Quit();
-        return 1;
-    }
-
-    if (TTF_Init() == 1) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init");
-        SDL_Quit();
-    }
+    CUtils::initOnceSDL2();
 
     Window window(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
                   SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_FLAGS);
 
-    Renderer renderer(window, -1, RENDER_FLAGS);
+    SDL_GLContext glContext = SDL_GL_CreateContext(window.getWindow());
+    if( glContext == NULL )
+    {
+        printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
+    }
+    CUtils::initGL(SCREEN_WIDTH, SCREEN_HEIGHT);
+    //Use Vsync
+    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    {
+        printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+    }
 
 
-    SDL_SetRenderDrawColor(renderer.getRenderer(), 0xFF, 0xFF, 0xFF, 0xFF);
-
-    ImageTexture background(&renderer, getResourcePath("black_background.png"));
+    ImageTexture background(getResourcePath("black_background.png"));
 
     Level level;
 
-    TTF_Font* fpsFont = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+   // TTF_Font* fpsFont = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
     Timer fpsTimer;
     std::stringstream fpsText;
-    TextTexture fpsTexture(&renderer, "FPS: ", {0xFF, 0xFF, 0xFF, 0xFF}, fpsFont);
+    //TextTexture fpsTexture(&renderer, "FPS: ", {0xFF, 0xFF, 0xFF, 0xFF}, fpsFont);
     Uint32 countFrames = 0;
     fpsTimer.start();
 
@@ -74,13 +73,20 @@ int main(int argc, char* args[]) {
     Timer capTimer;
 #endif
 
-    ImageTexture shipTexture(&renderer, getResourcePath("lunar_lander.png"));
-    SDL_Rect shipClip{.x = 0, .y = 57, .w = 20, .h = 20};
-    Ship ship(&shipTexture, &shipClip, 10, 10);
+    /**
+     * Need to synchronize moving per second
+     */
+    Timer moveTimer;
+
+    ImageTexture shipTexture(getResourcePath("lunar_lander.png"));
+    Utils::Rect shipClip{.x = 0, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT};
+    Ship ship(&shipTexture, &shipClip, 0, 0);
+    ship.setCoords({.x = 10, .y = 10});
 
     SDL_Event e;
     bool quit = false;
-    SDL_Rect background_rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    Rect background_rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    moveTimer.start();
     while (!quit) {
 #ifndef VSYNC
         capTimer.start();
@@ -88,64 +94,80 @@ int main(int argc, char* args[]) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT)
                 quit = true;
-            if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        ship.setVelY(ship.getVelY() - 10);
-                        break;
-                    case SDLK_DOWN:
-                        ship.setVelY(ship.getVelY() + 10);
-                        break;
-                    case SDLK_LEFT:
-                        ship.setVelX(ship.getVelX() - 10);
-                        break;
-                    case SDLK_RIGHT:
-                        ship.setVelX(ship.getVelX() + 10);
-                        break;
-                    default:
-                        break;
-                }
-            } else if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        ship.setVelY(ship.getVelY() + 10);
-                        break;
-                    case SDLK_DOWN:
-                        ship.setVelY(ship.getVelY() - 10);
-                        break;
-                    case SDLK_LEFT:
-                        ship.setVelX(ship.getVelX() + 10);
-                        break;
-                    case SDLK_RIGHT:
-                        ship.setVelX(ship.getVelX() - 10);
-                        break;
-                    default:
-                        break;
+            if (moveTimer.getTicks() <= 1000) {
+                if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+                    switch (e.key.keysym.sym) {
+                        case SDLK_UP:
+                            ship.setVelY(ship.getVelY() - 5);
+                            break;
+                        case SDLK_DOWN:
+                            ship.setVelY(ship.getVelY() + 5);
+                            break;
+                        case SDLK_LEFT:
+                            ship.setVelX(ship.getVelX() - 5);
+                            ship.setVelRot(ship.getVelRot()  - 5);
+                            break;
+                        case SDLK_RIGHT:
+                            ship.setVelX(ship.getVelX() + 5);
+                            ship.setVelRot(ship.getVelRot() + 5);
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
+                    switch (e.key.keysym.sym) {
+                        case SDLK_UP:
+                            ship.setVelY(ship.getVelY() + 5);
+                            break;
+                        case SDLK_DOWN:
+                            ship.setVelY(ship.getVelY() - 5);
+                            break;
+                        case SDLK_LEFT:
+                            ship.addVelX(5);
+                            ship.addVelRot(5);
+                            break;
+                        case SDLK_RIGHT:
+                            ship.addVelX(-5);
+                            ship.addVelRot(-5);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
 
+        // Update graphic scene
         float avgFPS = countFrames / (fpsTimer.getTicks() / 1000.f);
         if (avgFPS > 200000)
             avgFPS = 0;
 
         fpsText.str("");
         fpsText << "FPS: " << avgFPS;
-        fpsTexture.setText(fpsText.str());
+        //fpsTexture.setText(fpsText.str());
 
-        renderer.renderClear();
-        renderer.setDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-        background.renderTexture(0, 0, &background_rect);
-        fpsTexture.renderTexture(SCREEN_WIDTH  - SCREEN_WIDTH / 5, SCREEN_HEIGHT / 20, nullptr);
-        level.render(renderer);
+        if (moveTimer.getTicks() <= 1000) {
+            // Update physics
+            ship.addCoords({.x = ship.getVelX(), .y = ship.getVelY()});
+            ship.rotate(ship.getVelRot());
+            // End updating physics
+        }
 
-        ship.render(renderer);
-        ship.setX(ship.getVelX());
-        ship.setY(ship.getVelY());
+        // End updating graphic scene
 
-        renderer.renderPresent();
+        // Render updated scene
+
+        //fpsTexture.renderTexture(SCREEN_WIDTH  - SCREEN_WIDTH / 5, SCREEN_HEIGHT / 20, nullptr);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        //background.render(0, 0, &background_rect);
+        level.render();
+        ship.render();
+
+        glFlush();
         SDL_GL_SwapWindow(window.getWindow());
-
+        // End rendering scene
         ++countFrames;
 
 #ifndef VSYNC
@@ -154,12 +176,18 @@ int main(int argc, char* args[]) {
             SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
 #endif
 
+        if (moveTimer.getTicks() >= 1000) {
+            moveTimer.stop();
+            moveTimer.start();
+        }
     }
 
-    cleanup(background);
-    cleanup(renderer);
-    cleanup(window);
+ //   cleanup(background);
+   // cleanup(renderer);
+    //cleanup(window);
 
+
+    SDL_GL_DeleteContext(glContext);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
