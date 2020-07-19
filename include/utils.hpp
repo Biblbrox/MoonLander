@@ -12,17 +12,22 @@
 
 namespace Utils {
 
-    inline GLuint powerOfTwo(GLuint num)
-    {
-
-    }
-
-    typedef struct {
+    struct Point {
         GLfloat x;
         GLfloat y;
-        GLfloat w;
-        GLfloat h;
-    } Rect;
+    };
+
+    struct VertexData2D {
+        Point position;
+        Point texCoord;
+    };
+
+    struct Rect {
+        GLfloat x;
+        GLfloat y;
+        GLuint w;
+        GLuint h;
+    };
 
     class RandomUniform {
     public:

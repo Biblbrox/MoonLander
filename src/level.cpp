@@ -25,6 +25,23 @@ Level::~Level()
 
 }
 
+Level::Level() : surfaceType(SurfaceType::MOON), points(POINT_COUNT)
+{
+    Utils::RandomUniform urand;
+
+    platforms_count = urand.generate(PLATFORM_COUNT_MIN, PLATFORM_COUNT_MAX);
+    platform_between = POINT_COUNT / platforms_count;
+    points.reserve(POINT_COUNT + platforms_count);
+
+    for (int i = 0; i < points.size(); ++i) {
+        points.at(i).x = (i == 0) ? 0 : (points.at(i - 1).x
+                                         + urand.generate(POINT_DISTANCE_MIN, POINT_DISTANCE_MAX));
+        points.at(i).y = urand.generate(HEIGHT_MIN, HEIGHT_MAX);
+
+        points.at(i).h = 1;
+        points.at(i).w = i % platform_between == 0 ? urand.generate(PLATFORM_MIN_WIDTH, PLATFORM_MAX_WIDTH) : 0;
+    }
+}
 
 void Level::render()
 {
@@ -49,23 +66,6 @@ int Level::renderSky()
 {
 
     return 0;
-}
-
-Level::Level() : surfaceType(SurfaceType::MOON), points(POINT_COUNT)
-{
-    Utils::RandomUniform urand;
-
-    platforms_count = urand.generate(PLATFORM_COUNT_MIN, PLATFORM_COUNT_MAX);
-    platform_between = POINT_COUNT / platforms_count;
-
-    for (int i = 0; i < points.size(); ++i) {
-        points.at(i).x = (i == 0) ? 0 : (points.at(i - 1).x
-                                         + urand.generate(POINT_DISTANCE_MIN, POINT_DISTANCE_MAX));
-        points.at(i).y = urand.generate(HEIGHT_MIN, HEIGHT_MAX);
-
-        points.at(i).h = 1;
-        points.at(i).w = i % platform_between == 0 ? urand.generate(PLATFORM_MIN_WIDTH, PLATFORM_MAX_WIDTH) : 0;
-    }
 }
 
 void Level::setSurfaceType(SurfaceType surface)

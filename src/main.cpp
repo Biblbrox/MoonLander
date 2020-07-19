@@ -4,12 +4,11 @@
 #include <sstream>
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #include <texttexture.h>
 #include <imagetexture.h>
 #include <models/ship.hpp>
-#include <cutils.h>
+#include <game.h>
 #include "models/level.hpp"
 #include "../include/renderer.hpp"
 #include "../include/window.hpp"
@@ -40,25 +39,21 @@ using Utils::Timer;
 
 
 int main(int argc, char* args[]) {
-    CUtils::initOnceSDL2();
+    //Init SDL2
+    Game::initOnceSDL2();
 
     Window window(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
                   SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_FLAGS);
 
+    // Init OpenGL context
     SDL_GLContext glContext = SDL_GL_CreateContext(window.getWindow());
     if( glContext == NULL )
     {
         printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
     }
-    CUtils::initGL(SCREEN_WIDTH, SCREEN_HEIGHT);
-    //Use Vsync
-    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
-    {
-        printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
-    }
 
-
-    ImageTexture background(getResourcePath("black_background.png"));
+    // Init OpenGL
+    Game::initGL(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     Level level;
 
@@ -79,13 +74,12 @@ int main(int argc, char* args[]) {
     Timer moveTimer;
 
     ImageTexture shipTexture(getResourcePath("lunar_lander.png"));
-    Utils::Rect shipClip{.x = 0, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT};
+    Rect shipClip{.x = 0, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT};
     Ship ship(&shipTexture, &shipClip, 0, 0);
     ship.setCoords({.x = 10, .y = 10});
 
     SDL_Event e;
     bool quit = false;
-    Rect background_rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     moveTimer.start();
     while (!quit) {
 #ifndef VSYNC
@@ -181,11 +175,6 @@ int main(int argc, char* args[]) {
             moveTimer.start();
         }
     }
-
- //   cleanup(background);
-   // cleanup(renderer);
-    //cleanup(window);
-
 
     SDL_GL_DeleteContext(glContext);
     TTF_Quit();

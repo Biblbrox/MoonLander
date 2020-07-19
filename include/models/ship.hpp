@@ -9,22 +9,22 @@ using Utils::Rect;
 
 class Ship: public Model {
 public:
-    explicit Ship(ImageTexture *tex, Rect *clip = nullptr,
-            v_type vel_x = 0, v_type vel_y = 0);
+    explicit Ship(ImageTexture *tex, Rect* clip = nullptr,
+            GLfloat vel_x = 0, GLfloat vel_y = 0);
     virtual ~Ship();
 
     // Coordinates methods
-    int getX() const;
-    int getY() const;
-    SDL_Rect getCoords() const;
+    GLfloat  getX() const;
+    GLfloat getY() const;
+    Utils::Point getCoords() const;
 
-    void setX(int x);
-    void setY(int y);
-    void setCoords(SDL_Rect coords);
+    void setX(GLfloat x);
+    void setY(GLfloat y);
+    void setCoords(Utils::Point coords);
 
-    void addX(int x);
-    void addY(int y);
-    void addCoords(SDL_Rect coords);
+    void addX(GLfloat x);
+    void addY(GLfloat y);
+    void addCoords(Utils::Point coords);
 
     void render() override;
 
@@ -33,25 +33,25 @@ public:
     double getAngle() const;
 
     // Velocity methods
-    v_type getVelX() const;
-    v_type getVelY() const;
-    Vector2D<v_type> getVel() const;
+    GLfloat getVelX() const;
+    GLfloat getVelY() const;
+    Vector2D<GLfloat> getVel() const;
 
-    void setVelX(v_type vel);
-    void setVelY(v_type vel);
-    void setVel(Vector2D<v_type> vel);
+    void setVelX(GLfloat vel);
+    void setVelY(GLfloat vel);
+    void setVel(Vector2D<GLfloat> vel);
 
-    void addVelX(v_type vel);
-    void addVelY(v_type vel);
-    void addVel(Vector2D<v_type> vel);
+    void addVelX(GLfloat vel);
+    void addVelY(GLfloat vel);
+    void addVel(Vector2D<GLfloat> vel);
 
-    void setVelRot(v_type vel);
-    void addVelRot(v_type vel);
-    v_type getVelRot() const;
+    void setVelRot(GLfloat vel);
+    void addVelRot(GLfloat vel);
+    GLfloat getVelRot() const;
 
 private:
-    Vector2D<v_type> vel;
-    v_type vel_rot;
+    Vector2D<GLfloat> vel;
+    GLfloat vel_rot;
 
     double angle;
     bool engines_on;

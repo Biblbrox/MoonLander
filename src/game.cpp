@@ -1,4 +1,4 @@
-#include <cutils.h>
+#include <game.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -8,7 +8,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
-void CUtils::initOnceSDL2()
+void Game::initOnceSDL2()
 {
     static bool didInit = false;
 
@@ -42,9 +42,14 @@ void CUtils::initOnceSDL2()
     }
 }
 
-void CUtils::initGL(const int width, const int height)
+void Game::initGL(const int width, const int height)
 {
-    GLenum error = GL_NO_ERROR;
+    GLenum error = glewInit();
+    if (error != GLEW_OK)
+        SDL_Log("Error when initializing GLEW: %s\n", glewGetErrorString(error));
+
+    if (!GLEW_VERSION_2_1)
+        SDL_Log("Opengl 2.1 not supported\n");
 
     glViewport(0.f, 0.f, width,  height);
     //Initialize Projection Matrix
@@ -80,6 +85,12 @@ void CUtils::initGL(const int width, const int height)
     glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //Use Vsync
+    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    {
+        printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+    }
 
     //Check for error
     error = glGetError();

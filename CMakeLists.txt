@@ -22,7 +22,7 @@ set(CPP src/main.cpp src/utils.cpp src/level.cpp src/texture.cpp src/window.cpp
         src/geometry.cpp src/renderer.cpp src/ship.cpp src/timer.cpp
         src/texttexture.cpp src/imagetexture.cpp)
 
-set(SOURCES ${HPP} ${CPP} include/cutils.h src/cutils.cpp)
+set(SOURCES ${HPP} ${CPP} include/game.h src/game.cpp)
 set(SDL2_TTF_LIBRARIES SDL2_ttf)
 
 add_executable(MoonLander ${SOURCES})

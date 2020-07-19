@@ -3,13 +3,6 @@
 
 #include <string>
 
-//Declare type for velocity
-typedef int v_type;
-typedef struct {
-    v_type x;
-    v_type y;
-} Velocity;
-
 // types of surfaces like Moon, etc...
 enum class SurfaceType {
     MOON
