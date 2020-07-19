@@ -1,6 +1,6 @@
 #include <iostream>
 #include <texture.hpp>
-#include <imagetexture.h>
+#include <sprite.h>
 #include <2dvector.h>
 #include "types.hpp"
 #include "models/model.hpp"
@@ -9,8 +9,7 @@ using Utils::Rect;
 
 class Ship: public Model {
 public:
-    explicit Ship(ImageTexture *tex, Rect* clip = nullptr,
-            GLfloat vel_x = 0, GLfloat vel_y = 0);
+    explicit Ship(Sprite *tex, GLfloat vel_x = 0, GLfloat vel_y = 0);
     virtual ~Ship();
 
     // Coordinates methods
@@ -48,6 +47,9 @@ public:
     void setVelRot(GLfloat vel);
     void addVelRot(GLfloat vel);
     GLfloat getVelRot() const;
+
+    bool enginesOn() const;
+    void turnEngines();
 
 private:
     Vector2D<GLfloat> vel;

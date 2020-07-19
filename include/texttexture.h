@@ -7,15 +7,27 @@
 class TextTexture: public Texture {
 
 public:
-    TextTexture(Renderer* renderer, const std::string& textureText, SDL_Color color, TTF_Font* font);
+    TextTexture(const std::string& textureText, SDL_Color color, TTF_Font* font);
+    ~TextTexture();
+
     bool load(const std::string& textureText, SDL_Color color, TTF_Font* font);
     void setText(const std::string& text);
     void setFont(TTF_Font* font);
     void setColor(SDL_Color color);
+
+    void render(GLfloat x, GLfloat y, Utils::Rect* clip, double angle);
+    void render(GLfloat x, GLfloat y, Utils::Rect* clip);
+
+    void initVBO();
+    void freeVBO();
+    void freeTexture();
 private:
-    std::string text_;
-    TTF_Font* font_;
-    SDL_Color color_;
+    std::string text;
+    TTF_Font* font;
+    SDL_Color color;
+
+    GLuint vbo_id;
+    GLuint ibo_id;
 };
 
 #endif //MOONLANDER_TEXTTEXTURE_H

@@ -7,6 +7,7 @@
 #include <SDL_image.h>
 #include <random>
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include "types.hpp"
 #include "freelable.hpp"
 
@@ -51,6 +52,30 @@ namespace Utils {
     {
         freelable.free();
     }
+
+    constexpr double pi()
+    {
+        return std::atan(1)*4;
+    }
+
+    constexpr GLfloat radians(GLfloat degrees)
+    {
+        return degrees * pi() / 180.f;
+    }
+
+    constexpr GLfloat degrees(GLfloat radians)
+    {
+        return radians / pi() * 180.f;
+    }
+
+    /**
+     *
+     * @param pixels
+     * @param width
+     * @param height
+     * @return id of created texture
+     */
+    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height);
 }
 
 #endif //MOONLANDER_UTILS_H

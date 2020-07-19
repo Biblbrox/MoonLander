@@ -4,7 +4,6 @@
 #include <SDL_render.h>
 #include <vector>
 #include "types.hpp"
-#include "renderer.hpp"
 #include "model.hpp"
 
 class Level: public Model {

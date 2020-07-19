@@ -1,6 +1,6 @@
 #include <models/ship.hpp>
 
-Ship::Ship(ImageTexture *tex, Rect *clip, GLfloat vel_x, GLfloat vel_y) :
+Ship::Ship(Sprite *tex, GLfloat vel_x, GLfloat vel_y) :
         Model(tex, clip), vel(vel_x, vel_y), engines_on(false), angle(0.),
         vel_rot(0)
 {
@@ -92,7 +92,7 @@ void Ship::setCoords(Utils::Point coords)
 
 void Ship::render()
 {
-    texture->render(getX(), getY(), this->clip, angle);
+    texture->render(getX(), getY(), engines_on ? 1 : 0, angle);
 }
 
 void Ship::rotate(double ang)
@@ -126,12 +126,22 @@ GLfloat Ship::getVelRot() const
     return vel_rot;
 }
 
-void Ship::setVelRot(GLfloat vel)
+void Ship::setVelRot(GLfloat vel_)
 {
-    vel_rot = vel;
+    vel_rot = vel_;
 }
 
-void Ship::addVelRot(GLfloat vel)
+void Ship::addVelRot(GLfloat vel_)
 {
-    vel_rot += vel;
+    vel_rot += vel_;
+}
+
+bool Ship::enginesOn() const
+{
+    return engines_on;
+}
+
+void Ship::turnEngines()
+{
+    engines_on = !engines_on;
 }

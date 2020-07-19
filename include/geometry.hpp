@@ -3,7 +3,6 @@
 
 #include <GL/gl.h>
 #include <vector>
-#include "renderer.hpp"
 #include "utils.hpp"
 
 class Geometry {

@@ -14,15 +14,16 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
 
 set(CMAKE_CXX_STANDARD 20)
 set(HPP include/models/ship.hpp include/types.hpp include/utils.hpp include/models/level.hpp
-        include/freelable.hpp include/texture.hpp include/renderer.hpp include/window.hpp
+        include/freelable.hpp include/texture.hpp include/window.hpp
         include/geometry.hpp include/models/model.hpp include/timer.h
-        include/texttexture.h include/imagetexture.h include/2dvector.h)
+        include/texttexture.h include/sprite.h include/2dvector.h
+        include/game.h)
 
 set(CPP src/main.cpp src/utils.cpp src/level.cpp src/texture.cpp src/window.cpp
-        src/geometry.cpp src/renderer.cpp src/ship.cpp src/timer.cpp
-        src/texttexture.cpp src/imagetexture.cpp)
+        src/geometry.cpp src/ship.cpp src/timer.cpp
+        src/texttexture.cpp src/sprite.cpp src/game.cpp)
 
-set(SOURCES ${HPP} ${CPP} include/game.h src/game.cpp)
+set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)
 
 add_executable(MoonLander ${SOURCES})

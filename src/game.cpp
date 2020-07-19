@@ -89,7 +89,7 @@ void Game::initGL(const int width, const int height)
     //Use Vsync
     if( SDL_GL_SetSwapInterval( 1 ) < 0 )
     {
-        printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+        SDL_Log( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
     }
 
     //Check for error
