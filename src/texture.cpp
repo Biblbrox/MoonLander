@@ -35,7 +35,7 @@ GLfloat Texture::getY() const
 
 void Texture::setX(GLfloat x_)
 {
-    this->x = x_;
+    x = x_;
 }
 
 void Texture::setY(GLfloat y_)

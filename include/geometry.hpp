@@ -8,8 +8,12 @@
 class Geometry {
 public:
     void drawLine(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2,
-            SDL_Color color = {255, 255, 255, 255});
-    void drawLinen(const std::vector<Utils::Rect>& points, SDL_Color color);
+            Utils::GLColor color = {1.f, 1.f, 1.f, 1.f});
+    void drawLinen(const std::vector<Utils::Point>& points,
+            Utils::GLColor color = {1.f, 1.f, 1.f, 1.f});
+    void drawDot(GLfloat x, GLfloat y);
+    void drawDots(const std::vector<Utils::Point>& dots,
+            Utils::GLColor color = {1.f, 1.f, 1.f, 1.f});
 };
 
 #endif //MOONLANDER_GEOMETRY_PPH

@@ -24,12 +24,11 @@ bool Sprite::load(const std::string& path)
         texture_height = surface->h;
         textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
                                                    texture_width, texture_height);
-        //loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels), surface->w, surface->h);
         SDL_FreeSurface(surface);
     }
 }
 
-int Sprite::addClipSprite(Utils::Rect clip)
+GLuint Sprite::addClipSprite(Utils::Rect clip)
 {
     clips.push_back(clip);
     return clips.size() - 1;
@@ -42,7 +41,7 @@ Utils::Rect Sprite::getClip(int idx)
 
 bool Sprite::generateDataBuffer()
 {
-    if (textureID != 0 && clips.size() > 0) {
+    if (textureID != 0 && !clips.empty()) {
         int tot_sprites = clips.size();
         auto vertex_data = new Utils::VertexData2D[tot_sprites * 4];
         indexBuffers = new GLuint[tot_sprites];
@@ -94,7 +93,7 @@ bool Sprite::generateDataBuffer()
             std::abort();
         }
 
-        if (clips.size() <= 0) {
+        if (clips.empty()) {
             SDL_Log("No data generate from!\n");
             std::abort();
         }
@@ -119,7 +118,12 @@ void Sprite::freeSheet()
 
 void Sprite::freeTexture()
 {
-    freeSheet();
+    if (textureID != 0) {
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+
+    texture_width = texture_height = 0;
 }
 
 void Sprite::render(GLfloat x, GLfloat y, int idx, GLfloat angle)
@@ -128,9 +132,9 @@ void Sprite::render(GLfloat x, GLfloat y, int idx, GLfloat angle)
         glPushMatrix();
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTranslatef(getX() + clips[idx].w / 2.f, getY() + clips[idx].h / 2.f, 0);
+        glTranslatef(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0);
         glRotatef(angle, 0.f, 0.f, 1.f);
-        glTranslatef(-(getX() + clips[idx].w / 2.f), -(getY() + clips[idx].h / 2.f), 0);
+        glTranslatef(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glTranslatef(x, y, 0.f);
@@ -160,5 +164,6 @@ void Sprite::render(GLfloat x, GLfloat y, int idx, GLfloat angle)
 Sprite::~Sprite()
 {
     freeTexture();
+    freeSheet();
 }
 

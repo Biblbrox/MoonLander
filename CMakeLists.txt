@@ -23,7 +23,7 @@ set(CPP src/main.cpp src/utils.cpp src/level.cpp src/texture.cpp src/window.cpp
         src/geometry.cpp src/ship.cpp src/timer.cpp
         src/texttexture.cpp src/sprite.cpp src/game.cpp)
 
-set(SOURCES ${HPP} ${CPP})
+set(SOURCES ${HPP} ${CPP} include/keyboardhandler.h src/keyboardhandler.cpp)
 set(SDL2_TTF_LIBRARIES SDL2_ttf)
 
 add_executable(MoonLander ${SOURCES})

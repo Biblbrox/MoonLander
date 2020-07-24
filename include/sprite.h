@@ -8,7 +8,7 @@ public:
     explicit Sprite(const std::string& path);
     ~Sprite();
     bool load(const std::string& path);
-    int addClipSprite(Utils::Rect clip);
+    GLuint addClipSprite(Utils::Rect clip);
     Utils::Rect getClip(int idx);
     bool generateDataBuffer();
     void render(GLfloat x, GLfloat y, int idx, GLfloat angle);

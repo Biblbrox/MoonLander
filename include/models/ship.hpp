@@ -51,10 +51,14 @@ public:
     bool enginesOn() const;
     void turnEngines();
 
+    void setSprite(unsigned int idx);
+    int getSpriteIdx() const;
+
 private:
     Vector2D<GLfloat> vel;
     GLfloat vel_rot;
 
     double angle;
     bool engines_on;
+    int cur_sprite;
 };

@@ -13,12 +13,13 @@ public:
     void render() override;
     int renderSky();
     void setSurfaceType(SurfaceType surfaceType);
+    bool hasCollision(Utils::Point coord);
 
 private:
     SurfaceType surfaceType;
-    std::vector<SDL_Rect> points;
+    std::vector<Utils::Point> points;
+    std::vector<Utils::Point> stars;
     int platforms_count;
-    int platform_between;
 };
 
 

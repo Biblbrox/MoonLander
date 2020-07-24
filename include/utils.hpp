@@ -23,6 +23,13 @@ namespace Utils {
         Point texCoord;
     };
 
+    struct GLColor {
+        GLfloat r;
+        GLfloat g;
+        GLfloat b;
+        GLfloat a;
+    };
+
     struct Rect {
         GLfloat x;
         GLfloat y;
@@ -55,7 +62,7 @@ namespace Utils {
 
     constexpr double pi()
     {
-        return std::atan(1)*4;
+        return std::atan(1) * 4;
     }
 
     constexpr GLfloat radians(GLfloat degrees)
@@ -66,6 +73,20 @@ namespace Utils {
     constexpr GLfloat degrees(GLfloat radians)
     {
         return radians / pi() * 180.f;
+    }
+
+    inline int getScreenWidth()
+    {
+        SDL_DisplayMode dm;
+        SDL_GetCurrentDisplayMode(0, &dm);
+        return dm.w;
+    }
+
+    inline int getScreenHeight()
+    {
+        SDL_DisplayMode dm;
+        SDL_GetCurrentDisplayMode(0, &dm);
+        return dm.h;
     }
 
     /**

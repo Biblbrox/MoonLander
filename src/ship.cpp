@@ -2,7 +2,7 @@
 
 Ship::Ship(Sprite *tex, GLfloat vel_x, GLfloat vel_y) :
         Model(tex, clip), vel(vel_x, vel_y), engines_on(false), angle(0.),
-        vel_rot(0)
+        vel_rot(0), cur_sprite(0)
 {
 
 }
@@ -92,7 +92,7 @@ void Ship::setCoords(Utils::Point coords)
 
 void Ship::render()
 {
-    texture->render(getX(), getY(), engines_on ? 1 : 0, angle);
+    texture->render(getX(), getY(), cur_sprite, angle);
 }
 
 void Ship::rotate(double ang)
@@ -144,4 +144,14 @@ bool Ship::enginesOn() const
 void Ship::turnEngines()
 {
     engines_on = !engines_on;
+}
+
+void Ship::setSprite(unsigned int idx)
+{
+    cur_sprite = idx;
+}
+
+int Ship::getSpriteIdx() const
+{
+    return cur_sprite;
 }

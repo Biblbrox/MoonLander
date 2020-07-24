@@ -23,11 +23,12 @@ void TextTexture::setColor(SDL_Color color_)
 
 TextTexture::TextTexture(const std::string &textureText, SDL_Color color_, TTF_Font *font_)
 {
-    load(textureText, color_, font_);
     font = font_;
     color = color_;
     text = textureText;
     vbo_id = ibo_id = 0;
+    textureID = 0;
+    load(textureText, color, font);
 }
 
 bool TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Font* font_)
@@ -92,9 +93,9 @@ void TextTexture::render(GLfloat x, GLfloat y, Utils::Rect* clip, double angle)
 
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTranslatef(getX() + clip_w / 2.f, getY() + clip_h / 2.f, 0);
+    glTranslatef(x + clip_w / 2.f, y + clip_h / 2.f, 0);
     glRotatef(angle, 0.f, 0.f, 1.f);
-    glTranslatef(-(getX() + clip_w / 2.f), -(getY() + clip_h / 2.f), 0);
+    glTranslatef(-(x + clip_w / 2.f), -(y + clip_h / 2.f), 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     render(x, y, clip);
@@ -168,10 +169,6 @@ void TextTexture::freeTexture()
 
 TextTexture::~TextTexture()
 {
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
-    }
-
+    freeTexture();
     freeVBO();
 }
