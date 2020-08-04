@@ -3,8 +3,9 @@
 
 #include <string>
 #include <SDL_render.h>
-#include "freelable.hpp"
-#include "utils.hpp"
+#include <GL/gl.h>
+//#include "freelable.hpp"
+//#include "utils.hpp"
 
 /**
  * Texture class.

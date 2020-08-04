@@ -1,10 +1,12 @@
+#include <GL/glew.h>
 #include <models/ship.hpp>
 
 Ship::Ship(Sprite *tex, GLfloat vel_x, GLfloat vel_y) :
-        Model(tex, clip), vel(vel_x, vel_y), engines_on(false), angle(0.),
-        vel_rot(0), cur_sprite(0)
+        Model(tex, clip), engines_on(false), angle(0.),
+        vel_rot(0), cur_sprite(0), landed(false)
 {
-
+    vel.x = vel_x;
+    vel.y = vel_y;
 }
 
 Ship::~Ship()
@@ -22,7 +24,7 @@ GLfloat Ship::getVelY() const
     return vel.y;
 }
 
-Vector2D<GLfloat> Ship::getVel() const
+Utils::Point Ship::getVel() const
 {
     return vel;
 }
@@ -37,7 +39,7 @@ void Ship::setVelY(GLfloat v)
     vel.y = v;
 }
 
-void Ship::setVel(Vector2D<GLfloat> v)
+void Ship::setVel(Utils::Point v)
 {
     vel.x = v.x;
     vel.y = v.y;
@@ -53,7 +55,7 @@ void Ship::addVelX(GLfloat v)
     vel.x +=v;
 }
 
-void Ship::addVel(Vector2D<GLfloat> v)
+void Ship::addVel(Utils::Point v)
 {
     vel.x += v.x;
     vel.y += v.y;
@@ -151,7 +153,17 @@ void Ship::setSprite(unsigned int idx)
     cur_sprite = idx;
 }
 
-int Ship::getSpriteIdx() const
+unsigned int Ship::getSpriteIdx() const
 {
     return cur_sprite;
+}
+
+bool Ship::isLanded() const
+{
+    return landed;
+}
+
+void Ship::turnLanded()
+{
+    landed = !landed;
 }

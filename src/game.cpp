@@ -1,12 +1,17 @@
+#include <GL/glew.h>
 #include <game.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <string>
 #include <iostream>
-#include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
+#include <glm/geometric.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <moonlanderprogram.h>
 
 void Game::initOnceSDL2()
 {
@@ -33,9 +38,8 @@ void Game::initOnceSDL2()
         }
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-       // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
         SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
@@ -43,7 +47,7 @@ void Game::initOnceSDL2()
     }
 }
 
-void Game::initGL(const int width, const int height)
+void Game::initGL(GLfloat width, GLfloat height)
 {
     GLenum error = glewInit();
     if (error != GLEW_OK)
@@ -52,32 +56,26 @@ void Game::initGL(const int width, const int height)
     if (!GLEW_VERSION_2_1)
         SDL_Log("Opengl 2.1 not supported\n");
 
-    glViewport(0.f, 0.f, width,  height);
-    //Initialize Projection Matrix
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    glOrtho(0.0, width, height, 0.0, 1.0, -1.0);
-
     //Check for error
     error = glGetError();
     if( error != GL_NO_ERROR )
     {
-        printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+        printf( "Error initializing OpenGL(Ortho/Viewport)! %s\n", gluErrorString( error ) );
     }
 
     //Initialize Modelview Matrix
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    //glMatrixMode( GL_MODELVIEW );
+    //glLoadIdentity();
 
     //Check for error
     error = glGetError();
     if( error != GL_NO_ERROR )
     {
-        printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+        printf( "Error initializing OpenGL(MatrixMode)! %s\n", gluErrorString( error ) );
     }
 
     //Initialize clear color
-    glClearColor( 0.f, 0.f, 0.f, 1.f );
+    //glClearColor( 0.f, 0.f, 0.f, 1.f );
 
     glEnable(GL_TEXTURE_2D);
     glEnable( GL_LINE_SMOOTH );
@@ -97,7 +95,7 @@ void Game::initGL(const int width, const int height)
     error = glGetError();
     if( error != GL_NO_ERROR )
     {
-        printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+        printf( "Error initializing OpenGL(Final)! %s\n", gluErrorString( error ) );
     }
 }
 

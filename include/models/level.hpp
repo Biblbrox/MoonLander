@@ -13,7 +13,7 @@ public:
     void render() override;
     int renderSky();
     void setSurfaceType(SurfaceType surfaceType);
-    bool hasCollision(Utils::Point coord);
+    bool hasCollision(Utils::Rect coord, GLfloat angle);
 
 private:
     SurfaceType surfaceType;

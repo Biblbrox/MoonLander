@@ -9,6 +9,7 @@ enum class SurfaceType {
 };
 
 const std::string RESOURCE_PATH = "../res/";
+const std::string SHADER_PATH = "../src/shaders/";
 
 const std::string GAME_NAME = "Moon Lander";
 

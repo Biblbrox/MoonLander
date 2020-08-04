@@ -1,9 +1,9 @@
 #ifndef MOONLANDER_GEOMETRY_PPH
 #define MOONLANDER_GEOMETRY_PPH
 
-#include <GL/gl.h>
 #include <vector>
 #include "utils.hpp"
+#include <GL/gl.h>
 
 class Geometry {
 public:

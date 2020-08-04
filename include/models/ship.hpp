@@ -1,7 +1,6 @@
 #include <iostream>
 #include <texture.hpp>
 #include <sprite.h>
-#include <2dvector.h>
 #include "types.hpp"
 #include "models/model.hpp"
 
@@ -34,15 +33,15 @@ public:
     // Velocity methods
     GLfloat getVelX() const;
     GLfloat getVelY() const;
-    Vector2D<GLfloat> getVel() const;
+    Utils::Point getVel() const;
 
     void setVelX(GLfloat vel);
     void setVelY(GLfloat vel);
-    void setVel(Vector2D<GLfloat> vel);
+    void setVel(Utils::Point vel);
 
+    void addVel(Utils::Point vel);
     void addVelX(GLfloat vel);
     void addVelY(GLfloat vel);
-    void addVel(Vector2D<GLfloat> vel);
 
     void setVelRot(GLfloat vel);
     void addVelRot(GLfloat vel);
@@ -50,15 +49,18 @@ public:
 
     bool enginesOn() const;
     void turnEngines();
+    bool isLanded() const;
+    void turnLanded();
 
     void setSprite(unsigned int idx);
-    int getSpriteIdx() const;
+    unsigned int getSpriteIdx() const;
 
 private:
-    Vector2D<GLfloat> vel;
+    Utils::Point vel;
     GLfloat vel_rot;
 
     double angle;
     bool engines_on;
-    int cur_sprite;
+    bool landed;
+    unsigned int cur_sprite;
 };

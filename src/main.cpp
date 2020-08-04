@@ -10,6 +10,7 @@
 #include <models/ship.hpp>
 #include <game.h>
 #include <keyboardhandler.h>
+#include <moonlanderprogram.h>
 #include "models/level.hpp"
 #include "../include/window.hpp"
 #include "../include/texture.hpp"
@@ -62,6 +63,19 @@ int main(int argc, char *args[]) {
      * Need to synchronize moving per second
      */
 
+    MoonLanderProgram program;
+    if (!program.loadProgram()) {
+        printf("Unable to load basic shader!\n");
+    }
+    program.bind();
+
+    program.setProjection(glm::ortho<GLfloat>(0.0f, screen_width, screen_height, 0.0f, 1.0f, -1.0f));
+    program.updateProjection();
+    program.setModel(glm::mat4(1.f));
+    program.updateModel();
+    program.setView(glm::mat4(1.f));
+    program.updateView();
+
     Sprite shipSprite(getResourcePath("lunar_lander_bw.png"));
     shipSprite.addClipSprite({.x = 0,  .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     shipSprite.addClipSprite({.x = 20, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
@@ -107,20 +121,33 @@ int main(int argc, char *args[]) {
                 ship.turnEngines();
         }
 
-        if (state[SDL_SCANCODE_LEFT])
+        if (state[SDL_SCANCODE_LEFT] && !ship.isLanded())
             ship.addVelRot(-rot_step);
 
-        if (state[SDL_SCANCODE_RIGHT])
+        if (state[SDL_SCANCODE_RIGHT] && !ship.isLanded())
             ship.addVelRot(rot_step);
 
-        ship.addCoords({.x = ship.getVelX(), .y = ship.getVelY()});
-        ship.rotate(ship.getVelRot());
-        ship.addVelY(gravity_force / weight);
-        if (level.hasCollision(ship.getCoords()))
-            ship.setCoords({.x = ship.getX(), .y = ship.getY() - 1});
+        if (level.hasCollision({.x = ship.getX(), .y = ship.getY(),
+                                      .w = SHIP_WIDTH,  .h = SHIP_HEIGHT}, ship.getAngle())) {
+            if (!ship.isLanded())
+                ship.setVel({.x = 0, .y = 0});
+            if (!ship.isLanded())
+                ship.turnLanded();
+
+            if (ship.enginesOn()) {
+                ship.addCoords({.x = ship.getVelX(), .y = ship.getVelY()});
+            }
+        } else {
+            if (ship.isLanded())
+                ship.turnLanded();
+            ship.addCoords({.x = ship.getVelX(), .y = ship.getVelY()});
+            ship.rotate(ship.getVelRot());
+            ship.addVelY(gravity_force / weight);
+        }
         // End updating physics
 
         // Update graphic scene
+       // Camera::lookAt(ship.getX(), ship.getY(), 1.f, 0.f, 0.f, 0.f);
         level.render();
         ship.render();
         fpsTexture.render(screen_width - 200.f, screen_height / 20.f, nullptr);
@@ -132,7 +159,7 @@ int main(int argc, char *args[]) {
     }
 
     SDL_GL_DeleteContext(glContext);
-    TTF_CloseFont(fpsFont);
+    //TTF_CloseFont(fpsFont);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

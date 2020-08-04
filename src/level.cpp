@@ -2,10 +2,10 @@
 #include "models/level.hpp"
 #include "utils.hpp"
 
-const int PLATFORM_MIN_WIDTH = 10;
-const int PLATFORM_MAX_WIDTH = 20;
+const int PLATFORM_MIN_WIDTH = 15;
+const int PLATFORM_MAX_WIDTH = 30;
 
-const int POINT_DISTANCE_MIN = 20;
+const int POINT_DISTANCE_MIN = 30;
 const int POINT_DISTANCE_MAX = 50;
 
 const int POINT_COUNT = 100;
@@ -81,13 +81,40 @@ void Level::setSurfaceType(SurfaceType surface)
     this->surfaceType = surface;
 }
 
-bool Level::hasCollision(Utils::Point coord)
+bool Level::hasCollision(Utils::Rect coord, GLfloat angle)
 {
-    size_t line_idx = 0;
-    for (size_t i = 0; i < points.size() - 1; ++i)
-        if (points[i].x <= coord.x && points[i + 1].x >= coord.x)
-            line_idx = i;
+    Utils::RectPoints r = Utils::buildRectPoints(coord, angle);
 
-    return ((coord.y - points[line_idx].y) / (points[line_idx + 1].y - points[line_idx].y)) <
-            ((coord.x - points[line_idx].x) / (points[line_idx + 1].x - points[line_idx].x));
+    for (size_t i = 0; i < points.size() - 1; ++i) {
+        GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
+
+        if (points[i].x <= x && points[i + 1].x >= x) {
+            bool left = Utils::lineLine(r.d, r.a, {.x = points[i].x, .y = points[i].y},
+                                        {.x = points[i + 1].x, .y = points[i + 1].y});
+            bool right = Utils::lineLine(r.b, r.c, {.x = points[i].x, .y = points[i].y},
+                                         {.x = points[i + 1].x, .y = points[i + 1].y});
+            bool top = Utils::lineLine(r.c, r.d, {.x = points[i].x, .y = points[i].y},
+                                       {.x = points[i + 1].x, .y = points[i + 1].y});
+            bool bottom = Utils::lineLine(r.a, r.b, {.x = points[i].x, .y = points[i].y},
+                                          {.x = points[i + 1].x, .y = points[i + 1].y});
+            if (left || right || top || bottom)
+                return true;
+
+            x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
+            if (points[i + 1].x <= x && i != points.size() - 2) {
+                left = Utils::lineLine(r.d, r.a, {.x = points[i + 1].x, .y = points[i + 1].y},
+                                       {.x = points[i + 2].x, .y = points[i + 2].y});
+                right = Utils::lineLine(r.b, r.c, {.x = points[i + 1].x, .y = points[i + 1].y},
+                                        {.x = points[i + 2].x, .y = points[i + 2].y});
+                top = Utils::lineLine(r.c, r.d, {.x = points[i + 1].x, .y = points[i + 1].y},
+                                      {.x = points[i + 2].x, .y = points[i + 2].y});
+                bottom = Utils::lineLine(r.a, r.b, {.x = points[i + 1].x, .y = points[i + 1].y},
+                                         {.x = points[i + 2].x, .y = points[i + 2].y});
+                if (left || right || top || bottom)
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }

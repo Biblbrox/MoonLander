@@ -3,6 +3,7 @@
 
 #include <SDL_ttf.h>
 #include "texture.hpp"
+#include "utils.hpp"
 
 class TextTexture: public Texture {
 
