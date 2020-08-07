@@ -65,7 +65,6 @@ Level::Level() : surfaceType(SurfaceType::MOON),
 void Level::render()
 {
     Geometry geometry;
-
     geometry.drawLinen(points);
     geometry.drawDots(stars, {255, 255, 255, 255});
 }

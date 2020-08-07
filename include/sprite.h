@@ -12,7 +12,7 @@ public:
     GLuint addClipSprite(Utils::Rect clip);
     Utils::Rect getClip(int idx);
     bool generateDataBuffer();
-    void render(GLfloat x, GLfloat y, int idx, GLfloat angle);
+    void render(GLfloat x, GLfloat y, GLuint idx, GLfloat angle);
     void freeSheet();
     void freeTexture();
 

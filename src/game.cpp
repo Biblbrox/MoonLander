@@ -3,15 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <string>
-#include <iostream>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <moonlanderprogram.h>
 
 void Game::initOnceSDL2()
 {
@@ -31,7 +23,7 @@ void Game::initOnceSDL2()
             std::abort();
         }
 
-        if (TTF_Init() == 1) {
+        if (TTF_Init() == -1) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init");
             SDL_Quit();
             std::abort();
@@ -49,7 +41,9 @@ void Game::initOnceSDL2()
 
 void Game::initGL(GLfloat width, GLfloat height)
 {
+    glewExperimental = GL_TRUE;
     GLenum error = glewInit();
+    //glewExperimental = true;
     if (error != GLEW_OK)
         SDL_Log("Error when initializing GLEW: %s\n", glewGetErrorString(error));
 
@@ -63,10 +57,6 @@ void Game::initGL(GLfloat width, GLfloat height)
         printf( "Error initializing OpenGL(Ortho/Viewport)! %s\n", gluErrorString( error ) );
     }
 
-    //Initialize Modelview Matrix
-    //glMatrixMode( GL_MODELVIEW );
-    //glLoadIdentity();
-
     //Check for error
     error = glGetError();
     if( error != GL_NO_ERROR )
@@ -75,13 +65,13 @@ void Game::initGL(GLfloat width, GLfloat height)
     }
 
     //Initialize clear color
-    //glClearColor( 0.f, 0.f, 0.f, 1.f );
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 
-    glEnable(GL_TEXTURE_2D);
-    glEnable( GL_LINE_SMOOTH );
-    glEnable( GL_POLYGON_SMOOTH );
-    glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
-    glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+    //glEnable(GL_TEXTURE_2D);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POLYGON_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

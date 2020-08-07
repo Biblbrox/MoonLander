@@ -156,6 +156,27 @@ namespace Utils {
         return temp_rect;
     }
 
+    inline SDL_Surface* flipVertically(SDL_Surface *sfc)
+    {
+        SDL_Surface* result = SDL_CreateRGBSurface(sfc->flags, sfc->w, sfc->h,
+                                                   sfc->format->BytesPerPixel * 8, sfc->format->Rmask, sfc->format->Gmask,
+                                                   sfc->format->Bmask, sfc->format->Amask);
+        // Number of pixels per row
+        const auto pitch = sfc->pitch;
+        // Total number of pixels
+        const auto pxlength = pitch*(sfc->h - 1);
+        // Right end pixels
+        auto pixels = static_cast<unsigned char*>(sfc->pixels) + pxlength;
+        // Left pixels
+        auto rpixels = static_cast<unsigned char*>(result->pixels) ;
+        for(auto line = 0; line < sfc->h; ++line) {
+            memcpy(rpixels,pixels,pitch);
+            pixels -= pitch;
+            rpixels += pitch;
+        }
+        return result;
+    }
+
     /**
      *
      * @param pixels
@@ -163,7 +184,17 @@ namespace Utils {
      * @param height
      * @return id of created texture
      */
-    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height);
+    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLint noColors, GLenum textureType = GL_RGBA);
+
+    inline unsigned int power_two_floor(unsigned int val)
+    {
+        unsigned int power = 2, nextVal = power*2;
+
+        while((nextVal *= 2) <= val)
+            power*=2;
+
+        return power*2;
+    }
 
     inline bool lineLine(Point a1, Point a2, Point b1, Point b2)
     {
@@ -254,6 +285,8 @@ namespace Utils {
 
         return shaderID;
     }
+
+    //TODO: make function to get texture information
 }
 
 #endif //MOONLANDER_UTILS_H

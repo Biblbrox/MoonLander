@@ -23,7 +23,7 @@ bool ShaderProgram::bind()
     glUseProgram(programID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        printf( "Error binding shader! %s\n", gluErrorString( error ) );
+        printf("Error binding shader program! %s\n", gluErrorString(error));
         Utils::printProgramLog(programID);
         return false;
     }

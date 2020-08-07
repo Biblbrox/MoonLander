@@ -11,13 +11,22 @@ public:
     void setProjection(glm::mat4 matrix);
     void setModel(glm::mat4 matrix);
     void setView(glm::mat4 matrix);
+    void setColor(glm::vec4 color);
+    void setTextureRendering(bool isTexture);
+    void setTexture(int texture);
 
-    void leftMultModelView(glm::mat4 matrix);
+    glm::mat4 getView() const;
+    glm::mat4 getModel() const;
+    glm::mat4 getProjection() const;
+
+    void leftMultView(glm::mat4 matrix);
+    void leftMultModel(glm::mat4 matrix);
     void leftMultProjection(glm::mat4 matrix);
 
     void updateProjection();
     void updateView();
     void updateModel();
+    void updateColor();
 
     bool loadProgram() override;
 
@@ -30,6 +39,13 @@ private:
 
     glm::mat4 viewMatrix;
     GLint viewLoc;
+
+    glm::vec4 color;
+    GLint colorLoc;
+
+    GLint isTextureLoc;
+
+    GLint texLoc;
 };
 
 #endif //MOONLANDER_MOONLANDERPROGRAM_H

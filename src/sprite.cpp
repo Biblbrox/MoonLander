@@ -1,15 +1,13 @@
 #include <GL/glew.h>
 #include <sprite.h>
 #include <SDL_image.h>
-#include <GL/gl.h>
 
 Sprite::Sprite(const std::string& path)
 {
-    load(path);
+   // load(path);
     vertexDataBuffer = 0;
     indexBuffers = nullptr;
 }
-
 
 bool Sprite::load(const std::string& path)
 {
@@ -22,8 +20,8 @@ bool Sprite::load(const std::string& path)
 
         texture_width = surface->w;
         texture_height = surface->h;
-        textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
-                                                   texture_width, texture_height);
+        //textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
+        //                                           texture_width, texture_height, , 2);
         SDL_FreeSurface(surface);
     }
 }
@@ -126,7 +124,7 @@ void Sprite::freeTexture()
     texture_width = texture_height = 0;
 }
 
-void Sprite::render(GLfloat x, GLfloat y, int idx, GLfloat angle)
+void Sprite::render(GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
 {
     if (vertexDataBuffer != 0) {
         glPushMatrix();
@@ -146,11 +144,13 @@ void Sprite::render(GLfloat x, GLfloat y, int idx, GLfloat angle)
         glBindBuffer(GL_ARRAY_BUFFER, vertexDataBuffer);
         glTexCoordPointer(2, GL_FLOAT, sizeof(Utils::VertexData2D),
                           (GLvoid*)offsetof(Utils::VertexData2D, texCoord));
+        //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Utils::VertexData2D),
+         //                     (GLvoid*)offsetof(Utils::VertexData2D, position));
         glVertexPointer(2, GL_FLOAT, sizeof(Utils::VertexData2D),
                           (GLvoid*)offsetof(Utils::VertexData2D, position));
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[idx]);
-        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, NULL);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, nullptr);
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);

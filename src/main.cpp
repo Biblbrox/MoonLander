@@ -3,18 +3,13 @@
 #include <SDL2/SDL.h>
 #include <SDL_ttf.h>
 #include <sstream>
-#include <GL/gl.h>
 
 #include <texttexture.h>
 #include <sprite.h>
-#include <models/ship.hpp>
 #include <game.h>
-#include <keyboardhandler.h>
 #include <moonlanderprogram.h>
+#include <models/ship.hpp>
 #include "models/level.hpp"
-#include "../include/window.hpp"
-#include "../include/texture.hpp"
-#include "../include/utils.hpp"
 #include "../include/timer.h"
 
 #define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN
@@ -55,7 +50,8 @@ int main(int argc, char *args[]) {
             getResourcePath("kenvector_future2.ttf").c_str(), 14);
     Timer fpsTimer;
     std::stringstream fpsText;
-    TextTexture fpsTexture("FPS: ", {0xFF, 0xFF, 0xFF, 0xFF}, fpsFont);
+    TextTexture fpsTexture("FPS: 60",
+                           {0xFF, 0xFF, 0xFF, 0xFF}, fpsFont);
     Uint32 countFrames = 0;
     fpsTimer.start();
 
@@ -75,6 +71,9 @@ int main(int argc, char *args[]) {
     program.updateModel();
     program.setView(glm::mat4(1.f));
     program.updateView();
+    program.setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+    program.updateColor();
+    program.setTexture(0);
 
     Sprite shipSprite(getResourcePath("lunar_lander_bw.png"));
     shipSprite.addClipSprite({.x = 0,  .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
@@ -99,9 +98,10 @@ int main(int argc, char *args[]) {
             avgFPS = 0;
 
         fpsText.str("");
-        fpsText << "FPS: " << avgFPS;
+        fpsText << "FPS: " << std::floor(avgFPS);
         fpsTexture.setText(fpsText.str());
 
+        glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Update physics
@@ -148,9 +148,11 @@ int main(int argc, char *args[]) {
 
         // Update graphic scene
        // Camera::lookAt(ship.getX(), ship.getY(), 1.f, 0.f, 0.f, 0.f);
+        program.setTextureRendering(false);
         level.render();
-        ship.render();
-        fpsTexture.render(screen_width - 200.f, screen_height / 20.f, nullptr);
+        program.setTextureRendering(true);
+        //ship.render();
+        fpsTexture.render(program, screen_width - screen_width / 9.f, screen_height / 15.f, nullptr);
 
         glFlush();
         SDL_GL_SwapWindow(window.getWindow());
@@ -159,7 +161,7 @@ int main(int argc, char *args[]) {
     }
 
     SDL_GL_DeleteContext(glContext);
-    //TTF_CloseFont(fpsFont);
+    TTF_CloseFont(fpsFont);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

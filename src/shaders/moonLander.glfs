@@ -1,8 +1,18 @@
 #version 330
 
-out vec4 color;
+in vec2 outTexCoord;
+
+out vec4 outColor;
+
+uniform sampler2D ourTexture;
+uniform bool renderTexture;
+uniform vec4 inColor;
 
 void main()
 {
-    color = vec4(0.0, 1.0, 0.f, 1.0);
+    if (renderTexture) {
+        outColor = texture(ourTexture, outTexCoord);
+    } else {
+        outColor = inColor;
+    }
 }

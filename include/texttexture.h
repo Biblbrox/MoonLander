@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include "texture.hpp"
 #include "utils.hpp"
+#include "moonlanderprogram.h"
 
 class TextTexture: public Texture {
 
@@ -16,8 +17,8 @@ public:
     void setFont(TTF_Font* font);
     void setColor(SDL_Color color);
 
-    void render(GLfloat x, GLfloat y, Utils::Rect* clip, double angle);
-    void render(GLfloat x, GLfloat y, Utils::Rect* clip);
+    void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip, double angle);
+    void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip);
 
     void initVBO();
     void freeVBO();
@@ -29,6 +30,7 @@ private:
 
     GLuint vbo_id;
     GLuint ibo_id;
+    GLuint vao_id;
 };
 
 #endif //MOONLANDER_TEXTTEXTURE_H
