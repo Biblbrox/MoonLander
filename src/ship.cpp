@@ -92,9 +92,9 @@ void Ship::setCoords(Utils::Point coords)
     texture->setY(coords.y);
 }
 
-void Ship::render()
+void Ship::render(MoonLanderProgram& program)
 {
-    texture->render(getX(), getY(), cur_sprite, angle);
+    texture->render(program, getX(), getY(), cur_sprite, angle);
 }
 
 void Ship::rotate(double ang)

@@ -40,34 +40,13 @@ bool TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
     if (!surface) {
         SDL_Log("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
     } else {
-        // get the number of channels in the SDL surface
-        GLenum texture_format;
-        GLint  nOfColors;
-        nOfColors = surface->format->BytesPerPixel;
-        if( nOfColors == 4 )     // contains an alpha channel
-        {
-            if(surface->format->Rmask == 0x000000ff)
-                texture_format = GL_RGBA;
-            else
-                texture_format = GL_BGRA;
-        }
-        else if( nOfColors == 3 )     // no alpha channel
-        {
-            if(surface->format->Rmask == 0x000000ff)
-                texture_format = GL_RGB;
-            else
-                texture_format = GL_BGR;
-        }
-        else
-        {
-            printf("warning: the image is not truecolor..  this will probably break\n");
-            // this error should not go unhandled
-        }
+        GLenum texture_format = Utils::getSurfaceFormatInfo(*surface);
+
         texture_width = surface->w;
         texture_height = surface->h;
 
         textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
-                                                   texture_width, texture_height, nOfColors, texture_format);
+                                                   texture_width, texture_height, texture_format);
         SDL_FreeSurface(surface);
 
         initVBO();
@@ -157,18 +136,16 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
         program.setTexture(0);
-
         program.setView(glm::translate(program.getView(), glm::vec3(x, y, 0.f)));
         program.updateView();
 
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glBindVertexArray(0);
 
         program.setView(glm::translate(program.getView(), glm::vec3(-x, -y, 0.f)));
         program.updateView();
-
-        glBindVertexArray(0);
     }
 }
 

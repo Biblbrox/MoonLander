@@ -3,6 +3,7 @@
 
 #include "texture.hpp"
 #include "utils.hpp"
+#include "moonlanderprogram.h"
 
 class Sprite: public Texture {
 public:
@@ -12,15 +13,15 @@ public:
     GLuint addClipSprite(Utils::Rect clip);
     Utils::Rect getClip(int idx);
     bool generateDataBuffer();
-    void render(GLfloat x, GLfloat y, GLuint idx, GLfloat angle);
+    void render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle);
     void freeSheet();
     void freeTexture();
 
 protected:
     std::vector<Utils::Rect> clips;
 
-    GLuint vertexDataBuffer;
-    GLuint* indexBuffers;
+    GLuint* VAO;
+    GLuint tot_sprites;
 };
 
 #endif //MOONLANDER_SPRITE_H

@@ -10,7 +10,7 @@ class Level: public Model {
 public:
     Level();
     ~Level();
-    void render() override;
+    void render(MoonLanderProgram& program) override;
     int renderSky();
     void setSurfaceType(SurfaceType surfaceType);
     bool hasCollision(Utils::Rect coord, GLfloat angle);

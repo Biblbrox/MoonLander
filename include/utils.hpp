@@ -184,7 +184,7 @@ namespace Utils {
      * @param height
      * @return id of created texture
      */
-    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLint noColors, GLenum textureType = GL_RGBA);
+    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLenum textureType = GL_RGBA);
 
     inline unsigned int power_two_floor(unsigned int val)
     {
@@ -286,7 +286,38 @@ namespace Utils {
         return shaderID;
     }
 
-    //TODO: make function to get texture information
+    /**
+     * Return std::pair<Texture format, Number of colors>
+     * @param surface
+     * @return
+     */
+    inline GLenum getSurfaceFormatInfo(const SDL_Surface& surface)
+    {
+        GLenum texture_format;
+        GLint  nOfColors;
+        nOfColors = surface.format->BytesPerPixel;
+        if( nOfColors == 4 )     // contains an alpha channel
+        {
+            if(surface.format->Rmask == 0x000000ff)
+                texture_format = GL_RGBA;
+            else
+                texture_format = GL_BGRA;
+        }
+        else if( nOfColors == 3 )     // no alpha channel
+        {
+            if(surface.format->Rmask == 0x000000ff)
+                texture_format = GL_RGB;
+            else
+                texture_format = GL_BGR;
+        }
+        else
+        {
+            printf("warning: the image is not truecolor..  this will probably break\n");
+            // this error should not go unhandled
+        }
+
+        return texture_format;
+    }
 }
 
 #endif //MOONLANDER_UTILS_H

@@ -24,7 +24,7 @@ public:
     void addY(GLfloat y);
     void addCoords(Utils::Point coords);
 
-    void render() override;
+    void render(MoonLanderProgram& program) override;
 
     // Angle methods
     void rotate(double angle);

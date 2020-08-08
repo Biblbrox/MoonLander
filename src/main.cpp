@@ -20,10 +20,12 @@ const int SHIP_HEIGHT = 21;
 const GLfloat gravity_force = 0.5f;
 const GLfloat weight = 40.f;
 const GLfloat engine_force = 1.f;
-const GLfloat rot_step = 0.05f;
+const GLfloat rot_step = 0.005f;
 
 using namespace Utils;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 int main(int argc, char *args[]) {
     //Init SDL2
     Game::initOnceSDL2();
@@ -37,7 +39,7 @@ int main(int argc, char *args[]) {
 
     // Init OpenGL context
     SDL_GLContext glContext = SDL_GL_CreateContext(window.getWindow());
-    if (glContext == NULL) {
+    if (glContext == nullptr) {
         printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
     }
 
@@ -76,12 +78,12 @@ int main(int argc, char *args[]) {
     program.setTexture(0);
 
     Sprite shipSprite(getResourcePath("lunar_lander_bw.png"));
-    shipSprite.addClipSprite({.x = 0,  .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite.addClipSprite({.x = 20, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite.addClipSprite({.x = 40, .y = 57, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite.addClipSprite({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite.addClipSprite({.x = 20, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite.addClipSprite({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     shipSprite.generateDataBuffer();
 
-    Ship ship(&shipSprite, 0.1f, 0);
+    Ship ship(&shipSprite, 0.f, 0.f);
     ship.setCoords({.x = 10, .y = 10});
 
     SDL_Event e;
@@ -149,10 +151,10 @@ int main(int argc, char *args[]) {
         // Update graphic scene
        // Camera::lookAt(ship.getX(), ship.getY(), 1.f, 0.f, 0.f, 0.f);
         program.setTextureRendering(false);
-        level.render();
+        level.render(program);
         program.setTextureRendering(true);
-        //ship.render();
-        fpsTexture.render(program, screen_width - screen_width / 9.f, screen_height / 15.f, nullptr);
+        ship.render(program);
+        fpsTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f, (GLfloat)screen_height / 15.f, nullptr);
 
         glFlush();
         SDL_GL_SwapWindow(window.getWindow());
@@ -168,3 +170,4 @@ int main(int argc, char *args[]) {
 
     return 0;
 }
+#pragma clang diagnostic pop

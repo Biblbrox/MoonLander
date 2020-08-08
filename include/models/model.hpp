@@ -8,7 +8,7 @@ using Utils::Rect;
 class Model {
 public:
     explicit Model(Sprite* tex = nullptr, Rect* clip = nullptr) : texture(tex), clip(clip) {};
-    virtual void render() = 0;
+    virtual void render(MoonLanderProgram& program) = 0;
 
 protected:
     Sprite* texture;

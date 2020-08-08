@@ -4,25 +4,29 @@
 
 Sprite::Sprite(const std::string& path)
 {
-   // load(path);
-    vertexDataBuffer = 0;
-    indexBuffers = nullptr;
+    load(path);
+    VAO = nullptr;
+    tot_sprites = 0;
 }
 
 bool Sprite::load(const std::string& path)
 {
     if (!path.empty()) {
         SDL_Surface* surface = IMG_Load(path.c_str());
+        surface = Utils::flipVertically(surface);
         if (surface == nullptr) {
             SDL_Log("LoadTexture: %s\n", SDL_GetError());
             std::abort();
-        }
+        } else {
+            GLenum texture_format = Utils::getSurfaceFormatInfo(*surface);
 
-        texture_width = surface->w;
-        texture_height = surface->h;
-        //textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
-        //                                           texture_width, texture_height, , 2);
-        SDL_FreeSurface(surface);
+            texture_width = surface->w;
+            texture_height = surface->h;
+
+            textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
+                                                       texture_width, texture_height, texture_format);
+            SDL_FreeSurface(surface);
+        }
     }
 }
 
@@ -40,51 +44,53 @@ Utils::Rect Sprite::getClip(int idx)
 bool Sprite::generateDataBuffer()
 {
     if (textureID != 0 && !clips.empty()) {
-        int tot_sprites = clips.size();
-        auto vertex_data = new Utils::VertexData2D[tot_sprites * 4];
-        indexBuffers = new GLuint[tot_sprites];
+        tot_sprites = clips.size();
+        VAO = new GLuint[tot_sprites];
 
-        glGenBuffers(1, &vertexDataBuffer);
-        glGenBuffers(tot_sprites, indexBuffers);
+        glGenVertexArrays(tot_sprites, VAO);
+        GLuint VBO;
+        GLuint EBO;
         GLfloat tw = texture_width;
         GLfloat th = texture_height;
-        GLuint spriteIndices[4]{0, 0, 0, 0};
 
-        for (int i = 0; i < tot_sprites; ++i) {
-            spriteIndices[0] = i * 4 + 0;
-            spriteIndices[1] = i * 4 + 1;
-            spriteIndices[2] = i * 4 + 2;
-            spriteIndices[3] = i * 4 + 3;
+        for (GLuint i = 0; i < tot_sprites; ++i) {
 
-            vertex_data[spriteIndices[0]].position.x = 0;
-            vertex_data[spriteIndices[0]].position.y = 0;
-            vertex_data[spriteIndices[0]].texCoord.x = clips[i].x / tw;
-            vertex_data[spriteIndices[0]].texCoord.y = clips[i].y / th;
+            GLuint indices[] = {
+                    3, 1, 0,
+                    3, 2, 1
+            };
 
-            vertex_data[spriteIndices[1]].position.x = clips[i].w;
-            vertex_data[spriteIndices[1]].position.y = 0;
-            vertex_data[spriteIndices[1]].texCoord.x = (clips[i].x + clips[i].w) / tw;
-            vertex_data[spriteIndices[1]].texCoord.y = clips[i].y / th;
+            GLfloat vertices[] = {
+                    // positions            // texture coords
+                    clips[i].w,  0.0f,      (clips[i].x + clips[i].w) / tw, (clips[i].y + clips[i].h) / th, // top right
+                    clips[i].w, clips[i].h,  (clips[i].x + clips[i].w) / tw, clips[i].y / th, // bottom right
+                    0.f, clips[i].h,        clips[i].x / tw, clips[i].y / th, // bottom left
+                    0.f,  0.f,              clips[i].x / tw, (clips[i].y + clips[i].h) / th  // top left
+            };
 
-            vertex_data[spriteIndices[2]].position.x = clips[i].w;
-            vertex_data[spriteIndices[2]].position.y = clips[i].h;
-            vertex_data[spriteIndices[2]].texCoord.x = (clips[i].x + clips[i].w) / tw;
-            vertex_data[spriteIndices[2]].texCoord.y = (clips[i].y + clips[i].h) / th;
+            glBindVertexArray(VAO[i]);
+            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-            vertex_data[spriteIndices[3]].position.x = 0;
-            vertex_data[spriteIndices[3]].position.y = clips[i].h;
-            vertex_data[spriteIndices[3]].texCoord.x = clips[i].x / tw;
-            vertex_data[spriteIndices[3]].texCoord.y = (clips[i].y + clips[i].h) / th;
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[i]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), spriteIndices, GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), nullptr);
+            glEnableVertexAttribArray(0);
+
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1);
+
+            glBindVertexArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+            glDeleteBuffers(1, &EBO);
+            glDeleteBuffers(1, &VBO);
         }
 
-        glBindBuffer(GL_ARRAY_BUFFER, vertexDataBuffer);
-        glBufferData(GL_ARRAY_BUFFER, tot_sprites * 4 * sizeof(Utils::VertexData2D),
-                     vertex_data, GL_STATIC_DRAW);
-
-        delete[] vertex_data;
     } else {
         if (textureID == 0) {
             SDL_Log("No texture to render!\n");
@@ -100,15 +106,9 @@ bool Sprite::generateDataBuffer()
 
 void Sprite::freeSheet()
 {
-    if (vertexDataBuffer != 0) {
-        glDeleteBuffers(1, &vertexDataBuffer);
-        vertexDataBuffer = 0;
-    }
-
-    if (indexBuffers != nullptr) {
-        glDeleteBuffers(clips.size(), indexBuffers);
-        delete[] indexBuffers;
-        indexBuffers = nullptr;
+    if (VAO != nullptr) {
+        glDeleteBuffers(tot_sprites, VAO);
+        VAO = nullptr;
     }
 
     clips.clear();
@@ -124,40 +124,28 @@ void Sprite::freeTexture()
     texture_width = texture_height = 0;
 }
 
-void Sprite::render(GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
+void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
 {
-    if (vertexDataBuffer != 0) {
-        glPushMatrix();
+    if (VAO != nullptr) {
+        program.setView(glm::translate(program.getView(), glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f)));
+        program.updateView();
+        program.setView(glm::rotate(program.getView(), angle, glm::vec3(0.f, 0.f, 1.f)));
+        program.updateView();
+        program.setView(glm::translate(program.getView(), glm::vec3(-clips[idx].w / 2.f, -clips[idx].h / 2.f, 0.f)));
+        program.updateView();
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTranslatef(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0);
-        glRotatef(angle, 0.f, 0.f, 1.f);
-        glTranslatef(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0);
+        glBindVertexArray(VAO[idx]);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glBindVertexArray(0);
 
-        glTranslatef(x, y, 0.f);
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vertexDataBuffer);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Utils::VertexData2D),
-                          (GLvoid*)offsetof(Utils::VertexData2D, texCoord));
-        //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Utils::VertexData2D),
-         //                     (GLvoid*)offsetof(Utils::VertexData2D, position));
-        glVertexPointer(2, GL_FLOAT, sizeof(Utils::VertexData2D),
-                          (GLvoid*)offsetof(Utils::VertexData2D, position));
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[idx]);
-        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, nullptr);
-
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glPopMatrix();
+        program.setView(glm::translate(program.getView(), glm::vec3(clips[idx].w / 2.f, clips[idx].h / 2.f, 0.f)));
+        program.updateView();
+        program.setView(glm::rotate(program.getView(), -angle, glm::vec3(0.f, 0.f, 1.f)));
+        program.updateView();
+        program.setView(glm::translate(program.getView(), glm::vec3(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0.f)));
+        program.updateView();
     }
 }
 

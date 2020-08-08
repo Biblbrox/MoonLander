@@ -62,7 +62,7 @@ Level::Level() : surfaceType(SurfaceType::MOON),
     }
 }
 
-void Level::render()
+void Level::render(MoonLanderProgram& program)
 {
     Geometry geometry;
     geometry.drawLinen(points);

@@ -43,7 +43,6 @@ void Game::initGL(GLfloat width, GLfloat height)
 {
     glewExperimental = GL_TRUE;
     GLenum error = glewInit();
-    //glewExperimental = true;
     if (error != GLEW_OK)
         SDL_Log("Error when initializing GLEW: %s\n", glewGetErrorString(error));
 
@@ -67,7 +66,6 @@ void Game::initGL(GLfloat width, GLfloat height)
     //Initialize clear color
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
-    //glEnable(GL_TEXTURE_2D);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
