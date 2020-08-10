@@ -10,7 +10,7 @@ public:
     virtual ~ShaderProgram();
     virtual bool loadProgram() = 0;
     virtual void freeProgram();
-    bool bind();
+    bool bind() const;
     void unbind();
     GLuint getProgramID();
 

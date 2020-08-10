@@ -17,7 +17,7 @@ public:
     void setFont(TTF_Font* font);
     void setColor(SDL_Color color);
 
-    void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip, double angle);
+    void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip, GLfloat angle);
     void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip);
 
     void initVBO();

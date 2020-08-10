@@ -8,13 +8,13 @@ void KeyboardHandler::handleEvent(SDL_Event &event)
 bool KeyboardHandler::isKeyUp(SDL_Keycode code)
 {
     auto it = keys.find(code);
-    return (it != keys.end() ? (it->second == SDL_KEYUP) : false);
+    return it != keys.end() && (it->second == SDL_KEYUP);
 }
 
 bool KeyboardHandler::isKeyDown(SDL_Keycode code)
 {
     auto it = keys.find(code);
-    return (it != keys.end() ? (it->second == SDL_KEYDOWN) : false);
+    return it != keys.end() && (it->second == SDL_KEYDOWN);
 }
 
 void KeyboardHandler::clear()

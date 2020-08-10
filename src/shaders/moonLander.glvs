@@ -11,6 +11,7 @@ out vec2 outTexCoord;
 
 void main()
 {
+    // Perform all operation to each our vertexes
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(position, 0.f, 1.0);
     outTexCoord = texCoord;
 }

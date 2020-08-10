@@ -20,12 +20,10 @@ const int SHIP_HEIGHT = 21;
 const GLfloat gravity_force = 0.5f;
 const GLfloat weight = 40.f;
 const GLfloat engine_force = 1.f;
-const GLfloat rot_step = 0.005f;
+const GLfloat rot_step = 0.004f;
 
 using namespace Utils;
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 int main(int argc, char *args[]) {
     //Init SDL2
     Game::initOnceSDL2();
@@ -73,7 +71,7 @@ int main(int argc, char *args[]) {
     program.updateModel();
     program.setView(glm::mat4(1.f));
     program.updateView();
-    program.setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+    program.setColor(glm::vec4(0.1f, 1.f, 0.1f, 1.f));
     program.updateColor();
     program.setTexture(0);
 
@@ -112,9 +110,9 @@ int main(int argc, char *args[]) {
                 ship.turnEngines();
 
             ship.addVelY(-engine_force / weight *
-                         std::sin(radians(ship.getAngle() + 90)));
+                         std::sin(ship.getAngle() + pi() / 2.f));
             ship.addVelX(-engine_force / weight *
-                         std::cos(radians(ship.getAngle() + 90)));
+                         std::cos(ship.getAngle() + pi() / 2.f));
 
             ship.setSprite((SDL_GetTicks() / 100) % 2 + 1);
         } else {
@@ -136,9 +134,8 @@ int main(int argc, char *args[]) {
             if (!ship.isLanded())
                 ship.turnLanded();
 
-            if (ship.enginesOn()) {
+            if (ship.enginesOn())
                 ship.addCoords({.x = ship.getVelX(), .y = ship.getVelY()});
-            }
         } else {
             if (ship.isLanded())
                 ship.turnLanded();
@@ -149,12 +146,12 @@ int main(int argc, char *args[]) {
         // End updating physics
 
         // Update graphic scene
-       // Camera::lookAt(ship.getX(), ship.getY(), 1.f, 0.f, 0.f, 0.f);
         program.setTextureRendering(false);
         level.render(program);
         program.setTextureRendering(true);
         ship.render(program);
-        fpsTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f, (GLfloat)screen_height / 15.f, nullptr);
+        fpsTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
+                          (GLfloat)screen_height / 15.f, nullptr);
 
         glFlush();
         SDL_GL_SwapWindow(window.getWindow());
@@ -170,4 +167,3 @@ int main(int argc, char *args[]) {
 
     return 0;
 }
-#pragma clang diagnostic pop

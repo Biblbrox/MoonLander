@@ -109,7 +109,7 @@ void TextTexture::freeVBO()
 
 
 void TextTexture::render(MoonLanderProgram& program, GLfloat x,
-                         GLfloat y, Utils::Rect* clip, double angle)
+                         GLfloat y, Utils::Rect* clip, GLfloat angle)
 {
     GLuint clip_w = texture_width;
     GLuint clip_h = texture_height;
@@ -118,15 +118,16 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
         clip_h = clip->h;
     }
 
-    glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTranslatef(x + clip_w / 2.f, y + clip_h / 2.f, 0);
-    glRotatef(angle, 0.f, 0.f, 1.f);
-    glTranslatef(-(x + clip_w / 2.f), -(y + clip_h / 2.f), 0);
+    glm::mat4 tr_ro_tr = glm::translate(glm::mat4(1.f), glm::vec3(x + clip_w / 2.f, y + clip_h / 2.f, 0))
+            * glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, 0.f, 1.f))
+            * glm::translate(glm::mat4(1.f), glm::vec3(-(x + clip_w / 2.f), -(y + clip_h / 2.f), 0));
+    program.leftMultView(tr_ro_tr);
+    program.updateView();
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     render(program, x, y, clip);
-    glPopMatrix();
 }
 
 void TextTexture::render(MoonLanderProgram& program, GLfloat x,

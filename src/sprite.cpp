@@ -53,20 +53,32 @@ bool Sprite::generateDataBuffer()
         GLfloat tw = texture_width;
         GLfloat th = texture_height;
 
+        GLuint indices[] = {
+                3, 1, 0,
+                3, 2, 1
+        };
+
+        // 8 Vertex coordinates + 8 texture coordinates
+        GLfloat vertices[16];
+
+        vertices[1] = 0.0f;
+        vertices[8] = 0.f;
+        vertices[12] = 0.f;
+        vertices[13] = 0.f;
+
         for (GLuint i = 0; i < tot_sprites; ++i) {
-
-            GLuint indices[] = {
-                    3, 1, 0,
-                    3, 2, 1
-            };
-
-            GLfloat vertices[] = {
-                    // positions            // texture coords
-                    clips[i].w,  0.0f,      (clips[i].x + clips[i].w) / tw, (clips[i].y + clips[i].h) / th, // top right
-                    clips[i].w, clips[i].h,  (clips[i].x + clips[i].w) / tw, clips[i].y / th, // bottom right
-                    0.f, clips[i].h,        clips[i].x / tw, clips[i].y / th, // bottom left
-                    0.f,  0.f,              clips[i].x / tw, (clips[i].y + clips[i].h) / th  // top left
-            };
+            vertices[0] = clips[i].w;
+            vertices[2] = (clips[i].x + clips[i].w) / tw;
+            vertices[3] = (clips[i].y + clips[i].h) / th;
+            vertices[4] = clips[i].w;
+            vertices[5] = clips[i].h;
+            vertices[6] = (clips[i].x + clips[i].w) / tw;
+            vertices[7] = clips[i].y / th;
+            vertices[9] = clips[i].h;
+            vertices[10] = clips[i].x / tw;
+            vertices[11] = clips[i].y / th;
+            vertices[14] = clips[i].x / tw;
+            vertices[15] = (clips[i].y + clips[i].h) / th;
 
             glBindVertexArray(VAO[i]);
             glGenBuffers(1, &VBO);
@@ -127,11 +139,12 @@ void Sprite::freeTexture()
 void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
 {
     if (VAO != nullptr) {
-        program.setView(glm::translate(program.getView(), glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f)));
-        program.updateView();
-        program.setView(glm::rotate(program.getView(), angle, glm::vec3(0.f, 0.f, 1.f)));
-        program.updateView();
-        program.setView(glm::translate(program.getView(), glm::vec3(-clips[idx].w / 2.f, -clips[idx].h / 2.f, 0.f)));
+        glm::mat4 tr1 = glm::translate(glm::mat4(1.f), glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f));
+        glm::mat4 ro = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, 0.f, 1.f));
+        glm::mat4 tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-clips[idx].w / 2.f, -clips[idx].h / 2.f, 0.f));
+        glm::mat4 transform = tr1 * ro * tr2;
+
+        program.leftMultView(transform);
         program.updateView();
 
         glBindTexture(GL_TEXTURE_2D, textureID);
@@ -140,11 +153,12 @@ void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
 
-        program.setView(glm::translate(program.getView(), glm::vec3(clips[idx].w / 2.f, clips[idx].h / 2.f, 0.f)));
-        program.updateView();
-        program.setView(glm::rotate(program.getView(), -angle, glm::vec3(0.f, 0.f, 1.f)));
-        program.updateView();
-        program.setView(glm::translate(program.getView(), glm::vec3(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0.f)));
+        tr1 = glm::translate(glm::mat4(1.f), glm::vec3(clips[idx].w / 2.f, clips[idx].h / 2.f, 0.f));
+        ro = glm::rotate(glm::mat4(1.f), -angle, glm::vec3(0.f, 0.f, 1.f));
+        tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0.f));
+        transform = tr1 * ro * tr2;
+
+        program.leftMultView(transform);
         program.updateView();
     }
 }

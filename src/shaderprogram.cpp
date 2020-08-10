@@ -10,7 +10,7 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
-    freeProgram();
+    glDeleteProgram(programID);
 }
 
 void ShaderProgram::freeProgram()
@@ -18,7 +18,7 @@ void ShaderProgram::freeProgram()
     glDeleteProgram(programID);
 }
 
-bool ShaderProgram::bind()
+bool ShaderProgram::bind() const
 {
     glUseProgram(programID);
     GLenum error = glGetError();
