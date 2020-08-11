@@ -1,9 +1,9 @@
-#ifndef MOONLANDER_SPRITE_H
-#define MOONLANDER_SPRITE_H
+#ifndef MOONLANDER_SPRITE_HPP
+#define MOONLANDER_SPRITE_HPP
 
 #include "texture.hpp"
 #include "utils.hpp"
-#include "moonlanderprogram.h"
+#include "moonlanderprogram.hpp"
 
 class Sprite: public Texture {
 public:
@@ -15,7 +15,6 @@ public:
     bool generateDataBuffer();
     void render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle);
     void freeSheet();
-    void freeTexture();
 
 protected:
     std::vector<Utils::Rect> clips;
@@ -24,4 +23,4 @@ protected:
     GLuint tot_sprites;
 };
 
-#endif //MOONLANDER_SPRITE_H
+#endif //MOONLANDER_SPRITE_HPP

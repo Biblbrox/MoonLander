@@ -1,6 +1,6 @@
 #include <iostream>
 #include <texture.hpp>
-#include <sprite.h>
+#include <sprite.hpp>
 #include "types.hpp"
 #include "models/model.hpp"
 
@@ -8,7 +8,7 @@ using Utils::Rect;
 
 class Ship: public Model {
 public:
-    explicit Ship(Sprite *tex, GLfloat vel_x = 0, GLfloat vel_y = 0);
+    explicit Ship(Camera* camera, Sprite *tex, GLfloat vel_x = 0, GLfloat vel_y = 0);
     virtual ~Ship();
 
     // Coordinates methods
@@ -63,4 +63,6 @@ private:
     bool engines_on;
     bool landed;
     unsigned int cur_sprite;
+
+    Camera* camera;
 };

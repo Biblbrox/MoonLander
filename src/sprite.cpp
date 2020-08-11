@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <sprite.h>
+#include <sprite.hpp>
 #include <SDL_image.h>
 
 Sprite::Sprite(const std::string& path)
@@ -28,6 +28,8 @@ bool Sprite::load(const std::string& path)
             SDL_FreeSurface(surface);
         }
     }
+
+    return true;
 }
 
 GLuint Sprite::addClipSprite(Utils::Rect clip)
@@ -114,6 +116,8 @@ bool Sprite::generateDataBuffer()
             std::abort();
         }
     }
+
+    return true;
 }
 
 void Sprite::freeSheet()
@@ -126,16 +130,6 @@ void Sprite::freeSheet()
     clips.clear();
 }
 
-void Sprite::freeTexture()
-{
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
-    }
-
-    texture_width = texture_height = 0;
-}
-
 void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
 {
     if (VAO != nullptr) {
@@ -144,8 +138,8 @@ void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx
         glm::mat4 tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-clips[idx].w / 2.f, -clips[idx].h / 2.f, 0.f));
         glm::mat4 transform = tr1 * ro * tr2;
 
-        program.leftMultView(transform);
-        program.updateView();
+        program.leftMultModel(transform);
+        program.updateModel();
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glBindVertexArray(VAO[idx]);
@@ -158,14 +152,13 @@ void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx
         tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0.f));
         transform = tr1 * ro * tr2;
 
-        program.leftMultView(transform);
-        program.updateView();
+        program.leftMultModel(transform);
+        program.updateModel();
     }
 }
 
 Sprite::~Sprite()
 {
-    freeTexture();
     freeSheet();
 }
 

@@ -1,16 +1,16 @@
-#ifndef MOONLANDER_TEXTTEXTURE_H
-#define MOONLANDER_TEXTTEXTURE_H
+#ifndef MOONLANDER_TEXTTEXTURE_HPP
+#define MOONLANDER_TEXTTEXTURE_HPP
 
 #include <SDL_ttf.h>
 #include "texture.hpp"
 #include "utils.hpp"
-#include "moonlanderprogram.h"
+#include "moonlanderprogram.hpp"
 
 class TextTexture: public Texture {
 
 public:
     TextTexture(const std::string& textureText, SDL_Color color, TTF_Font* font);
-    ~TextTexture();
+    ~TextTexture() override;
 
     bool load(const std::string& textureText, SDL_Color color, TTF_Font* font);
     void setText(const std::string& text);
@@ -22,15 +22,12 @@ public:
 
     void initVBO();
     void freeVBO();
-    void freeTexture();
 private:
     std::string text;
     TTF_Font* font;
     SDL_Color color;
 
-    GLuint vbo_id;
-    GLuint ibo_id;
     GLuint vao_id;
 };
 
-#endif //MOONLANDER_TEXTTEXTURE_H
+#endif //MOONLANDER_TEXTTEXTURE_HPP

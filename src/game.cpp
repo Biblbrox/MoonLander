@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <game.h>
+#include <game.hpp>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -74,7 +74,7 @@ void Game::initGL(GLfloat width, GLfloat height)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Use Vsync
-    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    if(SDL_GL_SetSwapInterval( 1 ) < 0)
     {
         SDL_Log( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
     }

@@ -15,7 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include "types.hpp"
-#include "freelable.hpp"
+#include "timer.hpp"
 
 namespace Utils {
 
@@ -58,23 +58,25 @@ namespace Utils {
         std::mt19937 generator;
     };
 
-    class Camera {
-    public:
-        static void lookAt(GLfloat x, GLfloat y, GLfloat z, GLfloat tx, GLfloat ty, GLfloat tz)
-        {
-            glm::vec3 cameraPos = glm::vec3(x, y, z);
-            glm::vec3 cameraTarget = glm::vec3(tx, ty, tz);
-            glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-            glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+    inline GLuint getFps(const Timer& fpsTimer, GLuint countFrames)
+    {
+        float avgFPS = countFrames / (fpsTimer.getTicks() / 1000.f);
+        if (avgFPS > 200000)
+            avgFPS = 0;
 
-            glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-                                         glm::vec3(0.0f, 0.0f, 0.0f),
-                                         glm::vec3(0.0f, 1.0f, 0.0f));
-            glLoadMatrixf(glm::value_ptr(view));
+        return avgFPS;
+    }
+
+    inline std::vector<Point> moveVertices(std::vector<Point> vertices, GLfloat shift_x, GLfloat shift_y)
+    {
+        std::vector<Point> res(vertices);
+        for (Point& p: res) {
+            p.x += shift_x;
+            p.y += shift_y;
         }
-    };
+
+        return res;
+    }
 
     /**
      * Return full path to resource fileName
@@ -96,24 +98,9 @@ namespace Utils {
         return std::string(SHADER_PATH + fileName);
     }
 
-    inline void cleanup(Freelable& freelable)
-    {
-        freelable.free();
-    }
-
     constexpr double pi()
     {
         return std::atan(1) * 4;
-    }
-
-    constexpr GLfloat radians(GLfloat degrees)
-    {
-        return degrees * pi() / 180.f;
-    }
-
-    constexpr GLfloat degrees(GLfloat radians)
-    {
-        return radians / pi() * 180.f;
     }
 
     inline int getScreenWidth()
@@ -287,28 +274,28 @@ namespace Utils {
     }
 
     /**
-     * Return std::pair<Texture format, Number of colors>
+     * Return Surface format
      * @param surface
      * @return
      */
     inline GLenum getSurfaceFormatInfo(const SDL_Surface& surface)
     {
-        GLenum texture_format;
+        GLenum format = GL_RGBA;
         GLint  nOfColors;
         nOfColors = surface.format->BytesPerPixel;
-        if( nOfColors == 4 )     // contains an alpha channel
+        if(nOfColors == 4)     // contains an alpha channel
         {
             if(surface.format->Rmask == 0x000000ff)
-                texture_format = GL_RGBA;
+                format = GL_RGBA;
             else
-                texture_format = GL_BGRA;
+                format = GL_BGRA;
         }
-        else if( nOfColors == 3 )     // no alpha channel
+        else if(nOfColors == 3)     // no alpha channel
         {
             if(surface.format->Rmask == 0x000000ff)
-                texture_format = GL_RGB;
+                format = GL_RGB;
             else
-                texture_format = GL_BGR;
+                format = GL_BGR;
         }
         else
         {
@@ -316,7 +303,7 @@ namespace Utils {
             // this error should not go unhandled
         }
 
-        return texture_format;
+        return format;
     }
 }
 

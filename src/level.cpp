@@ -2,30 +2,32 @@
 #include "models/level.hpp"
 #include "utils.hpp"
 
-const int PLATFORM_MIN_WIDTH = 15;
-const int PLATFORM_MAX_WIDTH = 30;
-
-const int POINT_DISTANCE_MIN = 30;
-const int POINT_DISTANCE_MAX = 50;
-
-const int POINT_COUNT = 100;
+const int POINT_COUNT = 60;
 const int STARS_COUNT = 200;
 
-const int PLATFORM_COUNT_MIN = POINT_COUNT / 10;
-const int PLATFORM_COUNT_MAX = POINT_COUNT / 5;
+const int PLATFORM_COUNT_MIN = POINT_COUNT / 8;
+const int PLATFORM_COUNT_MAX = POINT_COUNT / 3;
 
 Level::~Level()
 {
 
 }
 
-Level::Level() : surfaceType(SurfaceType::MOON),
-                 points(POINT_COUNT), stars(STARS_COUNT)
+Level::Level(Camera* camera) : Model(camera), surfaceType(SurfaceType::MOON),
+                 points(POINT_COUNT), stars(STARS_COUNT),
+                 camera(camera)
 {
     Utils::RandomUniform urand;
 
-    const int HEIGHT_MIN = Utils::getScreenHeight() - Utils::getScreenHeight() / 3;
-    const int HEIGHT_MAX = Utils::getScreenHeight() - Utils::getScreenHeight() / 4;
+    const int HEIGHT_MIN = Utils::getScreenHeight() - Utils::getScreenHeight() / 2;
+    const int HEIGHT_MAX = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
+
+    const int frame_width = Utils::getScreenWidth() * 2;
+    const int POINT_DISTANCE_MIN = frame_width / POINT_COUNT - (frame_width / POINT_COUNT) / 2;
+    const int POINT_DISTANCE_MAX = frame_width / POINT_COUNT;
+
+    const int PLATFORM_MIN_WIDTH = POINT_DISTANCE_MIN / 2.f;
+    const int PLATFORM_MAX_WIDTH = POINT_DISTANCE_MIN / 1.1f;
 
     platforms_count = urand.generate(PLATFORM_COUNT_MIN, PLATFORM_COUNT_MAX);
 
@@ -58,15 +60,17 @@ Level::Level() : surfaceType(SurfaceType::MOON),
 
     for (auto& star: stars) {
         star.x = urand.generate(0, Utils::getScreenWidth());
-        star.y = urand.generate(0, HEIGHT_MIN);
+        star.y = urand.generate(0, HEIGHT_MAX);
     }
 }
 
 void Level::render(MoonLanderProgram& program)
 {
     Geometry geometry;
-    geometry.drawLinen(points);
-    geometry.drawDots(stars, {255, 255, 255, 255});
+    auto shifted_points = Utils::moveVertices(points, -camera->getX(), -camera->getY());
+    auto shifted_stars = Utils::moveVertices(stars, -camera->getX(), -camera->getY());
+    geometry.drawLinen(shifted_points);
+    geometry.drawDots(shifted_stars, {255, 255, 255, 255});
 }
 
 int Level::renderSky()

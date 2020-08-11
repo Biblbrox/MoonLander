@@ -4,8 +4,6 @@
 #include <string>
 #include <SDL_render.h>
 #include <GL/gl.h>
-//#include "freelable.hpp"
-//#include "utils.hpp"
 
 /**
  * Texture class.
@@ -13,6 +11,8 @@
  */
 class Texture {
 public:
+    virtual ~Texture();
+
     virtual GLuint getTextureID();
 
     virtual GLuint getWidth() const;
@@ -25,6 +25,8 @@ public:
 
     virtual GLfloat getX() const;
     virtual GLfloat getY() const;
+
+    virtual void freeTexture() final;
 
 protected:
     explicit Texture();

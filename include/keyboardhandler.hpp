@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_KEYBOARDHANDLER_H
-#define MOONLANDER_KEYBOARDHANDLER_H
+#ifndef MOONLANDER_KEYBOARDHANDLER_HPP
+#define MOONLANDER_KEYBOARDHANDLER_HPP
 
 #include <SDL_events.h>
 #include <map>
@@ -17,4 +17,4 @@ private:
     std::map<SDL_Keycode, Uint32> keys;
 };
 
-#endif //MOONLANDER_KEYBOARDHANDLER_H
+#endif //MOONLANDER_KEYBOARDHANDLER_HPP

@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TIMER_H
-#define MOONLANDER_TIMER_H
+#ifndef MOONLANDER_TIMER_HPP
+#define MOONLANDER_TIMER_HPP
 
 #include <SDL_types.h>
 
@@ -30,4 +30,4 @@ namespace Utils {
 }
 
 
-#endif //MOONLANDER_TIMER_H
+#endif //MOONLANDER_TIMER_HPP

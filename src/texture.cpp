@@ -58,5 +58,24 @@ GLuint Texture::getTextureID()
     return textureID;
 }
 
+void Texture::freeTexture()
+{
+    if (textureID != 0) {
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+
+    texture_width = texture_height = 0;
+}
+
+Texture::~Texture()
+{
+    if (textureID != 0) {
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+
+    texture_width = texture_height = 0;
+}
 
 

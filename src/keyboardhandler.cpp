@@ -1,4 +1,4 @@
-#include "../include/keyboardhandler.h"
+#include "../include/keyboardhandler.hpp"
 
 void KeyboardHandler::handleEvent(SDL_Event &event)
 {

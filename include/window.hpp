@@ -3,18 +3,17 @@
 
 #include <SDL_types.h>
 #include <SDL_video.h>
-#include "freelable.hpp"
 
-class Window: public Freelable {
+class Window {
 public:
     Window(const char *title, int x, int y, int w,
            int h, Uint32 flags);
 
-    ~Window() override;
+    ~Window();
 
     SDL_Window* getWindow();
 
-    void free() override;
+    void free();
 
 private:
     SDL_Window* window;

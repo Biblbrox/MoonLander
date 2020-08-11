@@ -3,10 +3,7 @@
 
 void Geometry::drawLinen(const std::vector<Utils::Point>& points, Utils::GLColor color)
 {
-    auto vertices = new Utils::Point[points.size()];
-
-    for (int i = 0; i < points.size(); ++i)
-        vertices[i] = points[i];
+    auto vertices = points.data();
 
     GLuint verticesID = 0;
     GLuint VAO = 0;
@@ -26,15 +23,11 @@ void Geometry::drawLinen(const std::vector<Utils::Point>& points, Utils::GLColor
 
     glDeleteBuffers(1, &verticesID);
     glDeleteVertexArrays(1, &VAO);
-    delete[] vertices;
 }
 
 void Geometry::drawDots(const std::vector<Utils::Point>& dots, Utils::GLColor color)
 {
-    auto vertices = new Utils::Point[dots.size()];
-
-    for (int i = 0; i < dots.size(); ++i)
-        vertices[i] = dots[i];
+    auto vertices = dots.data();
 
     GLuint VAO = 0;
     GLuint verticesID = 0;
@@ -53,5 +46,4 @@ void Geometry::drawDots(const std::vector<Utils::Point>& dots, Utils::GLColor co
 
     glDeleteBuffers(1, &verticesID);
     glDeleteVertexArrays(1, &VAO);
-    delete[] vertices;
 }

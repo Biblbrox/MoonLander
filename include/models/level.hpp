@@ -8,7 +8,7 @@
 
 class Level: public Model {
 public:
-    Level();
+    Level(Camera* camera);
     ~Level();
     void render(MoonLanderProgram& program) override;
     int renderSky();
@@ -20,6 +20,8 @@ private:
     std::vector<Utils::Point> points;
     std::vector<Utils::Point> stars;
     int platforms_count;
+
+    Camera* camera;
 };
 
 

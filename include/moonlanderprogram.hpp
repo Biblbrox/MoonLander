@@ -1,12 +1,13 @@
-#ifndef MOONLANDER_MOONLANDERPROGRAM_H
-#define MOONLANDER_MOONLANDERPROGRAM_H
+#ifndef MOONLANDER_MOONLANDERPROGRAM_HPP
+#define MOONLANDER_MOONLANDERPROGRAM_HPP
 
 #include <glm/mat4x4.hpp>
-#include "shaderprogram.h"
+#include "shaderprogram.hpp"
 
 class MoonLanderProgram: public ShaderProgram {
 public:
     MoonLanderProgram();
+    ~MoonLanderProgram();
 
     void setProjection(glm::mat4 matrix);
     void setModel(glm::mat4 matrix);
@@ -48,4 +49,4 @@ private:
     GLint texLoc;
 };
 
-#endif //MOONLANDER_MOONLANDERPROGRAM_H
+#endif //MOONLANDER_MOONLANDERPROGRAM_HPP

@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <texttexture.h>
+#include <texttexture.hpp>
 #include <string>
 #include <SDL_ttf.h>
 
@@ -11,13 +11,13 @@ void TextTexture::setText(const std::string& text_)
 
 void TextTexture::setFont(TTF_Font* font_)
 {
-    this->load(text, color, font_);
+    load(text, color, font_);
     font = font_;
 }
 
 void TextTexture::setColor(SDL_Color color_)
 {
-    this->load(text, color_, font);
+    load(text, color_, font);
     color = color_;
 }
 
@@ -26,7 +26,7 @@ TextTexture::TextTexture(const std::string &textureText, SDL_Color color_, TTF_F
     font = font_;
     color = color_;
     text = textureText;
-    vbo_id = ibo_id = vao_id = 0;
+    vao_id = 0;
     textureID = 0;
     load(textureText, color, font);
 }
@@ -55,7 +55,7 @@ bool TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
 
 void TextTexture::initVBO()
 {
-    if (textureID != 0 && vbo_id == 0) {
+    if (textureID != 0 && vao_id == 0) {
         GLfloat quadWidth = texture_width;
         GLfloat quadHeight = texture_height;
 
@@ -71,6 +71,9 @@ void TextTexture::initVBO()
                 3, 1, 0,
                 3, 2, 1
         };
+
+        GLuint vbo_id;
+        GLuint ibo_id;
 
         glGenVertexArrays(1, &vao_id);
         glGenBuffers(1, &vbo_id);
@@ -95,16 +98,16 @@ void TextTexture::initVBO()
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        glDeleteBuffers(1, &vbo_id);
+        glDeleteBuffers(1, &ibo_id);
     }
 }
 
 void TextTexture::freeVBO()
 {
-    if (vbo_id != 0) {
+    if (vao_id != 0)
         glDeleteVertexArrays(1, &vao_id);
-        glDeleteBuffers(1, &vbo_id);
-        glDeleteBuffers(1, &ibo_id);
-    }
 }
 
 
@@ -150,18 +153,7 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
     }
 }
 
-void TextTexture::freeTexture()
-{
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
-    }
-
-    texture_width = texture_height = 0;
-}
-
 TextTexture::~TextTexture()
 {
-    freeTexture();
     freeVBO();
 }

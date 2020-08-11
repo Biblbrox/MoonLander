@@ -1,16 +1,13 @@
 #include <GL/glew.h>
-#include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL_ttf.h>
-#include <sstream>
 
-#include <texttexture.h>
-#include <sprite.h>
-#include <game.h>
-#include <moonlanderprogram.h>
+#include <texttexture.hpp>
+#include <sprite.hpp>
+#include <game.hpp>
+#include <moonlanderprogram.hpp>
 #include <models/ship.hpp>
 #include "models/level.hpp"
-#include "../include/timer.h"
 
 #define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN
 
@@ -44,34 +41,39 @@ int main(int argc, char *args[]) {
     // Init OpenGL
     Game::initGL(screen_width, screen_height);
 
-    Level level;
+    Camera camera;
 
-    TTF_Font *fpsFont = TTF_OpenFont(
+    Level level(&camera);
+
+    TTF_Font* textFont = TTF_OpenFont(
             getResourcePath("kenvector_future2.ttf").c_str(), 14);
     Timer fpsTimer;
-    std::stringstream fpsText;
-    TextTexture fpsTexture("FPS: 60",
-                           {0xFF, 0xFF, 0xFF, 0xFF}, fpsFont);
+
+    char fpsText[8];
+    char velxText[12];
+    char velyText[12];
+
+    SDL_Color textColor = {0xFF, 0xFF, 0xFF, 0xFF};
+    TextTexture fpsTexture("FPS: 60", textColor, textFont);
+    TextTexture velxTexture("Vel x: 0.00", textColor, textFont);
+    TextTexture velyTexture("Vel y: 0.00", textColor, textFont);
     Uint32 countFrames = 0;
     fpsTimer.start();
-
-    /**
-     * Need to synchronize moving per second
-     */
 
     MoonLanderProgram program;
     if (!program.loadProgram()) {
         printf("Unable to load basic shader!\n");
+        std::abort();
     }
     program.bind();
 
     program.setProjection(glm::ortho<GLfloat>(0.0f, screen_width, screen_height, 0.0f, 1.0f, -1.0f));
-    program.updateProjection();
     program.setModel(glm::mat4(1.f));
-    program.updateModel();
     program.setView(glm::mat4(1.f));
-    program.updateView();
     program.setColor(glm::vec4(0.1f, 1.f, 0.1f, 1.f));
+    program.updateModel();
+    program.updateView();
+    program.updateProjection();
     program.updateColor();
     program.setTexture(0);
 
@@ -81,10 +83,16 @@ int main(int argc, char *args[]) {
     shipSprite.addClipSprite({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     shipSprite.generateDataBuffer();
 
-    Ship ship(&shipSprite, 0.f, 0.f);
+    Ship ship(&camera, &shipSprite, 0.f, 0.f);
     ship.setCoords({.x = 10, .y = 10});
 
+    program.updateView();
+
+    int frame_width = screen_width;
+    int frame_height = screen_height;
+
     SDL_Event e;
+    bool scaled = false;
     bool quit = false;
     while (!quit) {
         while (SDL_PollEvent(&e))
@@ -93,13 +101,14 @@ int main(int argc, char *args[]) {
 
         const Uint8* state = SDL_GetKeyboardState(nullptr);
 
-        float avgFPS = countFrames / (fpsTimer.getTicks() / 1000.f);
-        if (avgFPS > 200000)
-            avgFPS = 0;
+        GLfloat avgFPS = Utils::getFps(fpsTimer, countFrames);
 
-        fpsText.str("");
-        fpsText << "FPS: " << std::floor(avgFPS);
-        fpsTexture.setText(fpsText.str());
+        sprintf(fpsText, "FPS: %.0f", std::floor(avgFPS));
+        sprintf(velxText, "Vel x: %.1f", ship.getVelX());
+        sprintf(velyText, "Vel y: %.1f", ship.getVelY());
+        fpsTexture.setText(fpsText);
+        velxTexture.setText(velxText);
+        velyTexture.setText(velyText);
 
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -129,8 +138,10 @@ int main(int argc, char *args[]) {
 
         if (level.hasCollision({.x = ship.getX(), .y = ship.getY(),
                                       .w = SHIP_WIDTH,  .h = SHIP_HEIGHT}, ship.getAngle())) {
-            if (!ship.isLanded())
+            if (!ship.isLanded()) {
                 ship.setVel({.x = 0, .y = 0});
+                ship.setVelRot(0.f);
+            }
             if (!ship.isLanded())
                 ship.turnLanded();
 
@@ -146,12 +157,44 @@ int main(int argc, char *args[]) {
         // End updating physics
 
         // Update graphic scene
+        GLfloat scale_factor = 1.5f;
+
+        if ((ship.getX() - camera.getX()) >= frame_width - frame_width / 4.f) {
+            camera.translate(1.f, 0.f);
+        }
+
+        if ((ship.getX() - camera.getX()) < frame_width / 4.f) {
+            camera.translate(-1.f, 0.f);
+        }
+
+        if (ship.getY() > 300 && !scaled) {
+            program.setView(glm::scale(program.getView(),
+                                       glm::vec3(scale_factor, scale_factor, 1.f)));
+            program.updateView();
+            camera.lookAt(ship.getX() - 200, ship.getY() - 200);
+            scaled = true;
+            frame_width /= scale_factor;
+        }
+
+        if (ship.getY() <= 300 && scaled) {
+            program.setView(glm::scale(program.getView(),
+                                       glm::vec3(1 / scale_factor, 1 / scale_factor, 1.f)));
+            program.updateView();
+            camera.lookAt(0.f, 0.f);
+            scaled = false;
+            frame_width *= scale_factor;
+        }
+
         program.setTextureRendering(false);
         level.render(program);
         program.setTextureRendering(true);
         ship.render(program);
         fpsTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
                           (GLfloat)screen_height / 15.f, nullptr);
+        velxTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
+                          (GLfloat)screen_height / 10.f, nullptr);
+        velyTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
+                          (GLfloat)screen_height / 8.f, nullptr);
 
         glFlush();
         SDL_GL_SwapWindow(window.getWindow());
@@ -160,7 +203,7 @@ int main(int argc, char *args[]) {
     }
 
     SDL_GL_DeleteContext(glContext);
-    TTF_CloseFont(fpsFont);
+    TTF_CloseFont(textFont);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

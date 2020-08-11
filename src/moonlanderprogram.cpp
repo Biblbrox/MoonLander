@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <utils.hpp>
-#include "../include/moonlanderprogram.h"
+#include "../include/moonlanderprogram.hpp"
 
 MoonLanderProgram::MoonLanderProgram()
 {
@@ -163,4 +163,9 @@ glm::mat4 MoonLanderProgram::getProjection() const
 glm::mat4 MoonLanderProgram::getModel() const
 {
     return modelMatrix;
+}
+
+MoonLanderProgram::~MoonLanderProgram()
+{
+    glDeleteProgram(programID);
 }
