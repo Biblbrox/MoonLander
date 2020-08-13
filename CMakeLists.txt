@@ -21,16 +21,16 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
 
 set(CMAKE_CXX_STANDARD 20)
 set(HPP include/models/ship.hpp include/types.hpp include/utils.hpp include/models/level.hpp
-        include/texture.hpp include/window.hpp
+        include/texture.hpp include/window.hpp  include/camera.hpp
         include/geometry.hpp include/models/model.hpp include/timer.hpp
         include/texttexture.hpp include/sprite.hpp include/moonlanderprogram.hpp
         include/game.hpp include/keyboardhandler.hpp include/shaderprogram.hpp)
 
 set(CPP src/main.cpp src/utils.cpp src/level.cpp src/texture.cpp src/window.cpp
-        src/geometry.cpp src/ship.cpp src/timer.cpp src/moonlanderprogram.cpp
+        src/geometry.cpp src/ship.cpp src/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
         src/texttexture.cpp src/sprite.cpp src/game.cpp src/keyboardhandler.cpp src/shaderprogram.cpp)
 
-set(SOURCES ${HPP} ${CPP} include/camera.hpp src/camera.cpp)
+set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)
 
 add_executable(MoonLander ${SOURCES})

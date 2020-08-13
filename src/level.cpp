@@ -2,65 +2,124 @@
 #include "models/level.hpp"
 #include "utils.hpp"
 
-const int POINT_COUNT = 60;
-const int STARS_COUNT = 200;
+const int stars_initial_size = 200;
+const int points_initial_size = 100;
 
-const int PLATFORM_COUNT_MIN = POINT_COUNT / 8;
-const int PLATFORM_COUNT_MAX = POINT_COUNT / 3;
+using Utils::Point;
 
 Level::~Level()
 {
 
 }
 
-Level::Level(Camera* camera) : Model(camera), surfaceType(SurfaceType::MOON),
-                 points(POINT_COUNT), stars(STARS_COUNT),
-                 camera(camera)
+std::vector<Point> Level::generate_lines(int initial_x)
 {
+    std::vector<Point> res(points_count);
+
+    const int platform_count_min = points_count / 8;
+    const int platform_count_max = points_count / 3;
+
+    const int height_min = Utils::getScreenHeight() - Utils::getScreenHeight() / 2;
+    const int height_max = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
+
+    const int point_distance_min = frame_width / points_count * 2;
+    const int point_distance_max = std::floor(frame_width / (GLfloat)points_count * 2.5f);
+
+    const int platform_min_width = point_distance_min / 2.f;
+    const int plaftorm_max_width = point_distance_min / 1.1f;
+
     Utils::RandomUniform urand;
 
-    const int HEIGHT_MIN = Utils::getScreenHeight() - Utils::getScreenHeight() / 2;
-    const int HEIGHT_MAX = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
-
-    const int frame_width = Utils::getScreenWidth() * 2;
-    const int POINT_DISTANCE_MIN = frame_width / POINT_COUNT - (frame_width / POINT_COUNT) / 2;
-    const int POINT_DISTANCE_MAX = frame_width / POINT_COUNT;
-
-    const int PLATFORM_MIN_WIDTH = POINT_DISTANCE_MIN / 2.f;
-    const int PLATFORM_MAX_WIDTH = POINT_DISTANCE_MIN / 1.1f;
-
-    platforms_count = urand.generate(PLATFORM_COUNT_MIN, PLATFORM_COUNT_MAX);
-
-    std::mt19937 generator;
+    size_t platforms_count = urand.generate(platform_count_min, platform_count_max);
     std::vector<GLuint> plat_idx(platforms_count, 0);
-    std::shuffle(plat_idx.begin(), plat_idx.end(), generator);
-    points.reserve(POINT_COUNT + platforms_count);
+
+    urand.fill_unique<GLuint>(plat_idx.begin(), plat_idx.end(), 0, res.size());
+
     GLfloat prev_width;
-    for (int i = 0, p = 0; i < points.size(); ++i) {
-        if (p == 0) {
-            points[i].x = 0;
-            points[i].y = urand.generate(HEIGHT_MIN, HEIGHT_MAX);
-            ++p;
+    for (int i = 0; i < res.size(); ++i) {
+        if (i == 0) {
+            res[i].x = initial_x;
+            res[i].y = urand.generate(height_min, height_max);
         } else {
-            if (std::find(plat_idx.begin(), plat_idx.end(), p) != plat_idx.end()) { // platform case
-                prev_width = urand.generate(PLATFORM_MIN_WIDTH, PLATFORM_MAX_WIDTH);
-                points[i].x = points[i - 1].x + urand.generate(POINT_DISTANCE_MIN, POINT_DISTANCE_MAX) - prev_width / 2;
-                points[i].y = urand.generate(HEIGHT_MIN, HEIGHT_MAX);
-            } else if (std::find(plat_idx.begin(), plat_idx.end(), p - 1) != plat_idx.end()) { // prev. platform case
-                points[i].x = points[i - 1].x + prev_width / 2;
-                points[i].y = points[i - 1].y;
-                ++p;
+            if (std::find(plat_idx.begin(), plat_idx.end(), i) != plat_idx.end()) { // platform case
+                prev_width = urand.generate(platform_min_width, plaftorm_max_width);
+                res[i].x = res[i - 1].x + urand.generate(point_distance_min, point_distance_max) - prev_width / 2.f;
+                res[i].y = urand.generate(height_min, height_max);
+            } else if (std::find(plat_idx.begin(), plat_idx.end(), i - 1) != plat_idx.end()) { // prev. platform case
+                res[i].x = res[i - 1].x + prev_width / 2;
+                res[i].y = res[i - 1].y;
             } else { // normal case
-                points[i].x = points[i - 1].x + urand.generate(POINT_DISTANCE_MIN, POINT_DISTANCE_MAX);
-                points[i].y = urand.generate(HEIGHT_MIN, HEIGHT_MAX);
-                ++p;
+                res[i].x = res[i - 1].x + urand.generate(point_distance_min, point_distance_max);
+                res[i].y = urand.generate(height_min, height_max);
             }
         }
     }
 
+    return res;
+}
+
+Level::Level(Camera* camera) : Model(camera), surfaceType(SurfaceType::MOON),
+                               camera(camera), points_count(points_initial_size), stars_count(stars_initial_size)
+{
+    points = generate_lines(0);
+
+    const int height_max = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
+
+    stars.resize(stars_count);
+
+    Utils::RandomUniform urand;
+
     for (auto& star: stars) {
         star.x = urand.generate(0, Utils::getScreenWidth());
-        star.y = urand.generate(0, HEIGHT_MAX);
+        star.y = urand.generate(0, height_max);
+    }
+}
+
+void Level::extendToRight()
+{
+    auto right = generate_lines(points[points.size() - 1].x);
+    std::vector<Point> res;
+    res.reserve(right.size() + points.size());
+    res.insert(res.end(), points.begin(), points.end());
+    res.insert(res.end(), right.begin(), right.end());
+
+    points = res;
+
+    Utils::RandomUniform urand;
+    const int height_max = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
+
+    size_t old_size = stars.size();
+    int old_max_x = stars[stars.size() - 1].x;
+    stars.resize(stars.size() + stars_initial_size);
+    for (size_t i = old_size; i < stars.size(); ++i) {
+        stars[i].x = urand.generate(old_max_x, old_max_x + Utils::getScreenWidth());
+        stars[i].y = urand.generate(0, height_max);
+    }
+}
+
+void Level::extendToLeft()
+{
+    auto left = generate_lines(0);
+    GLfloat initial_x = -left[left.size() - 1].x;
+    for (auto& el: left)
+        el.x += initial_x;
+
+    std::vector<Point> res;
+    res.reserve(left.size() + points.size());
+    res.insert(res.end(), left.begin(), left.end());
+    res.insert(res.end(), points.begin(), points.end());
+
+    points = res;
+
+    Utils::RandomUniform urand;
+    const int height_max = Utils::getScreenHeight() - Utils::getScreenHeight() / 5;
+
+    size_t old_size = stars.size();
+    int old_max_x = stars[0].x;
+    stars.resize(stars.size() + stars_initial_size);
+    for (size_t i = old_size; i < stars.size(); ++i) {
+        stars[i].x = urand.generate(old_max_x - Utils::getScreenWidth(), old_max_x);
+        stars[i].y = urand.generate(0, height_max);
     }
 }
 
@@ -70,7 +129,7 @@ void Level::render(MoonLanderProgram& program)
     auto shifted_points = Utils::moveVertices(points, -camera->getX(), -camera->getY());
     auto shifted_stars = Utils::moveVertices(stars, -camera->getX(), -camera->getY());
     geometry.drawLinen(shifted_points);
-    geometry.drawDots(shifted_stars, {255, 255, 255, 255});
+    geometry.drawDots(shifted_stars);
 }
 
 int Level::renderSky()

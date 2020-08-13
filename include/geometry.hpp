@@ -7,10 +7,8 @@
 
 class Geometry {
 public:
-    void drawLinen(const std::vector<Utils::Point>& points,
-            Utils::GLColor color = {1.f, 1.f, 1.f, 1.f});
-    void drawDots(const std::vector<Utils::Point>& dots,
-            Utils::GLColor color = {1.f, 1.f, 1.f, 1.f});
+    void drawLinen(const std::vector<Utils::Point>& points);
+    void drawDots(const std::vector<Utils::Point>& dots);
 };
 
 #endif //MOONLANDER_GEOMETRY_PPH

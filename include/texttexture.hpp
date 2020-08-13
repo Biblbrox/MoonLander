@@ -12,10 +12,11 @@ public:
     TextTexture(const std::string& textureText, SDL_Color color, TTF_Font* font);
     ~TextTexture() override;
 
-    bool load(const std::string& textureText, SDL_Color color, TTF_Font* font);
+    void load(const std::string& textureText, SDL_Color color, TTF_Font* font);
     void setText(const std::string& text);
     void setFont(TTF_Font* font);
     void setColor(SDL_Color color);
+    void setScale(GLfloat scale_factor);
 
     void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip, GLfloat angle);
     void render(MoonLanderProgram& program, GLfloat x, GLfloat y, Utils::Rect* clip);
@@ -28,6 +29,7 @@ private:
     SDL_Color color;
 
     GLuint vao_id;
+    GLfloat scale_f;
 };
 
 #endif //MOONLANDER_TEXTTEXTURE_HPP

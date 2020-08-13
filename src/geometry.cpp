@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include "geometry.hpp"
 
-void Geometry::drawLinen(const std::vector<Utils::Point>& points, Utils::GLColor color)
+void Geometry::drawLinen(const std::vector<Utils::Point>& points)
 {
     auto vertices = points.data();
 
@@ -25,7 +25,7 @@ void Geometry::drawLinen(const std::vector<Utils::Point>& points, Utils::GLColor
     glDeleteVertexArrays(1, &VAO);
 }
 
-void Geometry::drawDots(const std::vector<Utils::Point>& dots, Utils::GLColor color)
+void Geometry::drawDots(const std::vector<Utils::Point>& dots)
 {
     auto vertices = dots.data();
 
@@ -37,7 +37,6 @@ void Geometry::drawDots(const std::vector<Utils::Point>& dots, Utils::GLColor co
     glGenBuffers(1, &verticesID);
     glBindBuffer(GL_ARRAY_BUFFER, verticesID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Utils::Point) * dots.size(), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, verticesID);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);

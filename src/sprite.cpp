@@ -12,8 +12,7 @@ Sprite::Sprite(const std::string& path)
 bool Sprite::load(const std::string& path)
 {
     if (!path.empty()) {
-        SDL_Surface* surface = IMG_Load(path.c_str());
-        surface = Utils::flipVertically(surface);
+        SDL_Surface* surface = Utils::flipVertically(IMG_Load(path.c_str()));
         if (surface == nullptr) {
             SDL_Log("LoadTexture: %s\n", SDL_GetError());
             std::abort();
@@ -63,7 +62,7 @@ bool Sprite::generateDataBuffer()
         // 8 Vertex coordinates + 8 texture coordinates
         GLfloat vertices[16];
 
-        vertices[1] = 0.0f;
+        vertices[1] = 0.f;
         vertices[8] = 0.f;
         vertices[12] = 0.f;
         vertices[13] = 0.f;
@@ -133,12 +132,9 @@ void Sprite::freeSheet()
 void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
 {
     if (VAO != nullptr) {
-        glm::mat4 tr1 = glm::translate(glm::mat4(1.f), glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f));
-        glm::mat4 ro = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, 0.f, 1.f));
-        glm::mat4 tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-clips[idx].w / 2.f, -clips[idx].h / 2.f, 0.f));
-        glm::mat4 transform = tr1 * ro * tr2;
-
-        program.leftMultModel(transform);
+        glm::mat4 transform = Utils::rotateAround(glm::mat4(1.f),
+                                                  glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), angle);
+        program.leftMultModel(glm::translate(transform, glm::vec3(x, y, 0.f)));
         program.updateModel();
 
         glBindTexture(GL_TEXTURE_2D, textureID);
@@ -147,12 +143,9 @@ void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
 
-        tr1 = glm::translate(glm::mat4(1.f), glm::vec3(clips[idx].w / 2.f, clips[idx].h / 2.f, 0.f));
-        ro = glm::rotate(glm::mat4(1.f), -angle, glm::vec3(0.f, 0.f, 1.f));
-        tr2 = glm::translate(glm::mat4(1.f), glm::vec3(-(x + clips[idx].w / 2.f), -(y + clips[idx].h / 2.f), 0.f));
-        transform = tr1 * ro * tr2;
-
-        program.leftMultModel(transform);
+        transform = glm::translate(glm::mat4(1.f), glm::vec3(-x, -y, 0.f));
+        program.leftMultModel(Utils::rotateAround(transform,
+                                        glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), -angle));
         program.updateModel();
     }
 }

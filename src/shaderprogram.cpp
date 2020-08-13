@@ -10,7 +10,7 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
-    glDeleteProgram(programID);
+    freeProgram();
 }
 
 void ShaderProgram::freeProgram()

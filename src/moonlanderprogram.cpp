@@ -165,7 +165,4 @@ glm::mat4 MoonLanderProgram::getModel() const
     return modelMatrix;
 }
 
-MoonLanderProgram::~MoonLanderProgram()
-{
-    glDeleteProgram(programID);
-}
+MoonLanderProgram::~MoonLanderProgram() = default;

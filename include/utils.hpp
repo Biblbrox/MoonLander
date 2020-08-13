@@ -50,13 +50,66 @@ namespace Utils {
         Point d;
     };
 
+    inline glm::mat4 rotateAround(const glm::mat4& m, const glm::vec3& v, GLfloat angle)
+    {
+        glm::mat4 tr1 = glm::translate(m, v);
+        glm::mat4 ro = glm::rotate(tr1, angle, glm::vec3(0.f, 0.f, 1.f));
+        glm::mat4 tr2 = glm::translate(ro, -v);
+
+        return tr2;
+    }
+
     class RandomUniform {
     public:
         explicit RandomUniform();
-        int generate(int a, int b);
+
+        template <typename T>
+        void fill_unique(const typename std::vector<T>::iterator& begin,
+                         const typename std::vector<T>::iterator& end, T left, T right)
+        {
+            std::generate(begin, end, [begin, end, left, right, this]() {
+                GLuint val = generate<T>(left, right);
+                if (std::find(begin, end, val) != end)
+                    while (std::find(begin, end, val) != end)
+                        val = generate<T>(left, right);
+
+                return val;
+            });
+        }
+
+        template <typename T>
+        void fill(const typename std::vector<T>::iterator& begin,
+                         const typename std::vector<T>::iterator& end, T left, T right)
+        {
+            std::generate(begin, end, [left, right, this]() {
+                return generate<T>(left, right);
+            });
+        }
+
+        template <typename T>
+        T generate(T a, T b)
+        {
+            std::uniform_int_distribution<T> dist(a, b);
+            return dist(this->generator);
+        }
+
     private:
         std::mt19937 generator;
     };
+
+    template <>
+    inline GLfloat RandomUniform::generate<GLfloat>(GLfloat a, GLfloat b)
+    {
+        std::uniform_real_distribution<GLfloat> dist(a, b);
+        return dist(this->generator);
+    }
+
+    template <>
+    inline GLdouble RandomUniform::generate<GLdouble>(GLdouble a, GLdouble b)
+    {
+        std::uniform_real_distribution<GLdouble> dist(a, b);
+        return dist(this->generator);
+    }
 
     inline GLuint getFps(const Timer& fpsTimer, GLuint countFrames)
     {
@@ -98,9 +151,20 @@ namespace Utils {
         return std::string(SHADER_PATH + fileName);
     }
 
-    constexpr double pi()
+    template <typename T>
+    inline void shift_vector(std::vector<T>& vec, int shift)
     {
-        return std::atan(1) * 4;
+        int idx = 0;
+        while (shift-- > 0) {
+            for (size_t i = 0; i < vec.size(); ++i) {
+                idx = i;
+                if (i + 1 == vec.size()) {
+                    idx = (i + 1) % vec.size();
+                }
+
+                vec[idx] = vec[i];
+            }
+        }
     }
 
     inline int getScreenWidth()

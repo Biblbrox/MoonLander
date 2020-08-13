@@ -14,14 +14,21 @@ public:
     int renderSky();
     void setSurfaceType(SurfaceType surfaceType);
     bool hasCollision(Utils::Rect coord, GLfloat angle);
+    void extendToRight();
+    void extendToLeft();
 
 private:
     SurfaceType surfaceType;
     std::vector<Utils::Point> points;
     std::vector<Utils::Point> stars;
-    int platforms_count;
 
     Camera* camera;
+
+    int points_count;
+    int stars_count;
+    const int frame_width = 2000;
+
+    std::vector<Utils::Point> generate_lines(int initial_x);
 };
 
 

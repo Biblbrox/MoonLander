@@ -28,10 +28,11 @@ TextTexture::TextTexture(const std::string &textureText, SDL_Color color_, TTF_F
     text = textureText;
     vao_id = 0;
     textureID = 0;
+    scale_f = 1.f;
     load(textureText, color, font);
 }
 
-bool TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Font* font_)
+void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Font* font_)
 {
     freeTexture();
     SDL_Surface* surface = TTF_RenderText_Blended(font_, textureText.c_str(), color_);
@@ -122,10 +123,9 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
     }
 
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glm::mat4 tr_ro_tr = glm::translate(glm::mat4(1.f), glm::vec3(x + clip_w / 2.f, y + clip_h / 2.f, 0))
-            * glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, 0.f, 1.f))
-            * glm::translate(glm::mat4(1.f), glm::vec3(-(x + clip_w / 2.f), -(y + clip_h / 2.f), 0));
-    program.leftMultView(tr_ro_tr);
+    glm::mat4 transform = Utils::rotateAround(
+            glm::mat4(1.f), glm::vec3(x + clip_w / 2.f, y + clip_h / 2.f, 0.f), angle);
+    program.leftMultView(transform);
     program.updateView();
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -140,20 +140,29 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
         program.setTexture(0);
-        program.setView(glm::translate(program.getView(), glm::vec3(x, y, 0.f)));
-        program.updateView();
+        program.setModel(glm::translate(program.getModel(), glm::vec3(x, y, 0.f)));
+        program.updateModel();
 
+        program.setModel(glm::scale(program.getModel(), glm::vec3(scale_f, scale_f, 1.f)));
+        program.updateModel();
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
+        program.setModel(glm::scale(program.getModel(), glm::vec3(1 / scale_f, 1 / scale_f, 1.f)));
+        program.updateModel();
 
-        program.setView(glm::translate(program.getView(), glm::vec3(-x, -y, 0.f)));
-        program.updateView();
+        program.setModel(glm::translate(program.getModel(), glm::vec3(-x, -y, 0.f)));
+        program.updateModel();
     }
 }
 
 TextTexture::~TextTexture()
 {
     freeVBO();
+}
+
+void TextTexture::setScale(GLfloat scale_factor)
+{
+    scale_f = scale_factor;
 }

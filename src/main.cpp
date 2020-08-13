@@ -8,6 +8,8 @@
 #include <moonlanderprogram.hpp>
 #include <models/ship.hpp>
 #include "models/level.hpp"
+#include <glm/gtc/constants.hpp>
+#include <iomanip>
 
 #define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN
 
@@ -44,19 +46,21 @@ int main(int argc, char *args[]) {
     Camera camera;
 
     Level level(&camera);
+    level.extendToLeft();
+    level.extendToRight();
 
     TTF_Font* textFont = TTF_OpenFont(
             getResourcePath("kenvector_future2.ttf").c_str(), 14);
     Timer fpsTimer;
 
-    char fpsText[8];
-    char velxText[12];
-    char velyText[12];
+    std::stringstream fpsText;
+    std::stringstream velxText;
+    std::stringstream velyText;
 
-    SDL_Color textColor = {0xFF, 0xFF, 0xFF, 0xFF};
+    SDL_Color textColor = {0x00, 0xFF, 0x00, 0xFF};
     TextTexture fpsTexture("FPS: 60", textColor, textFont);
-    TextTexture velxTexture("Vel x: 0.00", textColor, textFont);
-    TextTexture velyTexture("Vel y: 0.00", textColor, textFont);
+    TextTexture velxTexture("Horizontal speed x: 00.00", textColor, textFont);
+    TextTexture velyTexture("Vertical speed y: 00.00", textColor, textFont);
     Uint32 countFrames = 0;
     fpsTimer.start();
 
@@ -70,12 +74,17 @@ int main(int argc, char *args[]) {
     program.setProjection(glm::ortho<GLfloat>(0.0f, screen_width, screen_height, 0.0f, 1.0f, -1.0f));
     program.setModel(glm::mat4(1.f));
     program.setView(glm::mat4(1.f));
-    program.setColor(glm::vec4(0.1f, 1.f, 0.1f, 1.f));
+    program.setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
     program.updateModel();
     program.updateView();
     program.updateProjection();
     program.updateColor();
     program.setTexture(0);
+
+    int frame_width = screen_width;
+    int frame_height = screen_height;
+
+    glViewport(0.f, 0.f, frame_width, frame_height);
 
     Sprite shipSprite(getResourcePath("lunar_lander_bw.png"));
     shipSprite.addClipSprite({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
@@ -84,17 +93,15 @@ int main(int argc, char *args[]) {
     shipSprite.generateDataBuffer();
 
     Ship ship(&camera, &shipSprite, 0.f, 0.f);
-    ship.setCoords({.x = 10, .y = 10});
+    ship.setCoords({.x = 40, .y = 10});
 
     program.updateView();
-
-    int frame_width = screen_width;
-    int frame_height = screen_height;
 
     SDL_Event e;
     bool scaled = false;
     bool quit = false;
     while (!quit) {
+        glViewport(0.f, 0.f, screen_width, screen_height);
         while (SDL_PollEvent(&e))
             if (e.type == SDL_QUIT)
                 quit = true;
@@ -103,12 +110,15 @@ int main(int argc, char *args[]) {
 
         GLfloat avgFPS = Utils::getFps(fpsTimer, countFrames);
 
-        sprintf(fpsText, "FPS: %.0f", std::floor(avgFPS));
-        sprintf(velxText, "Vel x: %.1f", ship.getVelX());
-        sprintf(velyText, "Vel y: %.1f", ship.getVelY());
-        fpsTexture.setText(fpsText);
-        velxTexture.setText(velxText);
-        velyTexture.setText(velyText);
+        fpsText.str("");
+        velxText.str("");
+        velyText.str("");
+        fpsText << "FPS: " << std::floor(avgFPS);
+        velxText << "Horizontal speed x: " << ship.getVelX() * 60.f << std::setprecision(2);
+        velyText << "Vertical speed y: " << -ship.getVelY() * 60.f << std::setprecision(2);
+        fpsTexture.setText(fpsText.str());
+        velxTexture.setText(velxText.str());
+        velyTexture.setText(velyText.str());
 
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -119,9 +129,9 @@ int main(int argc, char *args[]) {
                 ship.turnEngines();
 
             ship.addVelY(-engine_force / weight *
-                         std::sin(ship.getAngle() + pi() / 2.f));
+                         std::sin(ship.getAngle() + glm::half_pi<GLfloat>()));
             ship.addVelX(-engine_force / weight *
-                         std::cos(ship.getAngle() + pi() / 2.f));
+                         std::cos(ship.getAngle() + glm::half_pi<GLfloat>()));
 
             ship.setSprite((SDL_GetTicks() / 100) % 2 + 1);
         } else {
@@ -160,11 +170,11 @@ int main(int argc, char *args[]) {
         GLfloat scale_factor = 1.5f;
 
         if ((ship.getX() - camera.getX()) >= frame_width - frame_width / 4.f) {
-            camera.translate(1.f, 0.f);
+            camera.translate(1.f * ship.getVelX(), 0.f);
         }
 
         if ((ship.getX() - camera.getX()) < frame_width / 4.f) {
-            camera.translate(-1.f, 0.f);
+            camera.translate(1.f * ship.getVelX(), 0.f);
         }
 
         if (ship.getY() > 300 && !scaled) {
@@ -174,6 +184,10 @@ int main(int argc, char *args[]) {
             camera.lookAt(ship.getX() - 200, ship.getY() - 200);
             scaled = true;
             frame_width /= scale_factor;
+            frame_height /= scale_factor;
+            fpsTexture.setScale(1 / scale_factor);
+            velxTexture.setScale(1 / scale_factor);
+            velyTexture.setScale(1 / scale_factor);
         }
 
         if (ship.getY() <= 300 && scaled) {
@@ -183,18 +197,22 @@ int main(int argc, char *args[]) {
             camera.lookAt(0.f, 0.f);
             scaled = false;
             frame_width *= scale_factor;
+            frame_height *= scale_factor;
+            fpsTexture.setScale(1.f);
+            velxTexture.setScale(1.f);
+            velyTexture.setScale(1.f);
         }
 
         program.setTextureRendering(false);
         level.render(program);
         program.setTextureRendering(true);
         ship.render(program);
-        fpsTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
-                          (GLfloat)screen_height / 15.f, nullptr);
-        velxTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
-                          (GLfloat)screen_height / 10.f, nullptr);
-        velyTexture.render(program, (GLfloat)screen_width - (GLfloat)screen_width / 9.f,
-                          (GLfloat)screen_height / 8.f, nullptr);
+        fpsTexture.render(program, frame_width - frame_width / 4.5f,
+                          screen_height / 15.f, nullptr);
+        velxTexture.render(program, frame_width - frame_width / 4.5f,
+                           screen_height / 10.f, nullptr);
+        velyTexture.render(program, frame_width - frame_width / 4.5f,
+                           screen_height / 8.f, nullptr);
 
         glFlush();
         SDL_GL_SwapWindow(window.getWindow());
