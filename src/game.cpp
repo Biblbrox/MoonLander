@@ -4,6 +4,8 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <glm/geometric.hpp>
+#include <memory>
+#include <types.hpp>
 
 void Game::initOnceSDL2()
 {
@@ -39,15 +41,48 @@ void Game::initOnceSDL2()
     }
 }
 
-void Game::initGL(GLfloat width, GLfloat height)
+
+Game::Game() : is_runnable(true)
 {
+    glContext = nullptr;
+}
+
+void Game::update()
+{
+
+}
+
+void Game::render()
+{
+
+}
+
+void Game::initGL()
+{
+    screen_w = Utils::getScreenWidth<GLuint>();
+    screen_h = Utils::getScreenHeight<GLuint>();
+
+    window = std::make_unique<Window>(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
+           SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS);
+
+    glContext = SDL_GL_CreateContext(window->getWindow());
+    // Init OpenGL context
+    if (glContext == nullptr) {
+        printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
+        std::abort();
+    }
+
     glewExperimental = GL_TRUE;
     GLenum error = glewInit();
-    if (error != GLEW_OK)
+    if (error != GLEW_OK) {
         SDL_Log("Error when initializing GLEW: %s\n", glewGetErrorString(error));
+        std::abort();
+    }
 
-    if (!GLEW_VERSION_2_1)
+    if (!GLEW_VERSION_2_1) {
         SDL_Log("Opengl 2.1 not supported\n");
+        std::abort();
+    }
 
     //Check for error
     error = glGetError();
@@ -86,4 +121,29 @@ void Game::initGL(GLfloat width, GLfloat height)
         printf( "Error initializing OpenGL(Final)! %s\n", gluErrorString( error ) );
     }
 }
+
+void Game::flush()
+{
+    glFlush();
+    SDL_GL_SwapWindow(window->getWindow());
+}
+
+void Game::quit()
+{
+    SDL_GL_DeleteContext(glContext);
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
+}
+
+void Game::setRunnable(bool runnable)
+{
+    is_runnable = runnable;
+}
+
+bool Game::isRunnable() const
+{
+    return is_runnable;
+}
+
 

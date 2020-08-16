@@ -1,18 +1,21 @@
+#ifndef MOONLANDER_SHIP_HPP
+#define MOONLANDER_SHIP_HPP
+
 #include <iostream>
 #include <texture.hpp>
 #include <sprite.hpp>
 #include "types.hpp"
-#include "models/model.hpp"
+#include "abstract/drawable.hpp"
 
 using Utils::Rect;
 
-class Ship: public Model {
+class Ship: public Drawable<Sprite> {
 public:
     explicit Ship(Camera* camera, Sprite *tex, GLfloat vel_x = 0, GLfloat vel_y = 0);
     virtual ~Ship();
 
     // Coordinates methods
-    GLfloat  getX() const;
+    GLfloat getX() const;
     GLfloat getY() const;
     Utils::Point getCoords() const;
 
@@ -66,3 +69,5 @@ private:
 
     Camera* camera;
 };
+
+#endif // MOONLANDER_SHIP_HPP

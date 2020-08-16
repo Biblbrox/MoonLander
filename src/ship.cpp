@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <models/ship.hpp>
 
-Ship::Ship(Camera* camera, Sprite *tex, GLfloat vel_x, GLfloat vel_y) : Model(camera, tex, clip),
+Ship::Ship(Camera* camera, Sprite *tex, GLfloat vel_x, GLfloat vel_y) : Drawable(camera, tex),
                                                         vel{vel_x, vel_y}, vel_rot(0), angle(0.), engines_on(false),
                                                         landed(false), cur_sprite(0),
                                                         camera(camera)

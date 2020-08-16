@@ -10,8 +10,7 @@
 #include "models/level.hpp"
 #include <glm/gtc/constants.hpp>
 #include <iomanip>
-
-#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN
+#include "../include/ces/world.hpp"
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -23,25 +22,14 @@ const GLfloat rot_step = 0.004f;
 
 using namespace Utils;
 
-int main(int argc, char *args[]) {
-    //Init SDL2
-    Game::initOnceSDL2();
-    SDL_DisplayMode dm;
-    SDL_GetCurrentDisplayMode(0, &dm);
-    int screen_width = dm.w;
-    int screen_height = dm.h;
+int main(int argc, char *args[])
+{
+    Game game;
+    game.initOnceSDL2();
+    game.initGL();
 
-    Window window(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-                  SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, WINDOW_FLAGS);
-
-    // Init OpenGL context
-    SDL_GLContext glContext = SDL_GL_CreateContext(window.getWindow());
-    if (glContext == nullptr) {
-        printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
-    }
-
-    // Init OpenGL
-    Game::initGL(screen_width, screen_height);
+    GLuint screen_width = Utils::getScreenWidth<GLuint>();
+    GLuint screen_height = Utils::getScreenHeight<GLuint>();
 
     Camera camera;
 
@@ -99,12 +87,11 @@ int main(int argc, char *args[]) {
 
     SDL_Event e;
     bool scaled = false;
-    bool quit = false;
-    while (!quit) {
+    while (game.isRunnable()) {
         glViewport(0.f, 0.f, screen_width, screen_height);
         while (SDL_PollEvent(&e))
             if (e.type == SDL_QUIT)
-                quit = true;
+                game.setRunnable(false);
 
         const Uint8* state = SDL_GetKeyboardState(nullptr);
 
@@ -214,17 +201,14 @@ int main(int argc, char *args[]) {
         velyTexture.render(program, frame_width - frame_width / 4.5f,
                            screen_height / 8.f, nullptr);
 
-        glFlush();
-        SDL_GL_SwapWindow(window.getWindow());
+
+        game.flush();
         // End updating graphic scene
         ++countFrames;
     }
 
-    SDL_GL_DeleteContext(glContext);
     TTF_CloseFont(textFont);
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
+    game.quit();
 
     return 0;
 }

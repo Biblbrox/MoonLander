@@ -120,7 +120,7 @@ namespace Utils {
         return avgFPS;
     }
 
-    inline std::vector<Point> moveVertices(std::vector<Point> vertices, GLfloat shift_x, GLfloat shift_y)
+    inline std::vector<Point> moveVertices(const std::vector<Point>& vertices, GLfloat shift_x, GLfloat shift_y)
     {
         std::vector<Point> res(vertices);
         for (Point& p: res) {
@@ -129,6 +129,12 @@ namespace Utils {
         }
 
         return res;
+    }
+
+    template <typename T>
+    inline constexpr size_t type_id()
+    {
+        return typeid(T).hash_code();
     }
 
     /**
@@ -157,31 +163,30 @@ namespace Utils {
         int idx = 0;
         while (shift-- > 0) {
             for (size_t i = 0; i < vec.size(); ++i) {
-                idx = i;
-                if (i + 1 == vec.size()) {
-                    idx = (i + 1) % vec.size();
-                }
+                idx = (i + 1 == vec.size()) ? ((i + 1) % vec.size()) : i;
 
                 vec[idx] = vec[i];
             }
         }
     }
 
-    inline int getScreenWidth()
+    template <typename T>
+    inline T getScreenWidth()
     {
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
         return dm.w;
     }
 
-    inline int getScreenHeight()
+    template <typename T>
+    inline T getScreenHeight()
     {
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
         return dm.h;
     }
 
-    inline RectPoints buildRectPoints(Rect rect, double rot)
+    inline RectPoints buildRectPoints(const Rect& rect, double rot)
     {
         RectPoints temp_rect;
         GLfloat bx,by,cx,cy,dx,dy;
@@ -207,7 +212,7 @@ namespace Utils {
         return temp_rect;
     }
 
-    inline SDL_Surface* flipVertically(SDL_Surface *sfc)
+    inline SDL_Surface* flipVertically(const SDL_Surface *sfc)
     {
         SDL_Surface* result = SDL_CreateRGBSurface(sfc->flags, sfc->w, sfc->h,
                                                    sfc->format->BytesPerPixel * 8, sfc->format->Rmask, sfc->format->Gmask,
@@ -247,7 +252,7 @@ namespace Utils {
         return power*2;
     }
 
-    inline bool lineLine(Point a1, Point a2, Point b1, Point b2)
+    inline constexpr bool lineLine(const Point& a1, const Point& a2, const Point& b1, const Point& b2)
     {
         GLfloat x1 = a1.x;
         GLfloat x2 = a2.x;

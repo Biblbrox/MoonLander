@@ -4,15 +4,13 @@
 #include <SDL_render.h>
 #include <vector>
 #include "types.hpp"
-#include "model.hpp"
+#include "abstract/drawable.hpp"
 
-class Level: public Model {
+class Level: public Drawable<Texture> {
 public:
-    Level(Camera* camera);
+    explicit Level(Camera* camera);
     ~Level();
     void render(MoonLanderProgram& program) override;
-    int renderSky();
-    void setSurfaceType(SurfaceType surfaceType);
     bool hasCollision(Utils::Rect coord, GLfloat angle);
     void extendToRight();
     void extendToLeft();
@@ -29,6 +27,9 @@ private:
     const int frame_width = 2000;
 
     std::vector<Utils::Point> generate_lines(int initial_x);
+    Utils::RandomUniform urand;
+    int height_min;
+    int height_max;
 };
 
 

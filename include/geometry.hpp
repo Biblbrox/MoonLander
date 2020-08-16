@@ -7,8 +7,8 @@
 
 class Geometry {
 public:
-    void drawLinen(const std::vector<Utils::Point>& points);
-    void drawDots(const std::vector<Utils::Point>& dots);
+    static void drawLinen(const std::vector<Utils::Point>& points);
+    static void drawDots(const std::vector<Utils::Point>& dots);
 };
 
 #endif //MOONLANDER_GEOMETRY_PPH

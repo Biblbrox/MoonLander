@@ -5,7 +5,7 @@
 
 class ShaderProgram {
 public:
-    ShaderProgram();
+    explicit ShaderProgram();
 
     virtual ~ShaderProgram();
     virtual bool loadProgram() = 0;
