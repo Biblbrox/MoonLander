@@ -6,8 +6,11 @@
 #include <set>
 #include <memory>
 #include "utils.hpp"
+#include "world.hpp"
+#include "basesystem.h"
+#include "entity.hpp"
 
-class Entity;
+//class Entity;
 class World;
 
 using Utils::type_id;
@@ -17,11 +20,6 @@ using Utils::type_id;
 */
 template <typename ...Args>
 struct system_holder;
-
-/**
- * System base class
- */
-class BaseSystem {};
 
 /**
  * Base template
@@ -36,37 +34,62 @@ class System;
 template <typename ...Args>
 class System<system_holder<Args...>> : public BaseSystem {
 public:
-    System();
+    System()
+    {
+        fill_types<Args...>();
+    }
 
     virtual ~System() = default;
 
     /**
-     * Returns entities which corresponds to the componentFilter
+     * Returns entities which corresponds to the componentTypes container filter
      * @return
      */
-    virtual const std::vector<Entity>& getEntities() const final;
+    virtual const std::vector<Entity> getEntities() const
+    {
+        const std::vector<Entity>& all_entities = pWorld->getEntities();
+        std::vector<Entity> filtered;
 
-    virtual void setWorld(std::shared_ptr<World> world) final;
+        // Filter Entities which contains requires Components
+        std::copy_if(all_entities.begin(), all_entities.end(), std::back_inserter(filtered),
+                     [this](const Entity& el){
+                         auto components = el.getComponents();
+                         return !std::any_of(componentTypes.begin(), componentTypes.end(),
+                                              [&components](size_t t) { return components.find(t) == components.end(); });
+                     });
+
+        return filtered;
+    }
+
+    template <class ComponentType>
+    std::vector<Entity> getEntitiesByTag() const
+    {
+        std::vector<Entity> filtered = pWorld->getEntities();
+        filtered.erase(std::remove_if(filtered.begin(), filtered.end(), [](Entity& e) {
+            return e.getComponent<ComponentType>() == nullptr;
+        }), filtered.end());
+
+        return filtered;
+    }
 
 private:
     // Contains id's of each component type system can handle
-    std::set<short> componentTypes;
-
-    template <typename T, typename ...ComponentArgs>
-    void fill_types()
-    {
-        componentTypes.insert(type_id<T>());
-        fill_types<ComponentArgs...>();
-    }
+    std::set<size_t> componentTypes;
 
     // Base case
     template <typename T>
-    void fill_types()
+    constexpr void fill_types()
     {
         componentTypes.insert(type_id<T>());
     }
 
-    std::shared_ptr<World> pWorld;
+    // Fill set componentTypes by types which that system can handle
+    template <typename T, typename U, typename ...ComponentArgs>
+    constexpr void fill_types()
+    {
+        fill_types<T>();
+        fill_types<U, ComponentArgs...>();
+    }
 };
 
 #endif //MOONLANDER_SYSTEM_HPP

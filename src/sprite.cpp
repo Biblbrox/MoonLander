@@ -7,6 +7,7 @@ Sprite::Sprite(const std::string& path)
     load(path);
     VAO = nullptr;
     tot_sprites = 0;
+    cur_idx = 0;
 }
 
 bool Sprite::load(const std::string& path)
@@ -129,29 +130,60 @@ void Sprite::freeSheet()
     clips.clear();
 }
 
-void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
-{
-    if (VAO != nullptr) {
-        glm::mat4 transform = Utils::rotateAround(glm::mat4(1.f),
-                                                  glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), angle);
-        program.leftMultModel(glm::translate(transform, glm::vec3(x, y, 0.f)));
-        program.updateModel();
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glBindVertexArray(VAO[idx]);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindVertexArray(0);
-
-        transform = glm::translate(glm::mat4(1.f), glm::vec3(-x, -y, 0.f));
-        program.leftMultModel(Utils::rotateAround(transform,
-                                        glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), -angle));
-        program.updateModel();
-    }
-}
+//
+//void Sprite::render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle)
+//{
+//    if (VAO != nullptr) {
+//        glm::mat4 transform = Utils::rotateAround(glm::mat4(1.f),
+//                                                  glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), angle);
+//        program.leftMultModel(glm::translate(transform, glm::vec3(x, y, 0.f)));
+//        program.updateModel();
+//
+//        glBindTexture(GL_TEXTURE_2D, textureID);
+//        glBindVertexArray(VAO[idx]);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//        glBindVertexArray(0);
+//
+//        transform = glm::translate(glm::mat4(1.f), glm::vec3(-x, -y, 0.f));
+//        program.leftMultModel(Utils::rotateAround(transform,
+//                                        glm::vec3(x + clips[idx].w / 2.f, y + clips[idx].h / 2.f, 0.f), -angle));
+//        program.updateModel();
+//    }
+//}
 
 Sprite::~Sprite()
 {
     freeSheet();
+}
+
+GLuint Sprite::getVAO() const
+{
+    return VAO[cur_idx];
+}
+
+GLuint Sprite::getIdx() const
+{
+    return cur_idx;
+}
+
+Utils::Rect Sprite::getCurrentClip() const
+{
+    return clips[cur_idx];
+}
+
+void Sprite::setIdx(GLuint idx)
+{
+    cur_idx = idx;
+}
+
+GLuint Sprite::getWidth() const
+{
+    return getCurrentClip().w;
+}
+
+GLuint Sprite::getHeight() const
+{
+    return getCurrentClip().h;
 }
 

@@ -78,4 +78,3 @@ Texture::~Texture()
     texture_width = texture_height = 0;
 }
 
-

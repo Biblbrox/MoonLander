@@ -47,14 +47,9 @@ Game::Game() : is_runnable(true)
     glContext = nullptr;
 }
 
-void Game::update()
+void Game::update(size_t delta)
 {
-
-}
-
-void Game::render()
-{
-
+    world.update(delta);
 }
 
 void Game::initGL()
@@ -144,6 +139,11 @@ void Game::setRunnable(bool runnable)
 bool Game::isRunnable() const
 {
     return is_runnable;
+}
+
+void Game::initGame()
+{
+    world.init();
 }
 
 

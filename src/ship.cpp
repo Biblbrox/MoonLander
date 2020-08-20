@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <models/ship.hpp>
 
-Ship::Ship(Camera* camera, Sprite *tex, GLfloat vel_x, GLfloat vel_y) : Drawable(camera, tex),
+Ship::Ship(Camera* camera, Sprite *tex, GLfloat vel_x, GLfloat vel_y) :
                                                         vel{vel_x, vel_y}, vel_rot(0), angle(0.), engines_on(false),
                                                         landed(false), cur_sprite(0),
                                                         camera(camera)
@@ -91,9 +91,9 @@ void Ship::setCoords(Utils::Point coords)
     texture->setY(coords.y);
 }
 
-void Ship::render(MoonLanderProgram& program)
+void Ship::render(MoonLanderProgram& program, Camera& camera)
 {
-    texture->render(program, getX() - camera->getX(), getY() - camera->getY(), cur_sprite, angle);
+//    texture->render(program, getX() - camera.getX(), getY() - camera.getY(), cur_sprite, angle);
 }
 
 void Ship::rotate(double ang)

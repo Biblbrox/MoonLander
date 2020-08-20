@@ -3,24 +3,22 @@
 
 #include <SDL_render.h>
 #include <vector>
+#include <moonlanderprogram.hpp>
+#include <camera.hpp>
 #include "types.hpp"
-#include "abstract/drawable.hpp"
 
-class Level: public Drawable<Texture> {
+class Level {
 public:
-    explicit Level(Camera* camera);
+    explicit Level();
     ~Level();
-    void render(MoonLanderProgram& program) override;
     bool hasCollision(Utils::Rect coord, GLfloat angle);
     void extendToRight();
     void extendToLeft();
 
-private:
+public:
     SurfaceType surfaceType;
     std::vector<Utils::Point> points;
     std::vector<Utils::Point> stars;
-
-    Camera* camera;
 
     int points_count;
     int stars_count;

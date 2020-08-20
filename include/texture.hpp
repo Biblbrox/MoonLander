@@ -22,6 +22,7 @@ public:
     virtual void setHeight(GLuint height);
     virtual void setX(GLfloat x);
     virtual void setY(GLfloat x);
+    virtual GLuint getVAO() const = 0;
 
     virtual GLfloat getX() const;
     virtual GLfloat getY() const;

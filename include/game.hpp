@@ -3,6 +3,7 @@
 
 #include <GL/gl.h>
 #include <SDL_events.h>
+#include <ces/world.hpp>
 #include <models/level.hpp>
 #include <sstream>
 #include <models/ship.hpp>
@@ -19,11 +20,12 @@ public:
 
     void initOnceSDL2();
     void initGL();
+    void initGame();
+
     void flush();
     void quit();
 
-    void update();
-    void render();
+    void update(size_t delta);
     void setRunnable(bool runnable);
 
     bool isRunnable() const;
@@ -35,6 +37,7 @@ private:
 
     bool is_runnable;
     std::unique_ptr<Window> window;
+    World world;
 };
 
 #endif //MOONLANDER_GAME_HPP

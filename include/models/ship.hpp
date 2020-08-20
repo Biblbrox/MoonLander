@@ -4,12 +4,12 @@
 #include <iostream>
 #include <texture.hpp>
 #include <sprite.hpp>
+#include <camera.hpp>
 #include "types.hpp"
-#include "abstract/drawable.hpp"
 
 using Utils::Rect;
 
-class Ship: public Drawable<Sprite> {
+class Ship {
 public:
     explicit Ship(Camera* camera, Sprite *tex, GLfloat vel_x = 0, GLfloat vel_y = 0);
     virtual ~Ship();
@@ -27,7 +27,7 @@ public:
     void addY(GLfloat y);
     void addCoords(Utils::Point coords);
 
-    void render(MoonLanderProgram& program) override;
+    void render(MoonLanderProgram& program, Camera& camera);
 
     // Angle methods
     void rotate(double angle);
@@ -68,6 +68,7 @@ private:
     unsigned int cur_sprite;
 
     Camera* camera;
+    Sprite* texture;
 };
 
 #endif // MOONLANDER_SHIP_HPP

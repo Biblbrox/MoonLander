@@ -4,12 +4,10 @@
 #include <GL/gl.h>
 #include "ces/component.hpp"
 
-class PositionComponent : public Component {
-    PositionComponent() = default;
-
-private:
+struct PositionComponent : Component {
     GLfloat x;
     GLfloat y;
+    GLfloat angle;
 };
 
 #endif //MOONLANDER_POSITIONCOMPONENT_HPP

@@ -10,6 +10,8 @@
 class World;
 class Component;
 
+using Utils::type_id;
+
 class Entity {
 public:
     Entity() = default;
@@ -22,10 +24,10 @@ public:
      * @return
      */
     template <class ComponentType>
-    const Component& addComponent() const
+    std::shared_ptr<Component> addComponent()
     {
-        ComponentType newComponent;
-        components.insert({{typeid(newComponent).hash_code(), newComponent}});
+        components[type_id<ComponentType>()] =
+                std::static_pointer_cast<Component>(std::make_shared<ComponentType>());
         return (*components.rbegin()).second;
     }
 
@@ -35,21 +37,35 @@ public:
      * @return
      */
     template <class ComponentType>
-    const Component& getComponent()
+    std::map<size_t, std::shared_ptr<Component>>::iterator getComponentIt()
     {
-        auto it = components.find(typeid(ComponentType).hash_code());
-        if (it == components.end()) {
-            // throw error
-        }
-        return (*it).second;
+        auto it = components.find(type_id<ComponentType>());
+        return it;
     }
 
-    virtual void setWorld(std::shared_ptr<World> world) final;
+    /**
+     * Get component by type
+     * @tparam ComponentType
+     * @return
+     */
+    template <class ComponentType>
+    std::shared_ptr<ComponentType> getComponent()
+    {
+        auto it = components.find(type_id<ComponentType>());
+        if (it == components.end())
+            return std::shared_ptr<ComponentType>(nullptr);
+
+        return std::dynamic_pointer_cast<ComponentType>((*it).second);
+    }
+
+    std::map<size_t, std::shared_ptr<Component>> getComponents() const;
+
+    void setWorld(std::shared_ptr<World> world);
 
     void activate();
 
 private:
-    std::map<size_t, Component> components;
+    std::map<size_t, std::shared_ptr<Component>> components;
     std::shared_ptr<World> pWorld;
 };
 

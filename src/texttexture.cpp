@@ -23,7 +23,17 @@ void TextTexture::setColor(SDL_Color color_)
 
 TextTexture::TextTexture(const std::string &textureText, SDL_Color color_, TTF_Font *font_)
 {
-    font = font_;
+    if (font_ == nullptr) {
+        font = TTF_OpenFont(
+                Utils::getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        if (font == NULL) {
+            SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
+            std::abort();
+        }
+    } else {
+        font = font_;
+    }
+
     color = color_;
     text = textureText;
     vao_id = 0;
@@ -159,10 +169,16 @@ void TextTexture::render(MoonLanderProgram& program, GLfloat x,
 
 TextTexture::~TextTexture()
 {
+    TTF_CloseFont(font);
     freeVBO();
 }
 
 void TextTexture::setScale(GLfloat scale_factor)
 {
     scale_f = scale_factor;
+}
+
+GLuint TextTexture::getVAO() const
+{
+    return vao_id;
 }

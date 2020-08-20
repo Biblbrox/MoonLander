@@ -9,7 +9,8 @@
 class TextTexture: public Texture {
 
 public:
-    TextTexture(const std::string& textureText, SDL_Color color, TTF_Font* font);
+    TextTexture(const std::string& textureText,
+                SDL_Color color = {0x00, 0xFF, 0x00, 0xFF}, TTF_Font* font = nullptr);
     ~TextTexture() override;
 
     void load(const std::string& textureText, SDL_Color color, TTF_Font* font);
@@ -23,6 +24,7 @@ public:
 
     void initVBO();
     void freeVBO();
+    GLuint getVAO() const override;
 private:
     std::string text;
     TTF_Font* font;

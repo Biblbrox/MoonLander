@@ -4,32 +4,41 @@
 #include <unordered_map>
 #include <memory>
 #include "../utils.hpp"
+#include "basesystem.h"
+#include "entity.hpp"
 
 /**
  * To avoid circular including
  */
 class Entity;
-class BaseSystem;
 class Component;
+
+using Utils::type_id;
 
 class World {
 public:
     World() = default;
     ~World() = default;
 
-    Entity createEntity();
+    void init();
+    void update(size_t delta);
+
+    Entity& createEntity();
 
     template <typename SystemType>
-    void addSystem(BaseSystem& system)
+    SystemType& createSystem()
     {
-        system_map.insert({Utils::type_id<SystemType>(), std::make_unique<SystemType>(system)});
+        std::shared_ptr<SystemType> system(new SystemType());
+        system->setWorld(std::shared_ptr<World>(this));
+        systems.insert({type_id<SystemType>(), std::static_pointer_cast<BaseSystem>(system)});
+        return dynamic_cast<SystemType&>(*system);
     }
 
-    const std::vector<Entity>& getEntities() const;
+    std::vector<Entity>& getEntities();
 
 private:
     std::vector<Entity> entities;
-    std::unordered_map<size_t, std::unique_ptr<BaseSystem>> system_map;
+    std::unordered_map<size_t, std::shared_ptr<BaseSystem>> systems;
 };
 
 #endif //MOONLANDER_WORLD_HPP
