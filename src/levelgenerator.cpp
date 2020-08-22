@@ -1,5 +1,5 @@
 #include <geometry.hpp>
-#include "models/level.hpp"
+#include "models/levelgenerator.hpp"
 #include "utils.hpp"
 
 const int stars_initial_size = 200;
@@ -7,13 +7,27 @@ const int points_initial_size = 100;
 
 using Utils::Point;
 
-Level::~Level()
+LevelGenerator::~LevelGenerator()
 {
 
 }
 
-std::vector<Point> Level::generate_lines(int initial_x)
+std::vector<Point> LevelGenerator::generate_stars() const
 {
+    Utils::RandomUniform urand;
+    std::vector<Point> gen(stars_initial_size);
+
+    for (auto& star: gen) {
+        star.x = urand.generate(0, Utils::getScreenWidth<int>());
+        star.y = urand.generate(0, height_max);
+    }
+
+    return gen;
+}
+
+std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
+{
+    Utils::RandomUniform urand;
     std::vector<Point> res(points_count);
 
     const int platform_count_min = points_count / 8;
@@ -53,26 +67,15 @@ std::vector<Point> Level::generate_lines(int initial_x)
     return res;
 }
 
-Level::Level() : surfaceType(SurfaceType::MOON),
-                 points_count(points_initial_size), stars_count(stars_initial_size)
+LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_count(stars_initial_size)
 {
     height_min = Utils::getScreenHeight<int>() - Utils::getScreenHeight<int>() / 2;
     height_max = Utils::getScreenHeight<int>() - Utils::getScreenHeight<int>() / 5;
-
-    points = generate_lines(0);
-
-    stars.resize(stars_count);
-
-    Utils::RandomUniform urand;
-
-    for (auto& star: stars) {
-        star.x = urand.generate(0, Utils::getScreenWidth<int>());
-        star.y = urand.generate(0, height_max);
-    }
 }
 
-void Level::extendToRight()
+void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point> stars)
 {
+    Utils::RandomUniform urand;
     auto right = generate_lines(points[points.size() - 1].x);
     points.reserve(points.size() + right.size());
     points.insert(points.end(), right.begin(), right.end());
@@ -86,8 +89,9 @@ void Level::extendToRight()
     }
 }
 
-void Level::extendToLeft()
+void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point> stars)
 {
+    Utils::RandomUniform urand;
     auto left = generate_lines(0);
     GLfloat initial_x = -left[left.size() - 1].x;
     std::for_each(left.begin(), left.end(), [initial_x](Point& p){ p.x += initial_x; });
@@ -102,42 +106,4 @@ void Level::extendToLeft()
         stars[i].x = urand.generate(old_max_x - Utils::getScreenWidth<int>(), old_max_x);
         stars[i].y = urand.generate(0, height_max);
     }
-}
-
-bool Level::hasCollision(Utils::Rect coord, GLfloat angle)
-{
-    Utils::RectPoints r = Utils::buildRectPoints(coord, angle);
-
-    for (size_t i = 0; i < points.size() - 1; ++i) {
-        GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
-
-        if (points[i].x <= x && points[i + 1].x >= x) {
-            bool left = Utils::lineLine(r.d, r.a, {.x = points[i].x, .y = points[i].y},
-                                        {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool right = Utils::lineLine(r.b, r.c, {.x = points[i].x, .y = points[i].y},
-                                         {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool top = Utils::lineLine(r.c, r.d, {.x = points[i].x, .y = points[i].y},
-                                       {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool bottom = Utils::lineLine(r.a, r.b, {.x = points[i].x, .y = points[i].y},
-                                          {.x = points[i + 1].x, .y = points[i + 1].y});
-            if (left || right || top || bottom)
-                return true;
-
-            x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
-            if (points[i + 1].x <= x && i != points.size() - 2) {
-                left = Utils::lineLine(r.d, r.a, {.x = points[i + 1].x, .y = points[i + 1].y},
-                                       {.x = points[i + 2].x, .y = points[i + 2].y});
-                right = Utils::lineLine(r.b, r.c, {.x = points[i + 1].x, .y = points[i + 1].y},
-                                        {.x = points[i + 2].x, .y = points[i + 2].y});
-                top = Utils::lineLine(r.c, r.d, {.x = points[i + 1].x, .y = points[i + 1].y},
-                                      {.x = points[i + 2].x, .y = points[i + 2].y});
-                bottom = Utils::lineLine(r.a, r.b, {.x = points[i + 1].x, .y = points[i + 1].y},
-                                         {.x = points[i + 2].x, .y = points[i + 2].y});
-                if (left || right || top || bottom)
-                    return true;
-            }
-        }
-    }
-
-    return false;
 }

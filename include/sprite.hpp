@@ -30,7 +30,7 @@ protected:
 
     GLuint* VAO;
     GLuint tot_sprites;
-    GLuint cur_idx;
+    GLuint cur_idx = 0;
 };
 
 #endif //MOONLANDER_SPRITE_HPP

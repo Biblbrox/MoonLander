@@ -6,6 +6,7 @@
 #include <glm/geometric.hpp>
 #include <memory>
 #include <types.hpp>
+#include <functional>
 
 void Game::initOnceSDL2()
 {
@@ -57,10 +58,14 @@ void Game::initGL()
     screen_w = Utils::getScreenWidth<GLuint>();
     screen_h = Utils::getScreenHeight<GLuint>();
 
-    window = std::make_unique<Window>(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-           SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS);
+    //window = std::make_unique<Window>(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
+    //       SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS);
+    window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>>(SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
+                   SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS), [](SDL_Window *window){
+        SDL_DestroyWindow(window);
+    });
 
-    glContext = SDL_GL_CreateContext(window->getWindow());
+    glContext = SDL_GL_CreateContext(window.get());
     // Init OpenGL context
     if (glContext == nullptr) {
         printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
@@ -120,7 +125,7 @@ void Game::initGL()
 void Game::flush()
 {
     glFlush();
-    SDL_GL_SwapWindow(window->getWindow());
+    SDL_GL_SwapWindow(window.get());
 }
 
 void Game::quit()

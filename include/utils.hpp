@@ -7,7 +7,6 @@
 #include <iostream>
 #include <SDL_image.h>
 #include <random>
-#include <GL/gl.h>
 #include <GL/glu.h>
 #include <glm/vec3.hpp>
 #include <typeinfo>
@@ -23,18 +22,6 @@ namespace Utils {
     struct Point {
         GLfloat x;
         GLfloat y;
-    };
-
-    struct VertexData2D {
-        Point position;
-        Point texCoord;
-    };
-
-    struct GLColor {
-        GLfloat r;
-        GLfloat g;
-        GLfloat b;
-        GLfloat a;
     };
 
     struct Rect {
@@ -111,6 +98,7 @@ namespace Utils {
         std::uniform_real_distribution<GLdouble> dist(a, b);
         return dist(this->generator);
     }
+
 
     inline GLuint getFps(const Timer& fpsTimer, GLuint countFrames)
     {

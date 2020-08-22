@@ -21,6 +21,9 @@ public:
 private:
     MoonLanderProgram program;
     Camera camera;
+
+    void move_from_camera();
+    std::vector<Entity> movables;
 };
 
 #endif //MOONLANDER_RENDERERSYSTEM_HPP

@@ -14,11 +14,17 @@ public:
     void setX(GLfloat x);
     void setY(GLfloat y);
 
+    GLfloat deltaX() const;
+    GLfloat deltaY() const;
+
     void translate(GLfloat x, GLfloat y);
 
 private:
     GLfloat x;
     GLfloat y;
+
+    GLfloat prev_x;
+    GLfloat prev_y;
 };
 
 #endif //MOONLANDER_CAMERA_HPP

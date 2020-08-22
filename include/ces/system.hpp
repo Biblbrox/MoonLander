@@ -45,29 +45,32 @@ public:
      * Returns entities which corresponds to the componentTypes container filter
      * @return
      */
-    virtual const std::vector<Entity> getEntities() const
+    auto getEntities() const
     {
-        const std::vector<Entity>& all_entities = pWorld->getEntities();
-        std::vector<Entity> filtered;
-
-        // Filter Entities which contains requires Components
-        std::copy_if(all_entities.begin(), all_entities.end(), std::back_inserter(filtered),
-                     [this](const Entity& el){
-                         auto components = el.getComponents();
-                         return !std::any_of(componentTypes.begin(), componentTypes.end(),
-                                              [&components](size_t t) { return components.find(t) == components.end(); });
-                     });
+        auto filtered = pWorld->getEntities();
+        for (auto it = filtered.begin(); it != filtered.end();) {
+            auto components = it->second->getComponents();
+            if (std::any_of(componentTypes.begin(), componentTypes.end(), [&components](size_t t) {
+                return components.find(t) == components.end();
+            }))
+                it = filtered.erase(it);
+            else
+                ++it;
+        }
 
         return filtered;
     }
 
     template <class ComponentType>
-    std::vector<Entity> getEntitiesByTag() const
+    auto getEntitiesByTag() const
     {
-        std::vector<Entity> filtered = pWorld->getEntities();
-        filtered.erase(std::remove_if(filtered.begin(), filtered.end(), [](Entity& e) {
-            return e.getComponent<ComponentType>() == nullptr;
-        }), filtered.end());
+        auto filtered = pWorld->getEntities();
+        for (auto it = filtered.begin(); it != filtered.end();) {
+            if (it->second->getComponent<ComponentType>() == nullptr)
+                it = filtered.erase(it);
+            else
+                ++it;
+        }
 
         return filtered;
     }

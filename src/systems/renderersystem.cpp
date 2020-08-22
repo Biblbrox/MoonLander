@@ -6,27 +6,28 @@
 
 void RendererSystem::update(size_t delta)
 {
-    std::vector<Entity> levelEntities = getEntitiesByTag<LevelComponent>();
+    auto levelEntities = getEntitiesByTag<LevelComponent>();
     program.setTextureRendering(false);
-    for (auto& en: levelEntities) {
-        Renderer::render(program, en.getComponent<LevelComponent>()->level, camera);
+    for (auto& [key, en]: levelEntities) {
+        Renderer::render(program, en->getComponent<LevelComponent>()->points,
+                         en->getComponent<LevelComponent>()->stars);
     }
 
-    std::vector<Entity> sprites = getEntitiesByTag<SpriteComponent>();
+    auto sprites = getEntitiesByTag<SpriteComponent>();
     program.setTextureRendering(true);
-    for (auto& en: sprites) {
-        Renderer::render(program, *en.getComponent<SpriteComponent>()->sprite,
-                               en.getComponent<PositionComponent>()->x,
-                               en.getComponent<PositionComponent>()->y,
-                               en.getComponent<PositionComponent>()->angle);
+    for (auto& [key, en]: sprites) {
+        Renderer::render(program, *en->getComponent<SpriteComponent>()->sprite,
+                               en->getComponent<PositionComponent>()->x,
+                               en->getComponent<PositionComponent>()->y,
+                               en->getComponent<PositionComponent>()->angle);
     }
 
-    std::vector<Entity> textComponents = getEntitiesByTag<TextComponent>();
-    for (auto& en: textComponents) {
-        Renderer::render(program, *en.getComponent<TextComponent>()->texture,
-                                en.getComponent<PositionComponent>()->x,
-                                en.getComponent<PositionComponent>()->y,
-                                en.getComponent<PositionComponent>()->angle);
+    auto textComponents = getEntitiesByTag<TextComponent>();
+    for (auto& [key, en]: textComponents) {
+        Renderer::render(program, *en->getComponent<TextComponent>()->texture,
+                                en->getComponent<PositionComponent>()->x,
+                                en->getComponent<PositionComponent>()->y,
+                                en->getComponent<PositionComponent>()->angle);
     }
 }
 
@@ -46,4 +47,20 @@ RendererSystem::RendererSystem()
     program.updateProjection();
     program.updateColor();
     program.setTexture(0);
+}
+
+void RendererSystem::move_from_camera()
+{
+    for (auto& en: movables) {
+        auto pos = en.getComponent<PositionComponent>();
+        if (pos != nullptr) {
+            pos->x -= camera.getX();
+        } else {
+            auto level = en.getComponent<LevelComponent>();
+            for (auto & point : level->points)
+                point.x -= camera.getX();
+            for (auto& star : level->stars)
+                star.x -= camera.getX();
+        }
+    }
 }

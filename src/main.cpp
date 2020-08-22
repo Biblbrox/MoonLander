@@ -6,8 +6,7 @@
 #include <sprite.hpp>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
-#include <models/ship.hpp>
-#include "models/level.hpp"
+#include "models/levelgenerator.hpp"
 #include <glm/gtc/constants.hpp>
 #include <iomanip>
 #include "../include/ces/world.hpp"

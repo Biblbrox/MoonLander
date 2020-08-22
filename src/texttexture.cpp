@@ -21,7 +21,7 @@ void TextTexture::setColor(SDL_Color color_)
     color = color_;
 }
 
-TextTexture::TextTexture(const std::string &textureText, SDL_Color color_, TTF_Font *font_)
+TextTexture::TextTexture(const std::string textureText, SDL_Color color_, TTF_Font *font_)
 {
     if (font_ == nullptr) {
         font = TTF_OpenFont(

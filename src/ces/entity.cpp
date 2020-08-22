@@ -7,7 +7,7 @@ void Entity::activate()
 
 }
 
-std::map<size_t, std::shared_ptr<Component>> Entity::getComponents() const
+const std::unordered_map<size_t, std::shared_ptr<Component>>& Entity::getComponents() const
 {
     return components;
 }

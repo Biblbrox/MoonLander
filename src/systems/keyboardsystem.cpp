@@ -2,8 +2,8 @@
 
 void KeyboardSystem::update(size_t delta)
 {
-    std::vector<Entity> handles = getEntities();
-    for (auto& en : handles) {
-        en.getComponent<KeyboardComponent>()->event_handler(SDL_GetKeyboardState(nullptr));
+    auto handles = getEntities();
+    for (auto& [key, en] : handles) {
+        en->getComponent<KeyboardComponent>()->event_handler(SDL_GetKeyboardState(nullptr));
     }
 }

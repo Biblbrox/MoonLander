@@ -4,19 +4,18 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include "component.hpp"
-#include "world.hpp"
+#include "../utils.hpp"
+//#include "world.hpp"
 
 class World;
-class Component;
+//class Component;
 
 using Utils::type_id;
 
 class Entity {
 public:
-    Entity() = default;
-    virtual ~Entity() = default;
-
     /**
      * Create new component and return
      * ComponentType must be child of Component class
@@ -28,7 +27,7 @@ public:
     {
         components[type_id<ComponentType>()] =
                 std::static_pointer_cast<Component>(std::make_shared<ComponentType>());
-        return (*components.rbegin()).second;
+        return components[type_id<ComponentType>()];
     }
 
     /**
@@ -37,7 +36,7 @@ public:
      * @return
      */
     template <class ComponentType>
-    std::map<size_t, std::shared_ptr<Component>>::iterator getComponentIt()
+    std::unordered_map<size_t, std::shared_ptr<Component>>::iterator getComponentIt()
     {
         auto it = components.find(type_id<ComponentType>());
         return it;
@@ -58,14 +57,14 @@ public:
         return std::dynamic_pointer_cast<ComponentType>((*it).second);
     }
 
-    std::map<size_t, std::shared_ptr<Component>> getComponents() const;
+    const std::unordered_map<size_t, std::shared_ptr<Component>>& getComponents() const;
 
     void setWorld(std::shared_ptr<World> world);
 
     void activate();
 
 private:
-    std::map<size_t, std::shared_ptr<Component>> components;
+    std::unordered_map<size_t, std::shared_ptr<Component>> components;
     std::shared_ptr<World> pWorld;
 };
 

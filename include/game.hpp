@@ -4,11 +4,10 @@
 #include <GL/gl.h>
 #include <SDL_events.h>
 #include <ces/world.hpp>
-#include <models/level.hpp>
+#include <models/levelgenerator.hpp>
 #include <sstream>
-#include <models/ship.hpp>
 #include <memory>
-#include "window.hpp"
+#include <functional>
 #include "camera.hpp"
 #include "texttexture.hpp"
 
@@ -36,7 +35,8 @@ private:
     SDL_GLContext glContext;
 
     bool is_runnable;
-    std::unique_ptr<Window> window;
+    //std::unique_ptr<Window> window;
+    std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>> window;
     World world;
 };
 
