@@ -1,8 +1,7 @@
-#include <geometry.hpp>
 #include "models/levelgenerator.hpp"
 #include "utils.hpp"
 
-const int stars_initial_size = 200;
+const int stars_initial_size = 500;
 const int points_initial_size = 100;
 
 using Utils::Point;
@@ -12,13 +11,13 @@ LevelGenerator::~LevelGenerator()
 
 }
 
-std::vector<Point> LevelGenerator::generate_stars() const
+std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 {
     Utils::RandomUniform urand;
     std::vector<Point> gen(stars_initial_size);
 
     for (auto& star: gen) {
-        star.x = urand.generate(0, Utils::getScreenWidth<int>());
+        star.x = urand.generate(left, right);
         star.y = urand.generate(0, height_max);
     }
 
@@ -73,26 +72,34 @@ LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_coun
     height_max = Utils::getScreenHeight<int>() - Utils::getScreenHeight<int>() / 5;
 }
 
-void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point> stars)
+void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars)
 {
     Utils::RandomUniform urand;
     auto right = generate_lines(points[points.size() - 1].x);
+
+    GLfloat old_right = points[points.size() - 1].x;
+    GLfloat line_length = std::abs(right[right.size() - 1].x - points[points.size() - 1].x);
+
     points.reserve(points.size() + right.size());
     points.insert(points.end(), right.begin(), right.end());
 
     size_t old_size = stars.size();
-    int old_max_x = stars[stars.size() - 1].x;
+    GLfloat old_max_x = old_right;
     stars.resize(stars.size() + stars_initial_size);
     for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generate(old_max_x, old_max_x + Utils::getScreenWidth<int>());
+        stars[i].x = urand.generate(old_max_x, old_max_x + line_length);
         stars[i].y = urand.generate(0, height_max);
     }
 }
 
-void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point> stars)
+void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars)
 {
     Utils::RandomUniform urand;
     auto left = generate_lines(0);
+
+    GLfloat old_left = points[0].x;
+    GLfloat line_length = std::abs(points[0].x - left[left.size() - 1].x);
+
     GLfloat initial_x = -left[left.size() - 1].x;
     std::for_each(left.begin(), left.end(), [initial_x](Point& p){ p.x += initial_x; });
 
@@ -100,10 +107,10 @@ void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>
     std::rotate(points.begin(), points.begin() + left.size(), points.end());
 
     size_t old_size = stars.size();
-    int old_max_x = stars[0].x;
+    GLfloat old_max_x = old_left;
     stars.resize(stars.size() + stars_initial_size);
     for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generate(old_max_x - Utils::getScreenWidth<int>(), old_max_x);
-        stars[i].y = urand.generate(0, height_max);
+        stars[i].x = urand.generate<GLfloat>(old_max_x - line_length, old_max_x);
+        stars[i].y = urand.generate<GLfloat>(0, height_max);
     }
 }

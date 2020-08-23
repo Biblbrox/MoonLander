@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_SHADERPROGRAM_HPP
 #define MOONLANDER_SHADERPROGRAM_HPP
 
-#include <GL/gl.h>
+#include <GL/glew.h>
 
 class ShaderProgram {
 public:

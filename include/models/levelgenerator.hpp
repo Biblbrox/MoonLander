@@ -6,15 +6,16 @@
 #include <moonlanderprogram.hpp>
 #include <camera.hpp>
 #include "constants.hpp"
+#include "utils.hpp"
 
 class LevelGenerator {
 public:
     explicit LevelGenerator();
     ~LevelGenerator();
-    void extendToRight(std::vector<Utils::Point>& points, std::vector<Utils::Point> stars);
-    void extendToLeft(std::vector<Utils::Point>& points, std::vector<Utils::Point> stars);
+    void extendToRight(std::vector<Utils::Point>& points, std::vector<Utils::Point>& stars);
+    void extendToLeft(std::vector<Utils::Point>& points, std::vector<Utils::Point>& stars);
     std::vector<Utils::Point> generate_lines(int initial_x) const;
-    std::vector<Utils::Point> generate_stars() const;
+    std::vector<Utils::Point> generate_stars(GLfloat left, GLfloat right) const;
 
 private:
     int points_count;

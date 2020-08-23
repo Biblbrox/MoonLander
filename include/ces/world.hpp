@@ -40,26 +40,24 @@ public:
     std::unordered_map<std::string, std::shared_ptr<Entity>> & getEntities();
 
 private:
-    //std::vector<Entity> entities;
     std::unordered_map<std::string, std::shared_ptr<Entity>> entities;
     std::unordered_map<size_t, std::shared_ptr<BaseSystem>> systems;
     std::vector<Entity> non_static;
     Camera camera;
     GLuint screen_height;
     GLuint screen_width;
-    GLuint frame_height;
-    GLuint frame_width;
+    GLfloat frame_height;
+    GLfloat frame_width;
 
     Fps fps;
-    size_t count_frames;
 
     void move_from_camera();
 
     void update_ship();
     void update_text();
-    std::unordered_map<std::string, std::shared_ptr<Entity>> getTextEntities();
 
     bool scaled = false;
+    const GLfloat scale_factor = 1.5f;
 };
 
 #endif //MOONLANDER_WORLD_HPP

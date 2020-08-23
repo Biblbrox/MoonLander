@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_CAMERA_HPP
 #define MOONLANDER_CAMERA_HPP
 
-#include <GL/gl.h>
+#include <GL/glew.h>
 
 class Camera {
 public:

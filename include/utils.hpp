@@ -7,7 +7,6 @@
 #include <iostream>
 #include <SDL_image.h>
 #include <random>
-#include <GL/glu.h>
 #include <glm/vec3.hpp>
 #include <typeinfo>
 #include <glm/geometric.hpp>

@@ -54,4 +54,3 @@ GLfloat Camera::deltaX() const
 {
     return x - prev_x;
 }
-
