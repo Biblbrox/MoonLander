@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_GAME_HPP
 #define MOONLANDER_GAME_HPP
 
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <SDL_events.h>
 #include <ces/world.hpp>
 #include <models/levelgenerator.hpp>

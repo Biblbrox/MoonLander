@@ -1,13 +1,13 @@
 #include <SDL_timer.h>
 #include "timer.hpp"
 
-Utils::Timer::Timer() : startTicks(0), pausedTicks(0),
+utils::Timer::Timer() : startTicks(0), pausedTicks(0),
                         paused(false), started(false)
 {
 
 }
 
-void Utils::Timer::start()
+void utils::Timer::start()
 {
     started = true;
     paused = false;
@@ -16,7 +16,7 @@ void Utils::Timer::start()
     pausedTicks = 0;
 }
 
-void Utils::Timer::stop()
+void utils::Timer::stop()
 {
     started = false;
     paused = false;
@@ -25,7 +25,7 @@ void Utils::Timer::stop()
     pausedTicks = 0;
 }
 
-void Utils::Timer::pause()
+void utils::Timer::pause()
 {
     if (started && !paused) {
         paused = true;
@@ -35,7 +35,7 @@ void Utils::Timer::pause()
     }
 }
 
-void Utils::Timer::unpause()
+void utils::Timer::unpause()
 {
     if (started && paused) {
         paused = false;
@@ -44,7 +44,7 @@ void Utils::Timer::unpause()
     }
 }
 
-Uint32 Utils::Timer::getTicks() const
+Uint32 utils::Timer::getTicks() const
 {
     Uint32 time = 0;
 
@@ -54,12 +54,12 @@ Uint32 Utils::Timer::getTicks() const
     return time;
 }
 
-bool Utils::Timer::isStarted() const
+bool utils::Timer::isStarted() const
 {
     return started;
 }
 
-bool Utils::Timer::isPaused() const
+bool utils::Timer::isPaused() const
 {
     return paused && started;
 }

@@ -5,15 +5,17 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
-#include "component.hpp"
 #include "../utils.hpp"
-//#include "world.hpp"
 
 class World;
-//class Component;
+class Component;
 
-using Utils::type_id;
+using utils::type_id;
 
+/**
+ * Entity class
+ * Each entity may contain several unique components
+ */
 class Entity {
 public:
     /**

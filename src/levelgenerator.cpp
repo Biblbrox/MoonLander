@@ -4,7 +4,7 @@
 const int stars_initial_size = 500;
 const int points_initial_size = 100;
 
-using Utils::Point;
+using utils::Point;
 
 LevelGenerator::~LevelGenerator()
 {
@@ -13,7 +13,7 @@ LevelGenerator::~LevelGenerator()
 
 std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 {
-    Utils::RandomUniform urand;
+    utils::RandomUniform urand;
     std::vector<Point> gen(stars_initial_size);
 
     for (auto& star: gen) {
@@ -26,7 +26,7 @@ std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) c
 
 std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
 {
-    Utils::RandomUniform urand;
+    utils::RandomUniform urand;
     std::vector<Point> res(points_count);
 
     const int platform_count_min = points_count / 8;
@@ -68,13 +68,13 @@ std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
 
 LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_count(stars_initial_size)
 {
-    height_min = Utils::getScreenHeight<int>() - Utils::getScreenHeight<int>() / 2;
-    height_max = Utils::getScreenHeight<int>() - Utils::getScreenHeight<int>() / 5;
+    height_min = utils::getScreenHeight<int>() - utils::getScreenHeight<int>() / 2;
+    height_max = utils::getScreenHeight<int>() - utils::getScreenHeight<int>() / 5;
 }
 
 void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars)
 {
-    Utils::RandomUniform urand;
+    utils::RandomUniform urand;
     auto right = generate_lines(points[points.size() - 1].x);
 
     GLfloat old_right = points[points.size() - 1].x;
@@ -94,7 +94,7 @@ void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point
 
 void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars)
 {
-    Utils::RandomUniform urand;
+    utils::RandomUniform urand;
     auto left = generate_lines(0);
 
     GLfloat old_left = points[0].x;

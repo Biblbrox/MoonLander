@@ -16,7 +16,7 @@
 //class Entity;
 class Component;
 
-using Utils::type_id;
+using utils::type_id;
 
 class World {
 public:

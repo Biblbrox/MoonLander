@@ -13,17 +13,17 @@ Sprite::Sprite(const std::string& path)
 bool Sprite::load(const std::string& path)
 {
     if (!path.empty()) {
-        SDL_Surface* surface = Utils::flipVertically(IMG_Load(path.c_str()));
+        SDL_Surface* surface = utils::flipVertically(IMG_Load(path.c_str()));
         if (surface == nullptr) {
             SDL_Log("LoadTexture: %s\n", SDL_GetError());
             std::abort();
         } else {
-            GLenum texture_format = Utils::getSurfaceFormatInfo(*surface);
+            GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
 
             texture_width = surface->w;
             texture_height = surface->h;
 
-            textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
+            textureID = utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
                                                        texture_width, texture_height, texture_format);
             SDL_FreeSurface(surface);
         }
@@ -32,14 +32,15 @@ bool Sprite::load(const std::string& path)
     return true;
 }
 
-GLuint Sprite::addClipSprite(Utils::Rect clip)
+GLuint Sprite::addClipSprite(utils::Rect clip)
 {
     clips.push_back(clip);
     return clips.size() - 1;
 }
 
-Utils::Rect Sprite::getClip(int idx)
+utils::Rect Sprite::getClip(GLuint idx)
 {
+    assert(idx < tot_sprites);
     return clips[idx];
 }
 
@@ -145,13 +146,14 @@ GLuint Sprite::getIdx() const
     return cur_idx;
 }
 
-Utils::Rect Sprite::getCurrentClip() const
+utils::Rect Sprite::getCurrentClip() const
 {
     return clips[cur_idx];
 }
 
 void Sprite::setIdx(GLuint idx)
 {
+    assert(idx < this->tot_sprites);
     cur_idx = idx;
 }
 

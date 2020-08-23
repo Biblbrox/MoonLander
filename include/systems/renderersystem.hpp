@@ -26,6 +26,8 @@ private:
     std::vector<Entity> movables;
 
     GLfloat scale_factor = 1.f;
+    GLuint screen_width;
+    GLuint screen_height;
 };
 
 #endif //MOONLANDER_RENDERERSYSTEM_HPP

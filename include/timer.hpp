@@ -3,7 +3,7 @@
 
 #include <SDL_types.h>
 
-namespace Utils {
+namespace utils {
 
     class Timer {
     public:

@@ -10,12 +10,12 @@ public:
     explicit Sprite(const std::string& path);
     ~Sprite();
     bool load(const std::string& path);
-    GLuint addClipSprite(Utils::Rect clip);
-    Utils::Rect getClip(int idx);
+    GLuint addClipSprite(utils::Rect clip);
+    utils::Rect getClip(GLuint idx);
 
     GLuint getWidth() const override;
     GLuint getHeight() const override;
-    Utils::Rect getCurrentClip() const;
+    utils::Rect getCurrentClip() const;
     GLuint getIdx() const;
     void setIdx(GLuint idx);
 
@@ -26,7 +26,7 @@ public:
     GLuint getVAO() const;
 
 protected:
-    std::vector<Utils::Rect> clips;
+    std::vector<utils::Rect> clips;
 
     GLuint* VAO;
     GLuint tot_sprites;

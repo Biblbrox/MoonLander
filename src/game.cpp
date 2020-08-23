@@ -55,8 +55,8 @@ void Game::update(size_t delta)
 
 void Game::initGL()
 {
-    screen_w = Utils::getScreenWidth<GLuint>();
-    screen_h = Utils::getScreenHeight<GLuint>();
+    screen_w = utils::getScreenWidth<GLuint>();
+    screen_h = utils::getScreenHeight<GLuint>();
 
     //window = std::make_unique<Window>(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
     //       SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS);

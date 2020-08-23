@@ -58,7 +58,7 @@ void World::update_ship()
             if (pos->scallable)
                 pos->scale_factor = scale_factor;
         }
-        camera.lookAt(shipPos->x + camera.getX() - frame_width / 2.f, shipPos->y + camera.getY() - frame_height / 2.f);
+        camera.lookAt(shipPos->x + camera.getX() - frame_width / 2.f, shipPos->y + camera.getY() - frame_height / 4.f);
         move_from_camera();
     }
 
@@ -124,8 +124,8 @@ void World::update(size_t delta)
 
 void World::init()
 {
-    screen_width = Utils::getScreenWidth<GLuint>();
-    screen_height = Utils::getScreenHeight<GLuint>();
+    screen_width = utils::getScreenWidth<GLuint>();
+    screen_height = utils::getScreenHeight<GLuint>();
     frame_width = screen_width;
     frame_height = screen_height;
 
@@ -140,7 +140,7 @@ void World::init()
     ship.addComponent<CollisionComponent>();
 
     auto spriteComponent = ship.getComponent<SpriteComponent>();
-    spriteComponent->sprite = std::make_shared<Sprite>(Utils::getResourcePath("lunar_lander_bw.png"));
+    spriteComponent->sprite = std::make_shared<Sprite>(utils::getResourcePath("lunar_lander_bw.png"));
     spriteComponent->sprite->addClipSprite({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     spriteComponent->sprite->addClipSprite({.x = 20, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     spriteComponent->sprite->addClipSprite({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});

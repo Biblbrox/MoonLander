@@ -7,8 +7,8 @@
 struct LevelComponent : Component
 {
     //LevelGenerator level;
-    std::vector<Utils::Point> points;
-    std::vector<Utils::Point> stars;
+    std::vector<utils::Point> points;
+    std::vector<utils::Point> stars;
 
     int points_count;
     int stars_count;

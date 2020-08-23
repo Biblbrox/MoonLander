@@ -6,9 +6,9 @@
 
 void RendererSystem::update(size_t delta)
 {
-    //glm::mat4 scaling = glm::scale(glm::mat4(1.f), glm::vec3(scale_factor, scale_factor, 1.f));
-   // program.leftMultView(scaling);
-    //program.updateView();
+    glViewport(0.f, 0.f, screen_width, screen_height);
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     auto levelEntities = getEntitiesByTag<LevelComponent>();
     program.setTextureRendering(false);
@@ -36,16 +36,12 @@ void RendererSystem::update(size_t delta)
                                 en->getComponent<PositionComponent>()->angle,
                                 en->getComponent<PositionComponent>()->scale_factor);
     }
-
-    //scaling = glm::scale(glm::mat4(1.f), glm::vec3(1 / scale_factor, 1 / scale_factor, 1.f));
-    //program.leftMultView(scaling);
-   // program.updateView();
 }
 
 RendererSystem::RendererSystem()
 {
-    auto screen_width = Utils::getScreenWidth<GLuint>();
-    auto screen_height = Utils::getScreenHeight<GLuint>();
+    screen_width = utils::getScreenWidth<GLuint>();
+    screen_height = utils::getScreenHeight<GLuint>();
 
     program.loadProgram();
     program.bind();

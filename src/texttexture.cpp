@@ -25,7 +25,7 @@ TextTexture::TextTexture(std::string textureText, SDL_Color color_, TTF_Font *fo
 {
     if (font_ == nullptr) {
         font = TTF_OpenFont(
-                Utils::getResourcePath("kenvector_future2.ttf").c_str(), 14);
+                utils::getResourcePath("kenvector_future2.ttf").c_str(), 14);
         if (font == NULL) {
             SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
             std::abort();
@@ -46,16 +46,16 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
     freeTexture();
     SDL_Surface* surface = TTF_RenderText_Blended(font_, textureText.c_str(), color_);
 
-    surface = Utils::flipVertically(surface);
+    surface = utils::flipVertically(surface);
     if (!surface) {
         SDL_Log("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
     } else {
-        GLenum texture_format = Utils::getSurfaceFormatInfo(*surface);
+        GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
 
         texture_width = surface->w;
         texture_height = surface->h;
 
-        textureID = Utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
+        textureID = utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
                                                    texture_width, texture_height, texture_format);
         SDL_FreeSurface(surface);
 

@@ -33,37 +33,37 @@ void CollisionSystem::update(size_t delta)
 }
 
 bool CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
-                                           GLfloat ship_y, std::vector<Utils::Point>& points,
-                                           std::vector<Utils::Point>& stars, GLfloat angle) {
-    Utils::Rect coord = sprite.getCurrentClip();
+                                           GLfloat ship_y, std::vector<utils::Point>& points,
+                                           std::vector<utils::Point>& stars, GLfloat angle) {
+    utils::Rect coord = sprite.getCurrentClip();
     coord.x = ship_x;
     coord.y = ship_y;
-    Utils::RectPoints r = Utils::buildRectPoints(coord, angle);
+    utils::RectPoints r = utils::buildRectPoints(coord, angle);
 
     for (size_t i = 0; i < points.size() - 1; ++i) {
         GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
 
         if (points[i].x <= x && points[i + 1].x >= x) {
-            bool left = Utils::lineLine(r.d, r.a, {.x = points[i].x, .y = points[i].y},
+            bool left = utils::lineLine(r.d, r.a, {.x = points[i].x, .y = points[i].y},
                                         {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool right = Utils::lineLine(r.b, r.c, {.x = points[i].x, .y = points[i].y},
+            bool right = utils::lineLine(r.b, r.c, {.x = points[i].x, .y = points[i].y},
                                          {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool top = Utils::lineLine(r.c, r.d, {.x = points[i].x, .y = points[i].y},
+            bool top = utils::lineLine(r.c, r.d, {.x = points[i].x, .y = points[i].y},
                                        {.x = points[i + 1].x, .y = points[i + 1].y});
-            bool bottom = Utils::lineLine(r.a, r.b, {.x = points[i].x, .y = points[i].y},
+            bool bottom = utils::lineLine(r.a, r.b, {.x = points[i].x, .y = points[i].y},
                                           {.x = points[i + 1].x, .y = points[i + 1].y});
             if (left || right || top || bottom)
                 return true;
 
             x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
             if (points[i + 1].x <= x && i != points.size() - 2) {
-                left = Utils::lineLine(r.d, r.a, {.x = points[i + 1].x, .y = points[i + 1].y},
+                left = utils::lineLine(r.d, r.a, {.x = points[i + 1].x, .y = points[i + 1].y},
                                        {.x = points[i + 2].x, .y = points[i + 2].y});
-                right = Utils::lineLine(r.b, r.c, {.x = points[i + 1].x, .y = points[i + 1].y},
+                right = utils::lineLine(r.b, r.c, {.x = points[i + 1].x, .y = points[i + 1].y},
                                         {.x = points[i + 2].x, .y = points[i + 2].y});
-                top = Utils::lineLine(r.c, r.d, {.x = points[i + 1].x, .y = points[i + 1].y},
+                top = utils::lineLine(r.c, r.d, {.x = points[i + 1].x, .y = points[i + 1].y},
                                       {.x = points[i + 2].x, .y = points[i + 2].y});
-                bottom = Utils::lineLine(r.a, r.b, {.x = points[i + 1].x, .y = points[i + 1].y},
+                bottom = utils::lineLine(r.a, r.b, {.x = points[i + 1].x, .y = points[i + 1].y},
                                          {.x = points[i + 2].x, .y = points[i + 2].y});
                 if (left || right || top || bottom)
                     return true;

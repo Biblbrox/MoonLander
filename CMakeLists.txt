@@ -16,10 +16,11 @@ find_package(SDL2_ttf REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
         ${SDL2_TTF_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}
-        ${GLM_INCLUDE_DIRS})
+        ${GLM_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
 set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hpp
@@ -45,6 +46,6 @@ set(SDL2_TTF_LIBRARIES SDL2_ttf)
 
 add_executable(MoonLander ${SOURCES})
 target_link_libraries(MoonLander ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES}
-        ${SDL2_TTF_LIBRARIES} GLEW libGLEW.so libGLU.so libGL.so )
+        ${SDL2_TTF_LIBRARIES} ${Boost_LIBRARIES} GLEW libGLEW.so libGLU.so libGL.so )
 
 target_include_directories(MoonLander PRIVATE include)

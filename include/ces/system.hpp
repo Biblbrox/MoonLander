@@ -13,7 +13,7 @@
 //class Entity;
 class World;
 
-using Utils::type_id;
+using utils::type_id;
 
 /**
  * Holder for component types

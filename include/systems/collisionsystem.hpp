@@ -12,8 +12,8 @@ class CollisionSystem : public System<system_holder<CollisionComponent, SpriteCo
 
 private:
     bool levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
-                                               GLfloat ship_y, std::vector<Utils::Point>& points,
-                                               std::vector<Utils::Point>& stars, GLfloat angle);
+                                               GLfloat ship_y, std::vector<utils::Point>& points,
+                                               std::vector<utils::Point>& stars, GLfloat angle);
 };
 
 #endif //MOONLANDER_COLLISIONSYSTEM_HPP

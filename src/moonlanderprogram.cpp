@@ -13,8 +13,8 @@ MoonLanderProgram::MoonLanderProgram()
 bool MoonLanderProgram::loadProgram()
 {
     programID = glCreateProgram();
-    GLuint vertexShader = Utils::loadShaderFromFile(
-            Utils::getShaderPath("moonLander.glvs"), GL_VERTEX_SHADER);
+    GLuint vertexShader = utils::loadShaderFromFile(
+            utils::getShaderPath("moonLander.glvs"), GL_VERTEX_SHADER);
 
     if (vertexShader == 0) {
         glDeleteProgram(programID);
@@ -24,8 +24,8 @@ bool MoonLanderProgram::loadProgram()
 
     glAttachShader(programID, vertexShader);
 
-    GLuint fragmentShader = Utils::loadShaderFromFile(
-            Utils::getShaderPath("moonLander.glfs"), GL_FRAGMENT_SHADER);
+    GLuint fragmentShader = utils::loadShaderFromFile(
+            utils::getShaderPath("moonLander.glfs"), GL_FRAGMENT_SHADER);
 
     if (fragmentShader == 0) {
         glDeleteProgram(programID);
@@ -40,7 +40,7 @@ bool MoonLanderProgram::loadProgram()
     glGetProgramiv(programID, GL_LINK_STATUS, &programSuccess);
     if (programSuccess != GL_TRUE) {
         printf("Error linking program %d!\n", programID);
-        Utils::printProgramLog(programID);
+        utils::printProgramLog(programID);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         glDeleteProgram(programID);
