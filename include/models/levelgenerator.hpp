@@ -5,7 +5,7 @@
 #include <vector>
 #include <moonlanderprogram.hpp>
 #include <camera.hpp>
-#include "types.hpp"
+#include "constants.hpp"
 
 class LevelGenerator {
 public:

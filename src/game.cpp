@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 #include <glm/geometric.hpp>
 #include <memory>
-#include <types.hpp>
+#include <constants.hpp>
 #include <functional>
 
 void Game::initOnceSDL2()

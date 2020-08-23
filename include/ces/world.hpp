@@ -47,6 +47,8 @@ private:
     Camera camera;
     GLuint screen_height;
     GLuint screen_width;
+    GLuint frame_height;
+    GLuint frame_width;
 
     Fps fps;
     size_t count_frames;
@@ -55,6 +57,9 @@ private:
 
     void update_ship();
     void update_text();
+    std::unordered_map<std::string, std::shared_ptr<Entity>> getTextEntities();
+
+    bool scaled = false;
 };
 
 #endif //MOONLANDER_WORLD_HPP

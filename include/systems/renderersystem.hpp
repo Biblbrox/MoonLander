@@ -18,12 +18,14 @@ public:
     explicit RendererSystem();
 
     void update(size_t delta) override;
+    void setScale(GLfloat scale);
 private:
     MoonLanderProgram program;
     Camera camera;
 
-    void move_from_camera();
     std::vector<Entity> movables;
+
+    GLfloat scale_factor = 1.f;
 };
 
 #endif //MOONLANDER_RENDERERSYSTEM_HPP

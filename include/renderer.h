@@ -9,13 +9,16 @@
 class Renderer {
 public:
 
-    static void render(MoonLanderProgram& program, Texture& texture, GLfloat x, GLfloat y, GLfloat angle)
+    static void render(MoonLanderProgram& program, Texture& texture, GLfloat x,
+                       GLfloat y, GLfloat angle, GLfloat scale_factor)
     {
         if (texture.getVAO() != 0) {
-            glm::mat4 transform = Utils::rotateAround(glm::mat4(1.f),
+            glm::mat4 rotation = Utils::rotateAround(glm::mat4(1.f),
                                                       glm::vec3(x + texture.getWidth() / 2.f,
                                                                 y + texture.getHeight() / 2.f, 0.f), angle);
-            program.leftMultModel(glm::translate(transform, glm::vec3(x, y, 0.f)));
+            glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(x, y, 0.f));
+            glm::mat4 scaling = glm::scale(glm::mat4(1.f), glm::vec3(scale_factor, scale_factor, 1.f));
+            program.leftMultModel(scaling * rotation * translation);
             program.updateModel();
 
             glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
@@ -24,21 +27,28 @@ public:
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindVertexArray(0);
 
-            transform = glm::translate(glm::mat4(1.f), glm::vec3(-x, -y, 0.f));
-            program.leftMultModel(Utils::rotateAround(transform,
-                                                      glm::vec3(x + texture.getWidth() / 2.f,
-                                                                y + texture.getHeight() / 2.f, 0.f), -angle));
+            translation = glm::translate(glm::mat4(1.f), glm::vec3(-x, -y, 0.f));
+            rotation = Utils::rotateAround(glm::mat4(1.f), glm::vec3(x + texture.getWidth() / 2.f,
+                                                                     y + texture.getHeight() / 2.f, 0.f), -angle);
+            scaling = glm::scale(glm::mat4(1.f), glm::vec3(1 / scale_factor, 1 / scale_factor, 1.f));
+            program.leftMultModel(translation * rotation * scaling);
             program.updateModel();
         }
     }
 
     static void render(MoonLanderProgram& program,
-                       std::vector<Utils::Point>& points, std::vector<Utils::Point>& stars)
+                       std::vector<Utils::Point>& points, std::vector<Utils::Point>& stars, GLfloat scale_factor)
     {
-        //auto shifted_points = Utils::moveVertices(points, -camera.getX(), -camera.getY());
-        //auto shifted_stars = Utils::moveVertices(stars, -camera.getX(), -camera.getY());
+        glm::mat4 scaling = glm::scale(glm::mat4(1.f), glm::vec3(scale_factor, scale_factor, 1.f));
+        program.leftMultModel(scaling);
+        program.updateModel();
+
         Geometry::drawLinen(points);
         Geometry::drawDots(stars);
+
+        scaling = glm::scale(glm::mat4(1.f), glm::vec3(1 / scale_factor, 1 / scale_factor, 1.f));
+        program.leftMultModel(scaling);
+        program.updateModel();
     }
 };
 

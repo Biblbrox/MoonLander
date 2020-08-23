@@ -22,7 +22,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
         ${GLM_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 20)
-set(HPP include/types.hpp include/utils.hpp include/models/levelgenerator.hpp
+set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hpp
         include/texture.hpp include/camera.hpp
         include/geometry.hpp include/timer.hpp
         include/texttexture.hpp include/sprite.hpp include/moonlanderprogram.hpp

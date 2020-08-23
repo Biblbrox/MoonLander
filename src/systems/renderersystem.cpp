@@ -6,11 +6,16 @@
 
 void RendererSystem::update(size_t delta)
 {
+    //glm::mat4 scaling = glm::scale(glm::mat4(1.f), glm::vec3(scale_factor, scale_factor, 1.f));
+   // program.leftMultView(scaling);
+    //program.updateView();
+
     auto levelEntities = getEntitiesByTag<LevelComponent>();
     program.setTextureRendering(false);
     for (auto& [key, en]: levelEntities) {
         Renderer::render(program, en->getComponent<LevelComponent>()->points,
-                         en->getComponent<LevelComponent>()->stars);
+                         en->getComponent<LevelComponent>()->stars,
+                         scale_factor);
     }
 
     auto sprites = getEntitiesByTag<SpriteComponent>();
@@ -19,7 +24,8 @@ void RendererSystem::update(size_t delta)
         Renderer::render(program, *en->getComponent<SpriteComponent>()->sprite,
                                en->getComponent<PositionComponent>()->x,
                                en->getComponent<PositionComponent>()->y,
-                               en->getComponent<PositionComponent>()->angle);
+                               en->getComponent<PositionComponent>()->angle,
+                               en->getComponent<PositionComponent>()->scale_factor);
     }
 
     auto textComponents = getEntitiesByTag<TextComponent>();
@@ -27,8 +33,13 @@ void RendererSystem::update(size_t delta)
         Renderer::render(program, *en->getComponent<TextComponent>()->texture,
                                 en->getComponent<PositionComponent>()->x,
                                 en->getComponent<PositionComponent>()->y,
-                                en->getComponent<PositionComponent>()->angle);
+                                en->getComponent<PositionComponent>()->angle,
+                                en->getComponent<PositionComponent>()->scale_factor);
     }
+
+    //scaling = glm::scale(glm::mat4(1.f), glm::vec3(1 / scale_factor, 1 / scale_factor, 1.f));
+    //program.leftMultView(scaling);
+   // program.updateView();
 }
 
 RendererSystem::RendererSystem()
@@ -49,18 +60,7 @@ RendererSystem::RendererSystem()
     program.setTexture(0);
 }
 
-void RendererSystem::move_from_camera()
+void RendererSystem::setScale(GLfloat scale)
 {
-    for (auto& en: movables) {
-        auto pos = en.getComponent<PositionComponent>();
-        if (pos != nullptr) {
-            pos->x -= camera.getX();
-        } else {
-            auto level = en.getComponent<LevelComponent>();
-            for (auto & point : level->points)
-                point.x -= camera.getX();
-            for (auto& star : level->stars)
-                star.x -= camera.getX();
-        }
-    }
+    scale_factor = scale;
 }

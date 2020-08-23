@@ -21,11 +21,6 @@
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
 
-const GLfloat gravity_force = 0.5f;
-const GLfloat weight = 40.f;
-const GLfloat engine_force = 1.f;
-const GLfloat rot_step = 0.004f;
-
 Entity& World::createEntity(std::string name)
 {
     std::shared_ptr<Entity> ent = std::make_shared<Entity>();
@@ -44,15 +39,49 @@ void World::update_ship()
     Entity ship = *entities["ship"];
     auto shipPos = ship.getComponent<PositionComponent>();
     auto shipVel = ship.getComponent<VelocityComponent>();
-    if (shipPos->x >= screen_width - screen_width / 4.f) {
+    if ((shipPos->x + camera.getX()) >= frame_width - frame_width / 4.f) {
         camera.translate(shipVel->x, 0.f);
         move_from_camera();
     }
 
-    if (shipPos->x <= screen_width / 4.f) {
+    if ((shipPos->x + camera.getX()) <= frame_width / 4.f) {
         camera.translate(shipVel->x, 0.f);
         move_from_camera();
     }
+
+    GLfloat scale_factor = 1.5f;
+    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[type_id<RendererSystem>()]);
+    if ((shipPos->y + camera.getY()) > 300 && !scaled) {
+        renderSystem->setScale(scale_factor);
+        camera.lookAt(shipPos->x + camera.getX() - 200, shipPos->y + camera.getY() - 200);
+        move_from_camera();
+        scaled = true;
+        frame_width /= scale_factor;
+        frame_height /= scale_factor;
+        auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
+        for (auto&[key, en]: scaled_entities) {
+            auto pos = en->getComponent<PositionComponent>();
+            if (pos->scallable)
+                pos->scale_factor = scale_factor;
+        }
+    }
+
+    if ((shipPos->y + camera.getY()) <= 300 && scaled) {
+        renderSystem->setScale(1.f);
+        camera.lookAt(shipPos->x + camera.getX() - 200, 0.f);
+        move_from_camera();
+        scaled = false;
+        frame_width = screen_width;
+        frame_height = screen_height;
+        auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
+        for (auto&[key, en]: scaled_entities) {
+            auto pos = en->getComponent<PositionComponent>();
+            if (pos->scallable)
+                pos->scale_factor = 1.f;
+        }
+
+    }
+
 
     auto colShip = ship.getComponent<CollisionComponent>();
 
@@ -69,15 +98,15 @@ void World::update_text()
     Entity velxEntity = *entities["velxText"];
     Entity velyEntity = *entities["velyText"];
     Entity shipEntity = *entities["ship"];
-    auto shipVel = shipEntity.getComponent<VelocityComponent>();
 
+    auto shipVel = shipEntity.getComponent<VelocityComponent>();
     auto textFps = fpsEntity.getComponent<TextComponent>();
     auto textVelX = velxEntity.getComponent<TextComponent>();
     auto textVelY = velyEntity.getComponent<TextComponent>();
 
-    std::stringstream fpsText;
-    std::stringstream velxText;
-    std::stringstream velyText;
+    std::ostringstream fpsText;
+    std::ostringstream velxText;
+    std::ostringstream velyText;
 
     fpsText << "FPS: " << std::floor(fps.get_fps());
     velxText << std::fixed << std::setprecision(0) << "Horizontal speed x: " << shipVel->x * 60.f;
@@ -101,8 +130,10 @@ void World::update(size_t delta)
 
 void World::init()
 {
-    screen_height = Utils::getScreenHeight<GLuint>();
     screen_width = Utils::getScreenWidth<GLuint>();
+    screen_height = Utils::getScreenHeight<GLuint>();
+    frame_width = screen_width;
+    frame_height = screen_height;
 
     // Ship entity
     Entity& ship = createEntity("ship");
@@ -124,6 +155,7 @@ void World::init()
     auto shipPos = ship.getComponent<PositionComponent>();
     shipPos->x = screen_width / 2.f;
     shipPos->y = 10.f;
+    //camera.lookAt(shipPos->x + camera.getX() - 200, shipPos->y + camera.getY() - 200);
 
     auto shipVel = ship.getComponent<VelocityComponent>();
 
@@ -172,6 +204,7 @@ void World::init()
     auto fpsPos = fpsText.getComponent<PositionComponent>();
     fpsPos->x = screen_width - screen_width / 4.2f;
     fpsPos->y = screen_height / 15.f;
+    fpsPos->scallable = false;
 
     // Velocity x entity
     Entity& velxText = createEntity("velxText");
@@ -184,6 +217,7 @@ void World::init()
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = screen_width - screen_width / 4.2f;
     velxPos->y = screen_height / 10.f;
+    velxPos->scallable = false;
 
     // Velocity y entity
     Entity& velyText = createEntity("velyText");
@@ -196,6 +230,7 @@ void World::init()
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = screen_width - screen_width / 4.2f;
     velyPos->y = screen_height / 8.f;
+    velyPos->scallable = false;
 
     createSystem<RendererSystem>();
     createSystem<MovementSystem>();
@@ -214,12 +249,27 @@ void World::move_from_camera()
         auto pos = en.getComponent<PositionComponent>();
         if (pos != nullptr) {
             pos->x -= camera.deltaX();
+            pos->y -= camera.deltaY();
         } else {
             auto level = en.getComponent<LevelComponent>();
-            for (auto & point : level->points)
+            for (auto & point : level->points) {
                 point.x -= camera.deltaX();
-            for (auto& star : level->stars)
+                point.y -= camera.deltaY();
+            }
+            for (auto& star : level->stars) {
                 star.x -= camera.deltaX();
+                star.y -= camera.deltaY();
+            }
         }
     }
+}
+
+std::unordered_map<std::string, std::shared_ptr<Entity>> World::getTextEntities()
+{
+    std::unordered_map<std::string, std::shared_ptr<Entity>> textEntities;
+    textEntities.insert({"fpsText", entities["fpsText"]});
+    textEntities.insert({"velxText", entities["velxText"]});
+    textEntities.insert({"velyText", entities["velyText"]});
+
+    return textEntities;
 }
