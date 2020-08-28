@@ -2,7 +2,7 @@
 #include "utils.hpp"
 
 const int stars_initial_size = 500;
-const int points_initial_size = 100;
+const int points_initial_size = 500;
 
 using utils::Point;
 
@@ -17,8 +17,8 @@ std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) c
     std::vector<Point> gen(stars_initial_size);
 
     for (auto& star: gen) {
-        star.x = urand.generate(left, right);
-        star.y = urand.generate(0, height_max);
+        star.x = urand.generateu(left, right);
+        star.y = urand.generateu<GLfloat>(0, height_max);
     }
 
     return gen;
@@ -26,39 +26,43 @@ std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) c
 
 std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
 {
+    //TODO: tune parameters
     utils::RandomUniform urand;
     std::vector<Point> res(points_count);
 
     const int platform_count_min = points_count / 8;
     const int platform_count_max = points_count / 3;
 
-    const int point_distance_min = frame_width / points_count * 2;
-    const int point_distance_max = std::floor(frame_width / (GLfloat)points_count * 2.5f);
+    const GLfloat point_distance_min = frame_width / points_count * 4.f;
+    const GLfloat point_distance_max = frame_width / points_count * 5.f;
 
-    const int platform_min_width = point_distance_min / 2.f;
-    const int plaftorm_max_width = point_distance_min / 1.1f;
+    const GLfloat platform_min_width = 30;
+    const GLfloat plaftorm_max_width = 50;
 
-    size_t platforms_count = urand.generate(platform_count_min, platform_count_max);
+    size_t platforms_count = urand.generateu(platform_count_min, platform_count_max);
     std::vector<GLuint> plat_idx(platforms_count, 0);
 
     urand.fill_unique<GLuint>(plat_idx.begin(), plat_idx.end(), 0, res.size());
 
-    GLfloat prev_width;
-    for (int i = 0; i < res.size(); ++i) {
+    GLfloat plat_width;
+    const GLfloat deviation = 20.f;
+    for (size_t i = 0; i < res.size(); ++i) {
         if (i == 0) {
             res[i].x = initial_x;
-            res[i].y = urand.generate(height_min, height_max);
+            res[i].y = urand.generaten((height_min + height_max) / 2.f, deviation);
         } else {
-            if (std::find(plat_idx.begin(), plat_idx.end(), i) != plat_idx.end()) { // platform case
-                prev_width = urand.generate(platform_min_width, plaftorm_max_width);
-                res[i].x = res[i - 1].x + urand.generate(point_distance_min, point_distance_max) - prev_width / 2.f;
-                res[i].y = urand.generate(height_min, height_max);
-            } else if (std::find(plat_idx.begin(), plat_idx.end(), i - 1) != plat_idx.end()) { // prev. platform case
-                res[i].x = res[i - 1].x + prev_width / 2;
+            if (std::count(plat_idx.begin(), plat_idx.end(), i) != 0) { // platform case
+                plat_width = urand.generateu(platform_min_width, plaftorm_max_width);
+                res[i].x = res[i - 1].x + urand.generateu(point_distance_min, point_distance_max);
+                res[i].y = urand.generaten(res[i - 1].y, deviation)
+                           + urand.generateu(-deviation, deviation);
+            } else if (std::count(plat_idx.begin(), plat_idx.end(), i - 1) != 0) { // prev. platform case
+                res[i].x = res[i - 1].x + plat_width;
                 res[i].y = res[i - 1].y;
             } else { // normal case
-                res[i].x = res[i - 1].x + urand.generate(point_distance_min, point_distance_max);
-                res[i].y = urand.generate(height_min, height_max);
+                res[i].x = res[i - 1].x + urand.generateu(point_distance_min, point_distance_max);
+                res[i].y = urand.generaten(res[i - 1].y, deviation)
+                           + urand.generateu(-deviation, deviation);
             }
         }
     }
@@ -68,8 +72,8 @@ std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
 
 LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_count(stars_initial_size)
 {
-    height_min = utils::getScreenHeight<int>() - utils::getScreenHeight<int>() / 2;
-    height_max = utils::getScreenHeight<int>() - utils::getScreenHeight<int>() / 5;
+    height_min = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 2;
+    height_max = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 5;
 }
 
 void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars)
@@ -87,8 +91,8 @@ void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point
     GLfloat old_max_x = old_right;
     stars.resize(stars.size() + stars_initial_size);
     for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generate(old_max_x, old_max_x + line_length);
-        stars[i].y = urand.generate(0, height_max);
+        stars[i].x = urand.generateu(old_max_x, old_max_x + line_length);
+        stars[i].y = urand.generateu<GLfloat>(0, height_max);
     }
 }
 
@@ -110,7 +114,7 @@ void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>
     GLfloat old_max_x = old_left;
     stars.resize(stars.size() + stars_initial_size);
     for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generate<GLfloat>(old_max_x - line_length, old_max_x);
-        stars[i].y = urand.generate<GLfloat>(0, height_max);
+        stars[i].x = urand.generateu<GLfloat>(old_max_x - line_length, old_max_x);
+        stars[i].y = urand.generateu<GLfloat>(0, height_max);
     }
 }

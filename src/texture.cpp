@@ -1,8 +1,4 @@
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 #include <GL/glew.h>
-#include <GL/glu.h>
-#include <GL/gl.h>
 #include "../include/texture.hpp"
 
 Texture::Texture()

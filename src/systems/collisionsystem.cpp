@@ -7,7 +7,8 @@ void CollisionSystem::update(size_t delta)
 
     for (auto it = spriteEntities.begin(); it != spriteEntities.end(); ++it) {
         for (auto jt = spriteEntities.begin(); jt != spriteEntities.end(); ++jt) {
-            if (jt != it) {
+            if (jt != it && it->second->getComponent<CollisionComponent>() != nullptr
+                && jt->second->getComponent<CollisionComponent>() != nullptr) {
                 // Code to check collision between sprites
             }
         }
@@ -19,14 +20,16 @@ void CollisionSystem::update(size_t delta)
     auto level = levelEntities.begin()->second->getComponent<LevelComponent>();
     auto level_col = levelEntities.begin()->second->getComponent<CollisionComponent>();
     for (auto & [key, spriteEntity] : spriteEntities) {
-        auto sprite = spriteEntity->getComponent<SpriteComponent>()->sprite;
-        auto pos = spriteEntity->getComponent<PositionComponent>();
-        if (levelSpriteCollision(*sprite, pos->x, pos->y, level->points, level->stars, pos->angle)) {
-            spriteEntity->getComponent<CollisionComponent>()->has_collision = true;
-            level_col->has_collision = true;
-        } else {
-            spriteEntity->getComponent<CollisionComponent>()->has_collision = false;
-            levelEntities.begin()->second->getComponent<CollisionComponent>()->has_collision = false;
+        if (spriteEntity->getComponent<CollisionComponent>() != nullptr) {
+            auto sprite = spriteEntity->getComponent<SpriteComponent>()->sprite;
+            auto pos = spriteEntity->getComponent<PositionComponent>();
+            if (levelSpriteCollision(*sprite, pos->x, pos->y, level->points, level->stars, pos->angle)) {
+                spriteEntity->getComponent<CollisionComponent>()->has_collision = true;
+                level_col->has_collision = true;
+            } else {
+                spriteEntity->getComponent<CollisionComponent>()->has_collision = false;
+                levelEntities.begin()->second->getComponent<CollisionComponent>()->has_collision = false;
+            }
         }
     }
 

@@ -2,6 +2,7 @@
 #define MOONLANDER_TIMER_HPP
 
 #include <SDL_types.h>
+#include <vector>
 
 namespace utils {
 
@@ -26,7 +27,6 @@ namespace utils {
         bool paused;
         bool started;
     };
-
 }
 
 

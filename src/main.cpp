@@ -1,14 +1,9 @@
+#include "../include/utils.hpp"
 #include <SDL2/SDL.h>
 #include <game.hpp>
-#include "../include/utils.hpp"
 
 int main(int argc, char *args[])
 {
-    /**
-     * Set my own log function
-     */
-    SDL_LogSetOutputFunction(&utils::log::log_function, nullptr);
-
     try {
         Game game;
         game.initOnceSDL2();

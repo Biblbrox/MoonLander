@@ -40,7 +40,7 @@ bool MoonLanderProgram::loadProgram()
     glGetProgramiv(programID, GL_LINK_STATUS, &programSuccess);
     if (programSuccess != GL_TRUE) {
         printf("Error linking program %d!\n", programID);
-        utils::printProgramLog(programID);
+        utils::log::printProgramLog(programID);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         glDeleteProgram(programID);
@@ -48,8 +48,20 @@ bool MoonLanderProgram::loadProgram()
         return false;
     }
 
+    GLuint geometryShader = utils::loadShaderFromFile(
+            utils::getShaderPath("moonLander.glgs"), GL_GEOMETRY_SHADER);
+
+    if (geometryShader == 0) {
+        glDeleteProgram(programID);
+        programID = 0;
+        return false;
+    }
+
+    glAttachShader(programID, geometryShader);
+
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(geometryShader);
 
     projectionLoc = glGetUniformLocation(programID, "ProjectionMatrix");
     if(projectionLoc == -1)

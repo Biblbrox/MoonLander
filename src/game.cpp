@@ -58,11 +58,9 @@ void Game::initGL()
     screen_w = utils::getScreenWidth<GLuint>();
     screen_h = utils::getScreenHeight<GLuint>();
 
-    //window = std::make_unique<Window>(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-    //       SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS);
     window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>>(SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-                   SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS), [](SDL_Window *window){
-        SDL_DestroyWindow(window);
+                   SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS), [](SDL_Window *win){
+        SDL_DestroyWindow(win);
     });
 
     glContext = SDL_GL_CreateContext(window.get());

@@ -40,14 +40,40 @@ GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint heigh
     return textureID;
 }
 
-/**
- * Write msg to the standard output and log file
- * @param userdata
- * @param category
- * @param priority
- * @param msg
- */
-void utils::log::log_function(void* userdata, int category, SDL_LogPriority priority, const char* msg)
+GLfloat utils::ship_altitude(const std::vector<Point>& line_points, GLfloat shipX, GLfloat shipY)
 {
-    std::cout << "Hello from log function" << std::endl;
+    assert(line_points.size() >= 2 && "line_points size must be >= 2");
+    size_t line_idx = 0;
+    for (size_t i = 0; i < line_points.size() - 1; ++i) {
+        if (line_points[i].x <= shipX && line_points[i + 1].x > shipX) {
+            line_idx = i;
+            break;
+        }
+    }
+
+    GLfloat alt = (shipX - line_points[line_idx].x)
+                  / (line_points[line_idx + 1].x - line_points[line_idx].x)
+                  * (line_points[line_idx + 1].y - line_points[line_idx].y)
+                  + line_points[line_idx].y - shipY;
+
+    return alt;
+}
+
+GLfloat utils::alt_from_surface(const std::vector<Point>& line_points, const GLfloat x, const GLfloat alt)
+{
+    assert(line_points.size() >=  2 && "line_points size must be >= 2");
+    size_t line_idx;
+    for (size_t i = 0; i < line_points.size() - 1; ++i) {
+        if (line_points[i].x <= x && line_points[i + 1].x > x) {
+            line_idx = i;
+            break;
+        }
+    }
+
+    GLfloat res = (x - line_points[line_idx].x)
+                  / (line_points[line_idx + 1].x - line_points[line_idx].x)
+                  * (line_points[line_idx + 1].y - line_points[line_idx].y)
+                  + line_points[line_idx].y - alt;
+
+    return res;
 }

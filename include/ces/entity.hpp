@@ -27,6 +27,8 @@ public:
     template <class ComponentType>
     std::shared_ptr<Component> addComponent()
     {
+        static_assert(std::is_base_of_v<Component, ComponentType>,
+                      "Template parameter class must be child of Component");
         components[type_id<ComponentType>()] =
                 std::static_pointer_cast<Component>(std::make_shared<ComponentType>());
         return components[type_id<ComponentType>()];
@@ -40,6 +42,8 @@ public:
     template <class ComponentType>
     std::unordered_map<size_t, std::shared_ptr<Component>>::iterator getComponentIt()
     {
+        static_assert(std::is_base_of_v<Component, ComponentType>,
+                      "Template parameter class must be child of Component");
         auto it = components.find(type_id<ComponentType>());
         return it;
     }
@@ -52,6 +56,8 @@ public:
     template <class ComponentType>
     std::shared_ptr<ComponentType> getComponent()
     {
+        static_assert(std::is_base_of_v<Component, ComponentType>,
+                      "Template parameter class must be child of Component");
         auto it = components.find(type_id<ComponentType>());
         if (it == components.end())
             return std::shared_ptr<ComponentType>(nullptr);

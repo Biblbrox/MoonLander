@@ -1,4 +1,4 @@
-#include <systems/keyboardsystem.h>
+#include <systems/keyboardsystem.hpp>
 
 void KeyboardSystem::update(size_t delta)
 {

@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_FPS_H
-#define MOONLANDER_FPS_H
+#ifndef MOONLANDER_FPS_HPP
+#define MOONLANDER_FPS_HPP
 
 #include <cstddef>
 #include <cstring>
@@ -53,4 +53,4 @@ private:
     size_t fps;
 };
 
-#endif //MOONLANDER_FPS_H
+#endif //MOONLANDER_FPS_HPP

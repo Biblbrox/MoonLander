@@ -24,7 +24,7 @@ bool ShaderProgram::bind() const
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         printf("Error binding shader program! %s\n", gluErrorString(error));
-        utils::printProgramLog(programID);
+        utils::log::printProgramLog(programID);
         return false;
     }
 

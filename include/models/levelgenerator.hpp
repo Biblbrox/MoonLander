@@ -20,10 +20,10 @@ public:
 private:
     int points_count;
     int stars_count;
-    const int frame_width = 2000;
+    const GLfloat frame_width = 2000;
 
-    int height_min;
-    int height_max;
+    GLfloat height_min;
+    GLfloat height_max;
 };
 
 

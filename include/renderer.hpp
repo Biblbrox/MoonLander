@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_RENDERER_H
-#define MOONLANDER_RENDERER_H
+#ifndef MOONLANDER_RENDERER_HPP
+#define MOONLANDER_RENDERER_HPP
 
 #include <GL/glew.h>
 #include "moonlanderprogram.hpp"
@@ -52,4 +52,4 @@ public:
     }
 };
 
-#endif //MOONLANDER_RENDERER_H
+#endif //MOONLANDER_RENDERER_HPP

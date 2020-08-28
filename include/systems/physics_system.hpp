@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_PHYSICS_SYSTEM_H
-#define MOONLANDER_PHYSICS_SYSTEM_H
+#ifndef MOONLANDER_PHYSICS_SYSTEM_HPP
+#define MOONLANDER_PHYSICS_SYSTEM_HPP
 
 #include <components/velocitycomponent.hpp>
 #include "../ces/system.hpp"
@@ -9,4 +9,4 @@ public:
     void update(size_t delta) override;
 };
 
-#endif //MOONLANDER_PHYSICS_SYSTEM_H
+#endif //MOONLANDER_PHYSICS_SYSTEM_HPP

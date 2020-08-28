@@ -1,8 +1,8 @@
 #include "systems/renderersystem.hpp"
 #include <algorithm>
-#include "components/levelcomponent.h"
+#include "components/levelcomponent.hpp"
 #include "components/spritecomponent.hpp"
-#include "renderer.h"
+#include "renderer.hpp"
 
 void RendererSystem::update(size_t delta)
 {
@@ -15,7 +15,7 @@ void RendererSystem::update(size_t delta)
     for (auto& [key, en]: levelEntities) {
         Renderer::render(program, en->getComponent<LevelComponent>()->points,
                          en->getComponent<LevelComponent>()->stars,
-                         scale_factor);
+                         en->getComponent<LevelComponent>()->scale_factor);
     }
 
     auto sprites = getEntitiesByTag<SpriteComponent>();
@@ -54,9 +54,4 @@ RendererSystem::RendererSystem()
     program.updateProjection();
     program.updateColor();
     program.setTexture(0);
-}
-
-void RendererSystem::setScale(GLfloat scale)
-{
-    scale_factor = scale;
 }

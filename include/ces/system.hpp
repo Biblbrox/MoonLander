@@ -7,7 +7,7 @@
 #include <memory>
 #include "utils.hpp"
 #include "world.hpp"
-#include "basesystem.h"
+#include "basesystem.hpp"
 #include "entity.hpp"
 
 //class Entity;
@@ -34,7 +34,7 @@ class System;
 template <typename ...Args>
 class System<system_holder<Args...>> : public BaseSystem {
 public:
-    System()
+    explicit System()
     {
         fill_types<Args...>();
     }

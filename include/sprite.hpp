@@ -20,7 +20,6 @@ public:
     void setIdx(GLuint idx);
 
     bool generateDataBuffer();
-    //void render(MoonLanderProgram& program, GLfloat x, GLfloat y, GLuint idx, GLfloat angle);
     void freeSheet();
 
     GLuint getVAO() const;

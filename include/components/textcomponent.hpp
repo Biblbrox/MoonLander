@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TEXTCOMPONENT_H
-#define MOONLANDER_TEXTCOMPONENT_H
+#ifndef MOONLANDER_TEXTCOMPONENT_HPP
+#define MOONLANDER_TEXTCOMPONENT_HPP
 
 #include <memory>
 #include <texttexture.hpp>
@@ -9,4 +9,4 @@ struct TextComponent : Component {
     std::shared_ptr<TextTexture> texture;
 };
 
-#endif //MOONLANDER_TEXTCOMPONENT_H
+#endif //MOONLANDER_TEXTCOMPONENT_HPP

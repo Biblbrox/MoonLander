@@ -3,7 +3,7 @@
 
 #include <components/collisioncomponent.hpp>
 #include <components/spritecomponent.hpp>
-#include <components/levelcomponent.h>
+#include <components/levelcomponent.hpp>
 #include <components/positioncomponent.hpp>
 #include "../ces/system.hpp"
 

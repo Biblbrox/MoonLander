@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_BASESYSTEM_H
-#define MOONLANDER_BASESYSTEM_H
+#ifndef MOONLANDER_BASESYSTEM_HPP
+#define MOONLANDER_BASESYSTEM_HPP
 
 #include <memory>
 
@@ -21,4 +21,4 @@ protected:
     std::shared_ptr<World> pWorld;
 };
 
-#endif //MOONLANDER_BASESYSTEM_H
+#endif //MOONLANDER_BASESYSTEM_HPP

@@ -14,10 +14,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <boost/format.hpp>
+#include <components/positioncomponent.hpp>
 #include "constants.hpp"
 #include "timer.hpp"
+#include "logger.hpp"
 
 namespace utils {
+
+    constexpr const char* shader_log_file_name()
+    {
+        return "shader_log.log";
+    }
 
     struct Point {
         GLfloat x;
@@ -47,6 +54,58 @@ namespace utils {
          * @param msg
          */
         void log_function(void *userdata, int category, SDL_LogPriority priority, const char *msg);
+
+        /**
+         * Writes shader log to shader log file and standard output
+         * @param shader
+         */
+        inline void printShaderLog(GLuint shader)
+        {
+            if (glIsShader(shader)) {
+                int infoLength = 0;
+                int maxLength = infoLength;
+
+                glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+                char *log_str = new char[maxLength];
+
+                glGetShaderInfoLog(shader, maxLength, &infoLength, log_str);
+                if (infoLength > 0) {
+                    log::Logger::write(shader_log_file_name(),
+                                       log::Category::INTERNAL_ERROR,
+                                       (boost::format("Shader log:\n\n%s") % log_str).str());
+                }
+
+                delete[] log_str;
+            } else {
+                std::cerr << (boost::format("Name %d is not a shader\n") % shader).str() << std::endl;
+            }
+        }
+
+        /**
+         * Writes program log to shader log file and standard output
+         * @param program
+         */
+        inline void printProgramLog(GLuint program)
+        {
+            if (glIsProgram(program)) {
+                int infoLength = 0;
+                int maxLength = infoLength;
+
+                glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+                char *log_str = new char[maxLength];
+
+                glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
+                if (infoLength > 0) {
+                    log::Logger::write(shader_log_file_name(),
+                                       log::Category::INTERNAL_ERROR,
+                                       (boost::format("Shader program log:\n\n%s") % log_str).str());
+                }
+
+                delete[] log_str;
+            } else {
+                std::cerr << (boost::format("Name %d is not a program\n") % program).str() << std::endl;
+            }
+        }
     }
 
     /**
@@ -65,18 +124,20 @@ namespace utils {
         return tr2;
     }
 
-    class RandomUniform {
+    class RandomUniform
+    {
     public:
         explicit RandomUniform();
 
         template<typename T>
         void fill_unique(const typename std::vector<T>::iterator &begin,
-                         const typename std::vector<T>::iterator &end, T left, T right) {
+                         const typename std::vector<T>::iterator &end, T left, T right)
+        {
             std::generate(begin, end, [begin, end, left, right, this]() {
-                GLuint val = generate<T>(left, right);
+                GLuint val = generateu<T>(left, right);
                 if (std::find(begin, end, val) != end)
                     while (std::find(begin, end, val) != end)
-                        val = generate<T>(left, right);
+                        val = generateu<T>(left, right);
 
                 return val;
             });
@@ -84,17 +145,26 @@ namespace utils {
 
         template<typename T>
         void fill(const typename std::vector<T>::iterator &begin,
-                  const typename std::vector<T>::iterator &end, T left, T right) {
+                  const typename std::vector<T>::iterator &end, T left, T right)
+        {
             std::generate(begin, end, [left, right, this]() {
-                return generate<T>(left, right);
+                return generateu<T>(left, right);
             });
         }
 
         template<typename T>
-        T generate(T a, T b) {
+        T generateu(T a, T b) {
             std::uniform_int_distribution<T> dist(a, b);
             return dist(this->generator);
 
+        }
+
+        template<typename T>
+        T generaten(T mean, T svariance)
+        {
+            static_assert(std::is_floating_point_v<T>, "Template parameter of generaten must be floating point");
+            std::normal_distribution<T> dist(mean, svariance);
+            return dist(this->generator);
         }
 
     private:
@@ -102,31 +172,36 @@ namespace utils {
     };
 
     template<>
-    inline GLfloat RandomUniform::generate<GLfloat>(GLfloat a, GLfloat b)
+    inline GLfloat RandomUniform::generateu<GLfloat>(GLfloat a, GLfloat b)
     {
         std::uniform_real_distribution<GLfloat> dist(a, b);
         return dist(this->generator);
     }
 
     template<>
-    inline GLdouble RandomUniform::generate<GLdouble>(GLdouble a, GLdouble b)
+    inline GLdouble RandomUniform::generateu<GLdouble>(GLdouble a, GLdouble b)
     {
         std::uniform_real_distribution<GLdouble> dist(a, b);
         return dist(this->generator);
     }
 
     template<typename T>
-    inline constexpr size_t type_id()
+    inline constexpr size_t type_id() noexcept
     {
         return typeid(T).hash_code();
     }
+
+    GLfloat ship_altitude(const std::vector<Point>& points, GLfloat shipX, GLfloat shipY);
+
+    GLfloat alt_from_surface(const std::vector<Point> &line_points, GLfloat x, GLfloat alt);
 
     /**
      * Return full path to resource fileName
      * @param fileName
      * @return
      */
-    inline std::string getResourcePath(const std::string &fileName) {
+    inline std::string getResourcePath(const std::string &fileName)
+    {
         return std::string(RESOURCE_PATH + fileName);
     }
 
@@ -135,25 +210,41 @@ namespace utils {
      * @param fileName
      * @return
      */
-    inline std::string getShaderPath(const std::string &fileName) {
+    inline std::string getShaderPath(const std::string &fileName)
+    {
         return std::string(SHADER_PATH + fileName);
     }
 
+    /**
+     * Both functions getScreenWidth and getScreenHeight can
+     * be called after SDL2 initialization. Otherwise 0 will be returned
+     * @tparam T
+     * @return
+     */
     template<typename T>
-    inline T getScreenWidth() {
+    inline T getScreenWidth() noexcept
+    {
+        if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
+            return 0;
+
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
         return dm.w;
     }
 
     template<typename T>
-    inline T getScreenHeight() {
+    inline T getScreenHeight() noexcept
+    {
+        if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
+            return 0;
+
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
         return dm.h;
     }
 
-    inline RectPoints buildRectPoints(const Rect &rect, double rot) {
+    inline RectPoints buildRectPoints(const Rect &rect, double rot) noexcept
+    {
         RectPoints temp_rect;
         GLfloat bx, by, cx, cy, dx, dy;
         GLfloat x = rect.x;
@@ -261,57 +352,7 @@ namespace utils {
         return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
     }
 
-    /**
-     * Writes shader log to shader log file and standard output
-     * @param shader
-     */
-    inline void printShaderLog(GLuint shader)
-    {
-        // TODO: write info to log file
-        if (glIsShader(shader)) {
-            int infoLength = 0;
-            int maxLength = infoLength;
-
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-            char *log_str = new char[maxLength];
-
-            glGetShaderInfoLog(shader, maxLength, &infoLength, log_str);
-            if (infoLength > 0) {
-                printf("%s\n", log_str);
-            }
-
-            delete[] log_str;
-        } else {
-            printf("Name %d is not a shader\n", shader);
-        }
-    }
-
-    /**
-     * Writes program log to shader log file and standard output
-     * @param program
-     */
-    inline void printProgramLog(GLuint program)
-    {
-        // TODO: write info to log file
-        if (glIsProgram(program)) {
-            int infoLength = 0;
-            int maxLength = infoLength;
-
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-            char *log_str = new char[maxLength];
-
-            glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
-            if (infoLength > 0) {
-                printf("%s\n", log_str);
-            }
-
-            delete[] log_str;
-        } else {
-            printf("Name %d is not a program\n", program);
-        }
-    }
-
-    /**
+     /**
      * Load shader from file by specific path
      * shaderType param may of the supported shader types
      * If shader can't be loaded (file not found or bad read access) or can't be compiled
@@ -321,36 +362,39 @@ namespace utils {
      * @param shaderType
      * @return
      */
-    inline GLuint loadShaderFromFile(const std::string &path, GLenum shaderType)
-    {
-        GLuint shaderID = 0;
-        std::string shaderString;
-        std::ifstream sourceFile(path.c_str());
-        if (!sourceFile.is_open())
-            throw std::runtime_error((boost::format("Can't open shader source file %1%\n") % path).str());
+     inline GLuint loadShaderFromFile(const std::string &path, GLenum shaderType)
+     {
+         GLuint shaderID = 0;
+         std::string shaderString;
+         std::ifstream sourceFile(path.c_str());
+         if (!sourceFile.is_open()) {
+             log::Logger::write(shader_log_file_name(),
+                                log::Category::FILE_ERROR,
+                                (boost::format("Unable to open file %s\n")
+                                 % path.c_str()).str());
+             throw std::runtime_error((boost::format("Can't open shader source file %1%\n") % path).str());
+         }
 
-        if (sourceFile) {
-            shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
-                                std::istreambuf_iterator<char>());
+         shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
+                             std::istreambuf_iterator<char>());
 
-            shaderID = glCreateShader(shaderType);
-            const GLchar *shaderSource = shaderString.c_str();
-            glShaderSource(shaderID, 1, (const GLchar **) &shaderSource, NULL);
-            glCompileShader(shaderID);
+         shaderID = glCreateShader(shaderType);
+         const GLchar *shaderSource = shaderString.c_str();
+         glShaderSource(shaderID, 1, (const GLchar **) &shaderSource, NULL);
+         glCompileShader(shaderID);
 
-            GLint shaderCompiled = GL_FALSE;
-            glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
-            if (shaderCompiled != GL_TRUE) {
-                //TODO: write info to log file
-                printf("Unable to compile shader %d!\n\nSource:\n%s\n", shaderID, shaderSource);
-                printShaderLog(shaderID);
-                glDeleteShader(shaderID);
-                throw std::runtime_error((boost::format("Unable to compile shader %1%\n\nSource:\n%2%\n")
-                                          % shaderID % shaderSource).str());
-            }
-        } else {
-            printf("Unable to open file %s\n", path.c_str());
-        }
+         GLint shaderCompiled = GL_FALSE;
+         glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
+         if (shaderCompiled != GL_TRUE) {
+             log::Logger::write(shader_log_file_name(),
+                                log::Category::INTERNAL_ERROR,
+                                (boost::format("Unable to compile shader %d!\n\nSource:\n%s\n")
+                                 % shaderID % shaderSource).str());
+             log::printShaderLog(shaderID);
+             glDeleteShader(shaderID);
+             throw std::runtime_error((boost::format("Unable to compile shader %1%\n\nSource:\n%2%\n")
+                                       % shaderID % shaderSource).str());
+         }
 
         return shaderID;
     }
@@ -361,9 +405,9 @@ namespace utils {
      * @param surface
      * @return
      */
-    inline GLenum getSurfaceFormatInfo(const SDL_Surface &surface)
+    inline GLenum getSurfaceFormatInfo(const SDL_Surface &surface) noexcept
     {
-        GLenum format = GL_RGBA;
+        GLenum format = 0;
         GLint nOfColors;
         nOfColors = surface.format->BytesPerPixel;
         if (nOfColors == 4) {     // contains an alpha channel
@@ -376,8 +420,6 @@ namespace utils {
                 format = GL_RGB;
             else
                 format = GL_BGR;
-        } else {
-            return 0;
         }
 
         return format;

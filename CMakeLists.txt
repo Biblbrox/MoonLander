@@ -8,7 +8,7 @@ add_compile_options("-D_FORTIFY_SOURCE=2" "-D_GLIBCXX_ASSERTIONS" "-fasynchronou
         "-fstack-protector-strong" "-g" "-grecord-gcc-switches" "-fcf-protection" "-pipe" "-Wall" "-Werror=format-security"
         "-Wl,-z,defs" "-Wl,-z,now" "-Wl,-z,relro" "-std=c++2a")
 
-add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+#add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
@@ -31,7 +31,7 @@ set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hp
         include/ces/world.hpp include/ces/component.hpp include/ces/entity.hpp include/ces/system.hpp
         include/systems/renderersystem.hpp include/systems/movementsystem.hpp
         include/systems/animationsystem.hpp include/systems/collisionsystem.hpp
-        include/systems/physics_system.h)
+        include/systems/physics_system.hpp include/logger.hpp)
 
 set(CPP src/main.cpp src/utils.cpp src/levelgenerator.cpp src/texture.cpp
         src/geometry.cpp src/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
@@ -39,7 +39,8 @@ set(CPP src/main.cpp src/utils.cpp src/levelgenerator.cpp src/texture.cpp
         src/ces/component.cpp src/ces/system.cpp src/ces/world.cpp src/ces/entity.cpp
         src/systems/renderersystem.cpp src/systems/movementsystem.cpp
         src/systems/keyboardsystem.cpp src/systems/animationsystem.cpp
-        src/systems/collisionsystem.cpp src/systems/physicssystem.cpp)
+        src/systems/collisionsystem.cpp src/systems/physicssystem.cpp
+        src/logger.cpp)
 
 set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)

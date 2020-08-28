@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "utils.hpp"
-#include <GL/gl.h>
+#include <GL/glew.h>
 
 class Geometry {
 public:
