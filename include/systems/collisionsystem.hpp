@@ -7,7 +7,8 @@
 #include <components/positioncomponent.hpp>
 #include "../ces/system.hpp"
 
-class CollisionSystem : public System<system_holder<CollisionComponent, SpriteComponent, LevelComponent, PositionComponent>> {
+//class CollisionSystem : public System<system_holder<CollisionComponent, SpriteComponent, LevelComponent, PositionComponent>> {
+class CollisionSystem : public System<CollisionComponent, SpriteComponent, LevelComponent, PositionComponent> {
     void update(size_t delta) override;
 
 private:

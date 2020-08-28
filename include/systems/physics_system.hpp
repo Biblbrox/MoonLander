@@ -4,7 +4,8 @@
 #include <components/velocitycomponent.hpp>
 #include "../ces/system.hpp"
 
-class PhysicsSystem : public System<system_holder<VelocityComponent>> {
+//class PhysicsSystem : public System<system_holder<VelocityComponent>> {
+class PhysicsSystem : public System <VelocityComponent> {
 public:
     void update(size_t delta) override;
 };

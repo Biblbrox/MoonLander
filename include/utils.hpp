@@ -26,6 +26,11 @@ namespace utils {
         return "shader_log.log";
     }
 
+    constexpr const char* program_log_file_name()
+    {
+        return "moonlander_log.log";
+    }
+
     struct Point {
         GLfloat x;
         GLfloat y;

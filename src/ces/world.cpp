@@ -48,7 +48,8 @@ void World::rescale_world()
             pos->scale_factor = scaled ? 1.f : scale_factor;
     }
     if (scaled)
-        camera.lookAt(shipPos->x + camera.getX() - frame_width / 2.f, shipPos->y + camera.getY() - frame_width / 5.f);
+        camera.lookAt(shipPos->x + camera.getX() - frame_width / 2.f,
+                      shipPos->y + camera.getY() - frame_width / 5.f);
     else
         camera.lookAt(shipPos->x + camera.getX() - frame_width / 2.f,
                       shipPos->y + camera.getY() - frame_height / 4.f);
@@ -66,7 +67,7 @@ void World::update_ship()
     auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[type_id<RendererSystem>()]);
     auto levelComp = entities["level"]->getComponent<LevelComponent>();
     const GLfloat shipHeight = (utils::ship_altitude(levelComp->points, shipPos->x, shipPos->y));
-    const GLfloat alt_threshold = 100.f;
+    const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipHeight < alt_threshold && !scaled) // Need to increase scale
         || (shipHeight >= alt_threshold && scaled)) { // Need to decrease scale
         rescale_world();

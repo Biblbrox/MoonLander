@@ -36,8 +36,8 @@ std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
     const GLfloat point_distance_min = frame_width / points_count * 4.f;
     const GLfloat point_distance_max = frame_width / points_count * 5.f;
 
-    const GLfloat platform_min_width = 30;
-    const GLfloat plaftorm_max_width = 50;
+    const GLfloat platform_min_width = 30.f;
+    const GLfloat plaftorm_max_width = 50.f;
 
     size_t platforms_count = urand.generateu(platform_count_min, platform_count_max);
     std::vector<GLuint> plat_idx(platforms_count, 0);
@@ -78,7 +78,6 @@ LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_coun
 
 void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars)
 {
-    utils::RandomUniform urand;
     auto right = generate_lines(points[points.size() - 1].x);
 
     GLfloat old_right = points[points.size() - 1].x;
@@ -87,18 +86,14 @@ void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point
     points.reserve(points.size() + right.size());
     points.insert(points.end(), right.begin(), right.end());
 
-    size_t old_size = stars.size();
     GLfloat old_max_x = old_right;
-    stars.resize(stars.size() + stars_initial_size);
-    for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generateu(old_max_x, old_max_x + line_length);
-        stars[i].y = urand.generateu<GLfloat>(0, height_max);
-    }
+    auto new_stars = generate_stars(old_max_x, old_max_x + line_length);
+    stars.reserve(stars.size() + new_stars.size());
+    stars.insert(stars.end(), new_stars.begin(), new_stars.end());
 }
 
 void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars)
 {
-    utils::RandomUniform urand;
     auto left = generate_lines(0);
 
     GLfloat old_left = points[0].x;
@@ -110,11 +105,8 @@ void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>
     points.insert(points.end(), left.begin(), left.end());
     std::rotate(points.begin(), points.begin() + left.size(), points.end());
 
-    size_t old_size = stars.size();
     GLfloat old_max_x = old_left;
-    stars.resize(stars.size() + stars_initial_size);
-    for (size_t i = old_size; i < stars.size(); ++i) {
-        stars[i].x = urand.generateu<GLfloat>(old_max_x - line_length, old_max_x);
-        stars[i].y = urand.generateu<GLfloat>(0, height_max);
-    }
+    auto new_stars = generate_stars(old_max_x - line_length, old_max_x);
+    stars.reserve(stars.size() + new_stars.size());
+    stars.insert(stars.end(), new_stars.begin(), new_stars.end());
 }
