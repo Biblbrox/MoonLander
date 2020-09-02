@@ -19,11 +19,10 @@ public:
     GLuint getIdx() const;
     void setIdx(GLuint idx);
 
-    bool generateDataBuffer();
-    void freeSheet();
+    void generateDataBuffer() override;
+    void freeVBO() override final;
 
-    GLuint getVAO() const;
-
+    GLuint getVAO() const override;
 protected:
     std::vector<utils::Rect> clips;
 

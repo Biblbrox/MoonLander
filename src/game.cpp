@@ -43,7 +43,7 @@ void Game::initOnceSDL2()
 }
 
 
-Game::Game() : is_runnable(true)
+Game::Game() : is_runnable(true), vsync_supported(false)
 {
     glContext = nullptr;
 }
@@ -58,10 +58,14 @@ void Game::initGL()
     screen_w = utils::getScreenWidth<GLuint>();
     screen_h = utils::getScreenHeight<GLuint>();
 
-    window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>>(SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-                   SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, WINDOW_FLAGS), [](SDL_Window *win){
+    using deleterType = typename std::function<void(SDL_Window*)>;
+    auto deleter = [](SDL_Window *win){
         SDL_DestroyWindow(win);
-    });
+    };
+    window = std::unique_ptr<SDL_Window, deleterType>(
+            SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h,
+                             WINDOW_FLAGS), deleter);
 
     glContext = SDL_GL_CreateContext(window.get());
     // Init OpenGL context
@@ -103,13 +107,17 @@ void Game::initGL()
     glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    glLineWidth(1.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     //Use Vsync
-    if(SDL_GL_SetSwapInterval( 1 ) < 0)
+    if(SDL_GL_SetSwapInterval( -1 ) < 0)
     {
         SDL_Log( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+        SDL_GL_SetSwapInterval(0);
+        vsync_supported = false;
+    } else {
+        vsync_supported = true;
     }
 
     //Check for error

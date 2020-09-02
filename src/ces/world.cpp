@@ -66,7 +66,7 @@ void World::update_ship()
 
     auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[type_id<RendererSystem>()]);
     auto levelComp = entities["level"]->getComponent<LevelComponent>();
-    const GLfloat shipHeight = (utils::ship_altitude(levelComp->points, shipPos->x, shipPos->y));
+    const GLfloat shipHeight = (utils::physics::ship_altitude(levelComp->points, shipPos->x, shipPos->y));
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipHeight < alt_threshold && !scaled) // Need to increase scale
         || (shipHeight >= alt_threshold && scaled)) { // Need to decrease scale
@@ -138,7 +138,9 @@ void World::init()
     LevelGenerator generator;
     auto levelComponent = level.getComponent<LevelComponent>();
     levelComponent->points = generator.generate_lines(0);
-    levelComponent->stars = generator.generate_stars(0, levelComponent->points[levelComponent->points.size() - 1].x);
+    GLfloat points_right_x =
+            levelComponent->points[levelComponent->points.size() - 1].x;
+    levelComponent->stars = generator.generate_stars(0, points_right_x);
     generator.extendToLeft(levelComponent->points, levelComponent->stars);
     generator.extendToRight(levelComponent->points, levelComponent->stars);
     // Level reference invalidate
@@ -162,7 +164,8 @@ void World::init()
 
     auto shipPos = ship.getComponent<PositionComponent>();
     shipPos->x = screen_width / 2.f;
-    shipPos->y = utils::alt_from_surface(entities["level"]->getComponent<LevelComponent>()->points, shipPos->x, screen_height / 4.f);
+    shipPos->y = utils::physics::alt_from_surface(entities["level"]->getComponent<LevelComponent>()->points,
+                                                  shipPos->x, screen_height / 4.f);
 
     auto shipVel = ship.getComponent<VelocityComponent>();
 

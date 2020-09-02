@@ -13,6 +13,7 @@ MoonLanderProgram::MoonLanderProgram()
 bool MoonLanderProgram::loadProgram()
 {
     programID = glCreateProgram();
+    // Vertex shader
     GLuint vertexShader = utils::loadShaderFromFile(
             utils::getShaderPath("moonLander.glvs"), GL_VERTEX_SHADER);
 
@@ -23,7 +24,22 @@ bool MoonLanderProgram::loadProgram()
     }
 
     glAttachShader(programID, vertexShader);
+    // Vertex shader end
 
+    // Geometry shader
+//    GLuint geometryShader = utils::loadShaderFromFile(
+//            utils::getShaderPath("moonLander.glgs"), GL_GEOMETRY_SHADER);
+//
+//    if (geometryShader == 0) {
+//        glDeleteProgram(programID);
+//        programID = 0;
+//        return false;
+//    }
+//
+//    glAttachShader(programID, geometryShader);
+    // Geometry shader end
+
+    // Fragment shader
     GLuint fragmentShader = utils::loadShaderFromFile(
             utils::getShaderPath("moonLander.glfs"), GL_FRAGMENT_SHADER);
 
@@ -34,6 +50,7 @@ bool MoonLanderProgram::loadProgram()
     }
 
     glAttachShader(programID, fragmentShader);
+    // Fragment shader end
 
     glLinkProgram(programID);
     GLint programSuccess = GL_TRUE;
@@ -43,25 +60,15 @@ bool MoonLanderProgram::loadProgram()
         utils::log::printProgramLog(programID);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+        //glDeleteShader(geometryShader);
         glDeleteProgram(programID);
         programID = 0;
         return false;
     }
-
-    GLuint geometryShader = utils::loadShaderFromFile(
-            utils::getShaderPath("moonLander.glgs"), GL_GEOMETRY_SHADER);
-
-    if (geometryShader == 0) {
-        glDeleteProgram(programID);
-        programID = 0;
-        return false;
-    }
-
-    glAttachShader(programID, geometryShader);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    glDeleteShader(geometryShader);
+    //glDeleteShader(geometryShader);
 
     projectionLoc = glGetUniformLocation(programID, "ProjectionMatrix");
     if(projectionLoc == -1)

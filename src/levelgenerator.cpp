@@ -76,7 +76,7 @@ LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_coun
     height_max = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 5;
 }
 
-void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars)
+void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars) const
 {
     auto right = generate_lines(points[points.size() - 1].x);
 
@@ -92,7 +92,7 @@ void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point
     stars.insert(stars.end(), new_stars.begin(), new_stars.end());
 }
 
-void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars)
+void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars) const
 {
     auto left = generate_lines(0);
 

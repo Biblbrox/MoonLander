@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec2 outTexCoord;
+in vec2 TexCoords;
 
 out vec4 outColor;
 
@@ -11,7 +11,7 @@ uniform vec4 inColor;
 void main()
 {
     if (renderTexture) {
-        outColor = texture(ourTexture, outTexCoord);
+        outColor = texture(ourTexture, TexCoords);
     } else {
         outColor = inColor;
     }

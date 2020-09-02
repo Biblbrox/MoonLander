@@ -44,7 +44,7 @@ utils::Rect Sprite::getClip(GLuint idx)
     return clips[idx];
 }
 
-bool Sprite::generateDataBuffer()
+void Sprite::generateDataBuffer()
 {
     if (textureID != 0 && !clips.empty()) {
         tot_sprites = clips.size();
@@ -117,11 +117,9 @@ bool Sprite::generateDataBuffer()
             std::abort();
         }
     }
-
-    return true;
 }
 
-void Sprite::freeSheet()
+void Sprite::freeVBO()
 {
     if (VAO != nullptr) {
         glDeleteBuffers(tot_sprites, VAO);
@@ -133,7 +131,7 @@ void Sprite::freeSheet()
 
 Sprite::~Sprite()
 {
-    freeSheet();
+    freeVBO();
 }
 
 GLuint Sprite::getVAO() const

@@ -66,11 +66,6 @@ void Texture::freeTexture()
 
 Texture::~Texture()
 {
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
-    }
-
-    texture_width = texture_height = 0;
+    freeTexture();
 }
 

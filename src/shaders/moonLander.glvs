@@ -5,12 +5,12 @@ uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 
 layout (location = 0) in vec2 position;
-layout (location = 1) in vec2 texCoord;
+layout (location = 1) in vec2 inTexCoord;
 
-out vec2 outTexCoord;
+out vec2 TexCoords;
 
 void main()
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(position, 0.f, 1.0);
-    outTexCoord = texCoord;
+    TexCoords = inTexCoord;
+    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(position, 0.0, 1.0);
 }

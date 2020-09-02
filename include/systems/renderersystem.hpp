@@ -12,7 +12,6 @@
 /**
  * System that can handle level surface
  */
-//class RendererSystem : public System<system_holder<DisplayComponent, PositionComponent, TextComponent>>
 class RendererSystem : public System<DisplayComponent, PositionComponent, TextComponent>
 {
 public:
@@ -28,6 +27,10 @@ private:
     GLfloat scale_factor = 1.f;
     GLuint screen_width;
     GLuint screen_height;
+
+    void drawSprites();
+    void drawLevel();
+    void drawText();
 };
 
 #endif //MOONLANDER_RENDERERSYSTEM_HPP

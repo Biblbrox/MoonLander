@@ -62,7 +62,7 @@ public:
         if (it == components.end())
             return std::shared_ptr<ComponentType>(nullptr);
 
-        return std::dynamic_pointer_cast<ComponentType>((*it).second);
+        return std::dynamic_pointer_cast<ComponentType>(it->second);
     }
 
     const std::unordered_map<size_t, std::shared_ptr<Component>>& getComponents() const;

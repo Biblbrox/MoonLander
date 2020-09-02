@@ -28,6 +28,7 @@ public:
     void setRunnable(bool runnable);
 
     bool isRunnable() const;
+    bool vsync_supported;
 private:
     GLuint screen_w;
     GLuint screen_h;

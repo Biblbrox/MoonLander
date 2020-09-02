@@ -8,7 +8,8 @@ namespace utils::log {
     enum class Category {
         INTERNAL_ERROR,
         FILE_ERROR,
-        UNEXPECTED_ERROR
+        UNEXPECTED_ERROR,
+        INFO
     };
 
     class Logger {

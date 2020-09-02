@@ -59,11 +59,11 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
                                                    texture_width, texture_height, texture_format);
         SDL_FreeSurface(surface);
 
-        initVBO();
+        generateDataBuffer();
     }
 }
 
-void TextTexture::initVBO()
+void TextTexture::generateDataBuffer()
 {
     if (textureID != 0 && vao_id == 0) {
         GLfloat quadWidth = texture_width;

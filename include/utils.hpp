@@ -108,7 +108,9 @@ namespace utils {
 
                 delete[] log_str;
             } else {
-                std::cerr << (boost::format("Name %d is not a program\n") % program).str() << std::endl;
+                log::Logger::write(shader_log_file_name(),
+                                   log::Category::INTERNAL_ERROR,
+                                   (boost::format("Name %1% is not a program\n") % program).str());
             }
         }
     }
@@ -140,7 +142,7 @@ namespace utils {
         {
             std::generate(begin, end, [begin, end, left, right, this]() {
                 GLuint val = generateu<T>(left, right);
-                if (std::find(begin, end, val) != end)
+                if (std::count(begin, end, val) != 0)
                     while (std::find(begin, end, val) != end)
                         val = generateu<T>(left, right);
 
@@ -158,16 +160,17 @@ namespace utils {
         }
 
         template<typename T>
-        T generateu(T a, T b) {
+        T generateu(T a, T b)
+        {
             std::uniform_int_distribution<T> dist(a, b);
             return dist(this->generator);
-
         }
 
         template<typename T>
         T generaten(T mean, T svariance)
         {
-            static_assert(std::is_floating_point_v<T>, "Template parameter of generaten must be floating point");
+            static_assert(std::is_floating_point_v<T>,
+                    "Template parameter of generaten must be floating point");
             std::normal_distribution<T> dist(mean, svariance);
             return dist(this->generator);
         }
@@ -196,9 +199,10 @@ namespace utils {
         return typeid(T).hash_code();
     }
 
-    GLfloat ship_altitude(const std::vector<Point>& points, GLfloat shipX, GLfloat shipY);
-
-    GLfloat alt_from_surface(const std::vector<Point> &line_points, GLfloat x, GLfloat alt);
+    namespace physics {
+        GLfloat ship_altitude(const std::vector<Point> &points, GLfloat shipX, GLfloat shipY);
+        GLfloat alt_from_surface(const std::vector<Point> &line_points, GLfloat x, GLfloat alt);
+    }
 
     /**
      * Return full path to resource fileName
@@ -246,36 +250,6 @@ namespace utils {
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
         return dm.h;
-    }
-
-    inline RectPoints buildRectPoints(const Rect &rect, double rot) noexcept
-    {
-        RectPoints temp_rect;
-        GLfloat bx, by, cx, cy, dx, dy;
-        GLfloat x = rect.x;
-        GLfloat y = rect.y;
-        GLfloat wid = rect.w;
-        GLfloat hgt = rect.h;
-
-        bx = x + wid * cos(rot);
-        by = y + wid * sin(rot);
-
-        cx = x + wid * cos(rot) - hgt * sin(rot);
-        cy = y + hgt * cos(rot) + wid * sin(rot);
-
-        dx = x - hgt * sin(rot);
-        dy = y + hgt * cos(rot);
-
-        temp_rect.a.x = x;
-        temp_rect.a.y = y;
-        temp_rect.b.x = bx;
-        temp_rect.b.y = by;
-        temp_rect.c.x = cx;
-        temp_rect.c.y = cy;
-        temp_rect.d.x = dx;
-        temp_rect.d.y = dy;
-
-        return temp_rect;
     }
 
     /**
@@ -329,32 +303,67 @@ namespace utils {
         return power * 2;
     }
 
-    /**
-     * Check whether first line (p11, p12) intersect with second (p21, p22)
-     * @param p11
-     * @param p12
-     * @param p21
-     * @param p22
-     * @return
-     */
-    inline constexpr bool lineLine(const Point &p11, const Point &p12, const Point &p21, const Point &p22) noexcept
-    {
-        GLfloat x1 = p11.x;
-        GLfloat x2 = p12.x;
-        GLfloat x3 = p21.x;
-        GLfloat x4 = p22.x;
+    namespace collision {
+        /**
+         * Check whether first line (p11, p12) intersect with second (p21, p22)
+         * @param p11
+         * @param p12
+         * @param p21
+         * @param p22
+         * @return
+         */
+        inline constexpr bool
+        lineLine(const Point &p11, const Point &p12, const Point &p21, const Point &p22) noexcept
+        {
+            GLfloat x1 = p11.x;
+            GLfloat x2 = p12.x;
+            GLfloat x3 = p21.x;
+            GLfloat x4 = p22.x;
 
-        GLfloat y1 = p11.y;
-        GLfloat y2 = p12.y;
-        GLfloat y3 = p21.y;
-        GLfloat y4 = p22.y;
+            GLfloat y1 = p11.y;
+            GLfloat y2 = p12.y;
+            GLfloat y3 = p21.y;
+            GLfloat y4 = p22.y;
 
-        // calculate the distance to intersection point
-        GLfloat uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
-        GLfloat uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+            // calculate the distance to intersection point
+            GLfloat uA =
+                    ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+            GLfloat uB =
+                    ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
 
-        // if uA and uB are between 0-1, lines are colliding
-        return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
+            // if uA and uB are between 0-1, lines are colliding
+            return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
+        }
+
+        inline RectPoints buildRectPoints(const Rect &rect, double rot) noexcept
+        {
+            RectPoints temp_rect{};
+            GLfloat bx, by, cx, cy, dx, dy;
+            GLfloat x = rect.x;
+            GLfloat y = rect.y;
+            GLfloat wid = rect.w;
+            GLfloat hgt = rect.h;
+
+            bx = x + wid * cos(rot);
+            by = y + wid * sin(rot);
+
+            cx = x + wid * cos(rot) - hgt * sin(rot);
+            cy = y + hgt * cos(rot) + wid * sin(rot);
+
+            dx = x - hgt * sin(rot);
+            dy = y + hgt * cos(rot);
+
+            temp_rect.a.x = x;
+            temp_rect.a.y = y;
+            temp_rect.b.x = bx;
+            temp_rect.b.y = by;
+            temp_rect.c.x = cx;
+            temp_rect.c.y = cy;
+            temp_rect.d.x = dx;
+            temp_rect.d.y = dy;
+
+            return temp_rect;
+        }
     }
 
      /**
@@ -369,6 +378,7 @@ namespace utils {
      */
      inline GLuint loadShaderFromFile(const std::string &path, GLenum shaderType)
      {
+         assert(!path.empty() && "Empty file path");
          GLuint shaderID = 0;
          std::string shaderString;
          std::ifstream sourceFile(path.c_str());
@@ -385,7 +395,7 @@ namespace utils {
 
          shaderID = glCreateShader(shaderType);
          const GLchar *shaderSource = shaderString.c_str();
-         glShaderSource(shaderID, 1, (const GLchar **) &shaderSource, NULL);
+         glShaderSource(shaderID, 1, (const GLchar**) &shaderSource, NULL);
          glCompileShader(shaderID);
 
          GLint shaderCompiled = GL_FALSE;

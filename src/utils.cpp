@@ -40,7 +40,7 @@ GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint heigh
     return textureID;
 }
 
-GLfloat utils::ship_altitude(const std::vector<Point>& line_points, GLfloat shipX, GLfloat shipY)
+GLfloat utils::physics::ship_altitude(const std::vector<Point>& line_points, GLfloat shipX, GLfloat shipY)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx = 0;
@@ -59,9 +59,9 @@ GLfloat utils::ship_altitude(const std::vector<Point>& line_points, GLfloat ship
     return alt;
 }
 
-GLfloat utils::alt_from_surface(const std::vector<Point>& line_points, const GLfloat x, const GLfloat alt)
+GLfloat utils::physics::alt_from_surface(const std::vector<Point>& line_points, const GLfloat x, const GLfloat alt)
 {
-    assert(line_points.size() >=  2 && "line_points size must be >= 2");
+    assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx;
     for (size_t i = 0; i < line_points.size() - 1; ++i) {
         if (line_points[i].x <= x && line_points[i + 1].x > x) {

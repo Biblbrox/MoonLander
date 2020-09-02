@@ -18,8 +18,9 @@ public:
     void setFont(TTF_Font* font);
     void setColor(SDL_Color color);
 
-    void initVBO();
-    void freeVBO();
+    void generateDataBuffer() override;
+    void freeVBO() override final;
+
     GLuint getVAO() const override;
 private:
     std::string text;

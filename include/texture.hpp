@@ -23,11 +23,13 @@ public:
     virtual void setX(GLfloat x);
     virtual void setY(GLfloat x);
     virtual GLuint getVAO() const = 0;
+    virtual void generateDataBuffer() = 0;
 
     virtual GLfloat getX() const;
     virtual GLfloat getY() const;
 
     virtual void freeTexture() final;
+    virtual void freeVBO() = 0;
 
 protected:
     explicit Texture();
