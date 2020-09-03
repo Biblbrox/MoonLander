@@ -3,10 +3,25 @@
 
 #include <glm/mat4x4.hpp>
 #include "abstract/shaderprogram.hpp"
+#include <memory>
 
 class MoonLanderProgram: public ShaderProgram {
+protected:
+    static std::shared_ptr<MoonLanderProgram> instance;
 public:
+
+    //TODO: fix public constructor and make_shared problem
     MoonLanderProgram();
+
+    static std::shared_ptr<MoonLanderProgram> getInstance()
+    {
+        if (!instance) {
+            instance = std::make_shared<MoonLanderProgram>();
+        }
+
+        return instance;
+    }
+
     ~MoonLanderProgram();
 
     void setProjection(glm::mat4 matrix);

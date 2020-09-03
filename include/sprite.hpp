@@ -18,6 +18,7 @@ public:
     utils::Rect getCurrentClip() const;
     GLuint getIdx() const;
     void setIdx(GLuint idx);
+    GLuint getSpritesCount() const;
 
     void generateDataBuffer() override;
     void freeVBO() override final;

@@ -165,3 +165,8 @@ GLuint Sprite::getHeight() const
     return getCurrentClip().h;
 }
 
+GLuint Sprite::getSpritesCount() const
+{
+    return tot_sprites;
+}
+

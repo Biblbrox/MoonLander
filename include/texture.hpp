@@ -18,15 +18,8 @@ public:
     virtual GLuint getWidth() const;
     virtual GLuint getHeight() const;
 
-    virtual void setWidth(GLuint width);
-    virtual void setHeight(GLuint height);
-    virtual void setX(GLfloat x);
-    virtual void setY(GLfloat x);
     virtual GLuint getVAO() const = 0;
     virtual void generateDataBuffer() = 0;
-
-    virtual GLfloat getX() const;
-    virtual GLfloat getY() const;
 
     virtual void freeTexture() final;
     virtual void freeVBO() = 0;
@@ -38,9 +31,6 @@ protected:
 
     GLuint texture_width = 0;
     GLuint texture_height = 0;
-
-    GLfloat x = 0;
-    GLfloat y = 0;
 };
 
 #endif //MOONLANDER_TEXTURE_HPP

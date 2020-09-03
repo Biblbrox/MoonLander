@@ -19,36 +19,6 @@ GLuint Texture::getHeight() const
     return texture_height;
 }
 
-GLfloat Texture::getX() const
-{
-    return x;
-}
-
-GLfloat Texture::getY() const
-{
-    return y;
-}
-
-void Texture::setX(GLfloat x_)
-{
-    x = x_;
-}
-
-void Texture::setY(GLfloat y_)
-{
-    y = y_;
-}
-
-void Texture::setWidth(GLuint width)
-{
-    texture_width = width;
-}
-
-void Texture::setHeight(GLuint height)
-{
-    texture_height = height;
-}
-
 GLuint Texture::getTextureID()
 {
     return textureID;

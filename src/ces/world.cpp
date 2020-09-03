@@ -14,6 +14,11 @@
 #include <systems/animationsystem.hpp>
 #include <systems/collisionsystem.hpp>
 #include <systems/physics_system.hpp>
+#include <particle/particleengine.h>
+#include <systems/particlerendersystem.h>
+
+using utils::log::Logger;
+using boost::format;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -64,7 +69,9 @@ void World::update_ship()
     auto shipPos = ship->getComponent<PositionComponent>();
     auto shipVel = ship->getComponent<VelocityComponent>();
 
-    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[type_id<RendererSystem>()]);
+    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(
+            systems[type_id<RendererSystem>()]
+    );
     auto levelComp = entities["level"]->getComponent<LevelComponent>();
     const GLfloat shipHeight = (utils::physics::ship_altitude(levelComp->points, shipPos->x, shipPos->y));
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
@@ -88,9 +95,40 @@ void World::update_ship()
     auto colShip = ship->getComponent<CollisionComponent>();
 
     if (colShip->has_collision) {
-        shipVel->x = 0.f;
-        shipVel->y = 0.f;
-        shipVel->vel_angle = 0.f;
+        utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
+        std::vector<utils::Position> coords;
+        std::vector<utils::Position> vel;
+        coords.resize(4);
+        vel.resize(4);
+        std::fill(coords.begin(), coords.end(),
+                  utils::Position{shipPos->x, shipPos->y, shipPos->angle});
+        std::fill(vel.begin(), vel.end(),
+                  utils::Position{shipVel->x, shipVel->y, shipVel->vel_angle});
+
+        utils::RandomUniform rand;
+        std::generate(vel.begin(), vel.end(), [&rand, shipVel](){
+            utils::Position res;
+            const GLfloat deviation = 1.5f;
+            const GLfloat scale_vel = 20.f;
+            const GLfloat scale_vel_rot = 30.f;
+            res.x = rand.generaten<GLfloat>(shipVel->x / scale_vel, deviation);
+            res.y = rand.generaten<GLfloat>(shipVel->y / scale_vel, deviation);
+            res.angle = rand.generaten<GLfloat>(shipVel->vel_angle / scale_vel_rot, deviation);
+            return res;
+        });
+
+        auto particle = ParticleEngine::generateParticleFromTexture(
+                utils::getResourcePath("lunar_lander_bw.png"),
+                generate_clips(shipClip, 2, 2),
+                coords,
+                vel, 10000.f);
+
+        entities.insert({"ship particle", particle});
+
+        Logger::write(utils::program_log_file_name(), utils::log::Category::INFO,
+                (format("\nX: %1%\nY: %2%\n") % shipPos->x % shipPos->y).str());
+
+        ship->kill();
     }
 }
 
@@ -99,27 +137,45 @@ void World::update_text()
     auto fpsEntity = entities["fpsText"];
     auto velxEntity = entities["velxText"];
     auto velyEntity = entities["velyText"];
-    auto shipEntity = entities["ship"];
 
-    auto shipVel = shipEntity->getComponent<VelocityComponent>();
     auto textFps = fpsEntity->getComponent<TextComponent>();
     auto textVelX = velxEntity->getComponent<TextComponent>();
     auto textVelY = velyEntity->getComponent<TextComponent>();
 
-    textFps->texture->setText((boost::format("FPS: %+3d") % fps.get_fps()).str());
-    textVelX->texture->setText((boost::format("Horizontal speed: %3d") % std::floor(shipVel->x * 60.f)).str());
-    textVelY->texture->setText((boost::format("Vertical speed: %3d") % std::floor(-shipVel->y * 60.f)).str());
+    if (entities.contains("ship")) {
+        auto shipEntity = entities["ship"];
+
+        auto shipVel = shipEntity->getComponent<VelocityComponent>();
+
+        textFps->texture->setText(
+                (boost::format("FPS: %+3d") % fps.get_fps()).str());
+        textVelX->texture->setText((boost::format("Horizontal speed: %3d") %
+                                    std::floor(shipVel->x * 60.f)).str());
+        textVelY->texture->setText((boost::format("Vertical speed: %3d") %
+                                    std::floor(-shipVel->y * 60.f)).str());
+    } else {
+        textFps->texture->setText(
+                (boost::format("FPS: %+3d") % fps.get_fps()).str());
+        textVelX->texture->setText((boost::format("Horizontal speed: %3d") %
+                                    std::floor(0.f)).str());
+        textVelY->texture->setText((boost::format("Vertical speed: %3d") %
+                                    std::floor(0.f)).str());
+    }
 }
 
 void World::update(size_t delta)
 {
     fps.update();
-    update_ship();
+    if (entities.count("ship") != 0)
+        update_ship();
+
     update_text();
 
     for (auto& system: systems) {
         system.second->update(delta);
     }
+
+    filter_entities();
 }
 
 void World::init()
@@ -134,6 +190,7 @@ void World::init()
     level.addComponent<DisplayComponent>();
     level.addComponent<LevelComponent>();
     level.addComponent<CollisionComponent>();
+    level.activate();
 
     LevelGenerator generator;
     auto levelComponent = level.getComponent<LevelComponent>();
@@ -154,12 +211,17 @@ void World::init()
     ship.addComponent<KeyboardComponent>();
     ship.addComponent<AnimationComponent>();
     ship.addComponent<CollisionComponent>();
+    ship.activate();
 
     auto shipSprite = ship.getComponent<SpriteComponent>();
-    shipSprite->sprite = std::make_shared<Sprite>(utils::getResourcePath("lunar_lander_bw.png"));
-    shipSprite->sprite->addClipSprite({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite({.x = 20, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite->sprite = std::make_shared<Sprite>(
+            utils::getResourcePath("lunar_lander_bw.png"));
+    shipSprite->sprite->addClipSprite
+            ({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite
+            ({.x = 20, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite
+            ({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
     shipSprite->sprite->generateDataBuffer();
 
     auto shipPos = ship.getComponent<PositionComponent>();
@@ -176,6 +238,7 @@ void World::init()
     earth.addComponent<PositionComponent>();
     earth.addComponent<DisplayComponent>();
     earth.addComponent<SpriteComponent>();
+    earth.activate();
 
     auto earthSprite = earth.getComponent<SpriteComponent>();
     earthSprite->sprite = std::make_shared<Sprite>(utils::getResourcePath("lunar_lander_bw.png"));
@@ -210,6 +273,7 @@ void World::init()
     Entity& fpsText = createEntity("fpsText");
     fpsText.addComponent<TextComponent>();
     fpsText.addComponent<PositionComponent>();
+    fpsText.activate();
 
     auto fspTexture = fpsText.getComponent<TextComponent>();
     fspTexture->texture = std::make_shared<TextTexture>("FPS: 000");
@@ -223,6 +287,7 @@ void World::init()
     Entity& velxText = createEntity("velxText");
     velxText.addComponent<TextComponent>();
     velxText.addComponent<PositionComponent>();
+    velxText.activate();
 
     auto velxTexture = velxText.getComponent<TextComponent>();
     velxTexture->texture = std::make_shared<TextTexture>("Horizontal speed: -000.000");
@@ -236,6 +301,7 @@ void World::init()
     Entity& velyText = createEntity("velyText");
     velyText.addComponent<TextComponent>();
     velyText.addComponent<PositionComponent>();
+    velyText.activate();
 
     auto velyTexture = velyText.getComponent<TextComponent>();
     velyTexture->texture = std::make_shared<TextTexture>("Vertical speed: -000.000");
@@ -251,6 +317,7 @@ void World::init()
     createSystem<AnimationSystem>();
     createSystem<CollisionSystem>();
     createSystem<PhysicsSystem>();
+    createSystem<ParticleRenderSystem>();
 
     non_static.push_back(entities["level"]);
     non_static.push_back(entities["ship"]);
@@ -274,6 +341,36 @@ void World::move_from_camera()
                 star.y -= camera.deltaY();
             }
         }
+    }
+}
+
+std::vector<utils::Rect>
+World::generate_clips(utils::Rect clip, size_t num_x, size_t num_y)
+{
+    GLfloat part_width = clip.w / num_x;
+    GLfloat part_height = clip.h / num_y;
+
+    GLfloat x;
+    GLfloat y;
+
+    std::vector<utils::Rect> clips;
+    clips.reserve(num_x * num_y);
+    for (y = clip.y; y < (clip.y + clip.h); y += part_height) {
+        for (x = clip.x; x < (clip.x + clip.w); x += part_width) {
+            clips.push_back({x, y, part_width, part_height});
+        }
+    }
+
+    return clips;
+}
+
+void World::filter_entities()
+{
+    for (auto it = entities.begin(); it != entities.end();) {
+        if (!it->second->isActivate())
+            it = entities.erase(it);
+        else
+            ++it;
     }
 }
 

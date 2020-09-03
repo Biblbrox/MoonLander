@@ -2,7 +2,7 @@
 
 void MovementSystem::update(size_t delta)
 {
-    auto entities = getEntities();
+    auto entities = getEntitiesByTags<PositionComponent, VelocityComponent>();
     for (auto& [key, en]: entities) {
         auto pos = en->getComponent<PositionComponent>();
         auto vel = en->getComponent<VelocityComponent>();
@@ -10,6 +10,22 @@ void MovementSystem::update(size_t delta)
         pos->x += vel->x;
         pos->y += vel->y;
         pos->angle += vel->vel_angle;
+    }
+
+    auto particles = getEntitiesByTag<ParticleSpriteComponent>();
+    for (auto& [key, en]: particles) {
+        auto particle =  en->getComponent<ParticleSpriteComponent>();
+
+        auto& coords = particle->coords;
+        auto& vel = particle->vel;
+        assert(coords.size() == vel.size()
+               && "Number of coordinates must be "
+                  "the same as number of velocities");
+        for(size_t i = 0; i < coords.size(); ++i) {
+            coords[i].x += vel[i].x;
+            coords[i].y += vel[i].y;
+            coords[i].angle += vel[i].angle;
+        }
     }
 }
 

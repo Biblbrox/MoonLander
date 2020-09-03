@@ -2,20 +2,22 @@
 #include "../include/utils.hpp"
 #include <boost/format.hpp>
 
+using utils::log::Logger;
+
 utils::RandomUniform::RandomUniform() : generator(std::time(nullptr))
 {
 
 }
 
 /**
- * Load opengl texture from pixels with specific format.
+ * Load opengl texture from pixels to GPU with specific format.
  * Result texture has RGBA format.
  * If function can't load texture exception will be thrown.
  * @param pixels
  * @param width
  * @param height
  * @param format
- * @return
+ * @return textureID
  */
 GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLenum format)
 {
@@ -34,8 +36,10 @@ GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint heigh
 
     GLuint error = glGetError();
     if (error != GL_NO_ERROR)
-        throw std::runtime_error((boost::format("Error loading texture from %1% pixels! %2%\n")
-                                  % pixels % gluErrorString(error)).str());
+        Logger::write(program_log_file_name(),
+                      log::Category::INTERNAL_ERROR,
+                      (boost::format("Error loading texture from %1% pixels! %2%\n")
+                       % pixels % gluErrorString(error)).str());
 
     return textureID;
 }

@@ -16,6 +16,9 @@ void utils::log::Logger::write(const std::string &file_name, Category category, 
         case Category::UNEXPECTED_ERROR:
             category_str = "Unexpected error: ";
             break;
+        case Category::INFO:
+            category_str = "Info: ";
+            break;
         default:
             category_str = "Internal error: ";
             break;

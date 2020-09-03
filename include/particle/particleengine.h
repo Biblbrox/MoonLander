@@ -6,9 +6,10 @@
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
 #include <components/displaycomponent.hpp>
-#include <components/particlecomponent.h>
+#include <components/particlespritecomponent.h>
 
 class ParticleEngine {
+public:
     /**
      * Return clips.size() number generated particles from specific texture
      * Each particle is Entity with SpriteComponent, ParticleComponent,
@@ -18,33 +19,42 @@ class ParticleEngine {
      * @param clips
      * @return
      */
-    static std::unordered_map<std::string, std::shared_ptr<Entity>>
-    generateParticlesFromTexture(const std::string& texture_file,
-                                 const std::vector<utils::Rect>& clips)
+    static std::shared_ptr<Entity>
+    generateParticleFromTexture(const std::string& texture_file,
+                                const std::vector<utils::Rect>& clips,
+                                const std::vector<utils::Position>& init_coords,
+                                const std::vector<utils::Position>& init_vel,
+                                GLfloat life_time)
     {
-        using boost::format;
+        assert(clips.size() == init_coords.size()
+               && "Number of particles must be "
+                  "the same as number of coordinates");
 
-        std::unordered_map<std::string, std::shared_ptr<Entity>> particles;
-        particles.reserve(clips.size());
+        assert(init_coords.size() == init_vel.size()
+               && "Number of coordinates must be "
+                  "the same as number of velocities");
 
-        size_t i = 0;
-        for (auto& clip: clips) {
-            auto en = std::make_shared<Entity>();
-            en->addComponent<SpriteComponent>();
-            en->addComponent<ParticleComponent>();
-            en->addComponent<PositionComponent>();
-            en->addComponent<VelocityComponent>();
-            en->addComponent<DisplayComponent>();
+        auto en = std::make_shared<Entity>();
+        en->addComponent<ParticleSpriteComponent>();
+        en->addComponent<VelocityComponent>();
+        en->addComponent<DisplayComponent>();
+        en->activate();
 
-            auto sprite = en->getComponent<SpriteComponent>();
-            sprite->sprite = std::make_shared<Sprite>(
-                    utils::getResourcePath("lunar_lander_bw.png"));
-            sprite->sprite->addClipSprite(clip);
-            sprite->sprite->generateDataBuffer();
-            particles.insert({(format("Particle %1%") % i++).str(), en});
+        auto particle = en->getComponent<ParticleSpriteComponent>();
+        particle->sprite = std::make_shared<Sprite>(texture_file);
+        particle->is_alive = true;
+        particle->life_time = life_time;
+
+        for (size_t i = 0; i < clips.size(); ++i) {
+            particle->sprite->addClipSprite(clips[i]);
+            particle->coords.push_back({init_coords[i].x, init_coords[i].y, init_coords[i].angle});
+            particle->vel.push_back({init_vel[i].x, init_vel[i].y, init_vel[i].angle});
         }
-    }
 
+        particle->sprite->generateDataBuffer();
+
+        return en;
+    }
 
 private:
 };

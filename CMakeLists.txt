@@ -31,7 +31,8 @@ set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hp
         include/ces/world.hpp include/ces/component.hpp include/ces/entity.hpp include/ces/system.hpp
         include/systems/renderersystem.hpp include/systems/movementsystem.hpp
         include/systems/animationsystem.hpp include/systems/collisionsystem.hpp
-        include/systems/physics_system.hpp include/logger.hpp)
+        include/systems/physics_system.hpp include/logger.hpp
+        include/systems/particlerendersystem.h)
 
 set(CPP src/main.cpp src/utils.cpp src/levelgenerator.cpp src/texture.cpp
         src/geometry.cpp src/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
@@ -40,7 +41,7 @@ set(CPP src/main.cpp src/utils.cpp src/levelgenerator.cpp src/texture.cpp
         src/systems/renderersystem.cpp src/systems/movementsystem.cpp
         src/systems/keyboardsystem.cpp src/systems/animationsystem.cpp
         src/systems/collisionsystem.cpp src/systems/physicssystem.cpp
-        src/logger.cpp)
+        src/logger.cpp src/systems/particlerendersystem.cpp)
 
 set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)

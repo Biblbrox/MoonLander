@@ -4,7 +4,6 @@
 #include <components/keyboardcomponent.hpp>
 #include "../ces/system.hpp"
 
-//class KeyboardSystem : public System<system_holder<KeyboardComponent>>
 class KeyboardSystem : public System<KeyboardComponent>
 {
     void update(size_t delta) override;

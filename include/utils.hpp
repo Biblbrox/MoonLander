@@ -36,6 +36,12 @@ namespace utils {
         GLfloat y;
     };
 
+    struct Position {
+        GLfloat x;
+        GLfloat y;
+        GLfloat angle;
+    };
+
     struct Rect {
         GLfloat x;
         GLfloat y;
@@ -50,15 +56,52 @@ namespace utils {
         Point d;
     };
 
+    /**
+     * TypeList declaration
+     * @tparam Args
+     */
+    template <typename... Args>
+    struct TypeList;
+
+    template <typename H, typename... T>
+    struct TypeList<H, T...> {
+        using Head = H;
+        using Tail = TypeList<T...>;
+    };
+
+    template <>
+    struct TypeList<> {};
+
+    template <typename TypeList>
+    struct Length {
+        static int const value = 1 + Length<typename TypeList::Tail>::value;
+    };
+
+    template <>
+    struct Length <TypeList<>> {
+        static int const value = 0;
+    };
+
+    template <class TL, class UnFunctor, class BinFunctor>
+    auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
+    {
+        static_assert(Length<TL>::value >= 2, "Length<TypeList<Args...>>::value >= 2");
+
+        typename TL::Head val;
+        auto res = unfunc(val);
+
+        if constexpr (Length<TL>::value == 2) {
+            typename TL::Tail::Head tmp;
+            return binfunc(res, unfunc(tmp));
+        } else {
+            return binfunc(res, typeListReduce<typename TL::Tail>(unfunc, binfunc));
+        }
+    }
+
+    /**
+     * Namespace for logging functions
+     */
     namespace log {
-        /**
-         * Write msg to the standard output and log file
-         * @param userdata
-         * @param category
-         * @param priority
-         * @param msg
-         */
-        void log_function(void *userdata, int category, SDL_LogPriority priority, const char *msg);
 
         /**
          * Writes shader log to shader log file and standard output
@@ -147,6 +190,16 @@ namespace utils {
                         val = generateu<T>(left, right);
 
                 return val;
+            });
+        }
+
+        template<typename T>
+        void fill_gauss(const typename std::vector<T>::iterator &begin,
+                        const typename std::vector<T>::iterator &end, T mean,
+                        T deviation)
+        {
+            std::generate(begin, end, [mean, deviation, this]() {
+                return generaten<T>(mean, deviation);
             });
         }
 

@@ -18,6 +18,9 @@ using utils::type_id;
  */
 class Entity {
 public:
+
+    Entity() : alive(false) {}
+
     /**
      * Create new component and return
      * ComponentType must be child of Component class
@@ -58,6 +61,7 @@ public:
     {
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "Template parameter class must be child of Component");
+
         auto it = components.find(type_id<ComponentType>());
         if (it == components.end())
             return std::shared_ptr<ComponentType>(nullptr);
@@ -70,10 +74,13 @@ public:
     void setWorld(std::shared_ptr<World> world);
 
     void activate();
+    bool isActivate();
+    void kill();
 
 private:
     std::unordered_map<size_t, std::shared_ptr<Component>> components;
     std::shared_ptr<World> pWorld;
+    bool alive;
 };
 
 #endif //MOONLANDER_ENTITY_HPP

@@ -9,7 +9,8 @@ namespace utils::log {
         INTERNAL_ERROR,
         FILE_ERROR,
         UNEXPECTED_ERROR,
-        INFO
+        INFO,
+        INITIALIZATION_ERROR
     };
 
     class Logger {

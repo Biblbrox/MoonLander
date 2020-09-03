@@ -185,3 +185,5 @@ glm::mat4 MoonLanderProgram::getModel() const
 }
 
 MoonLanderProgram::~MoonLanderProgram() = default;
+
+std::shared_ptr<MoonLanderProgram> MoonLanderProgram::instance = nullptr;

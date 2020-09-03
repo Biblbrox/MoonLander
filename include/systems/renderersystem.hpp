@@ -19,12 +19,8 @@ public:
 
     void update(size_t delta) override;
 private:
-    MoonLanderProgram program;
     Camera camera;
 
-    std::vector<Entity> movables;
-
-    GLfloat scale_factor = 1.f;
     GLuint screen_width;
     GLuint screen_height;
 

@@ -8,26 +8,35 @@
 #include <constants.hpp>
 #include <functional>
 
+using utils::log::Logger;
+using boost::format;
+
 void Game::initOnceSDL2()
 {
     static bool didInit = false;
 
     if (!didInit) {
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-            SDL_Log( "SDL_Init");
+            Logger::write(utils::program_log_file_name(),
+                          utils::log::Category::INITIALIZATION_ERROR,
+                          "Can't init SDL\n");
             std::abort();
         }
 
         int IMG_FLAGS = IMG_INIT_PNG;
 
         if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "IMG_Init");
+            Logger::write(utils::program_log_file_name(),
+                          utils::log::Category::INITIALIZATION_ERROR,
+                          "Can't init SDL_IMG\n");
             SDL_Quit();
             std::abort();
         }
 
         if (TTF_Init() == -1) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init");
+            Logger::write(utils::program_log_file_name(),
+                          utils::log::Category::INITIALIZATION_ERROR,
+                          "Can't init SDL_TTF\n");
             SDL_Quit();
             std::abort();
         }
@@ -70,39 +79,39 @@ void Game::initGL()
     glContext = SDL_GL_CreateContext(window.get());
     // Init OpenGL context
     if (glContext == nullptr) {
-        printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("OpenGL context could not be created! SDL Error: %s\n")
+                       % SDL_GetError()).str());
+        TTF_Quit();
+        IMG_Quit();
+        SDL_Quit();
         std::abort();
     }
 
     glewExperimental = GL_TRUE;
     GLenum error = glewInit();
     if (error != GLEW_OK) {
-        SDL_Log("Error when initializing GLEW: %s\n", glewGetErrorString(error));
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("Error when initializing GLEW: %s\n")
+                       % glewGetErrorString(error)).str());
+        quit();
         std::abort();
     }
 
     if (!GLEW_VERSION_2_1) {
-        SDL_Log("Opengl 2.1 not supported\n");
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("Opengl 2.1 not supported\n")).str());
+        quit();
         std::abort();
-    }
-
-    //Check for error
-    error = glGetError();
-    if( error != GL_NO_ERROR )
-    {
-        printf( "Error initializing OpenGL(Ortho/Viewport)! %s\n", gluErrorString( error ) );
-    }
-
-    //Check for error
-    error = glGetError();
-    if( error != GL_NO_ERROR )
-    {
-        printf( "Error initializing OpenGL(MatrixMode)! %s\n", gluErrorString( error ) );
     }
 
     //Initialize clear color
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
+    // TODO: fix ugly lines
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -113,7 +122,11 @@ void Game::initGL()
     //Use Vsync
     if(SDL_GL_SetSwapInterval( -1 ) < 0)
     {
-        SDL_Log( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("Warning: Unable to enable VSync. "
+                              "VSync will not be used! SDL Error: %s\n")
+                       % SDL_GetError()).str());
         SDL_GL_SetSwapInterval(0);
         vsync_supported = false;
     } else {
@@ -124,7 +137,12 @@ void Game::initGL()
     error = glGetError();
     if( error != GL_NO_ERROR )
     {
-        printf( "Error initializing OpenGL(Final)! %s\n", gluErrorString( error ) );
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("Error initializing OpenGL(Final)! %s\n")
+                       % gluErrorString(error)).str());
+        quit();
+        std::abort();
     }
 }
 

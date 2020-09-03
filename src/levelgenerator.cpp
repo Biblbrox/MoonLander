@@ -28,13 +28,13 @@ std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
 {
     //TODO: tune parameters
     utils::RandomUniform urand;
-    std::vector<Point> res(points_count);
+    std::vector<Point> res(points_initial_size);
 
-    const int platform_count_min = points_count / 8;
-    const int platform_count_max = points_count / 3;
+    const int platform_count_min = points_initial_size / 8;
+    const int platform_count_max = points_initial_size / 3;
 
-    const GLfloat point_distance_min = frame_width / points_count * 4.f;
-    const GLfloat point_distance_max = frame_width / points_count * 5.f;
+    const GLfloat point_distance_min = frame_width / points_initial_size * 4.f;
+    const GLfloat point_distance_max = frame_width / points_initial_size * 5.f;
 
     const GLfloat platform_min_width = 30.f;
     const GLfloat plaftorm_max_width = 50.f;
@@ -70,7 +70,7 @@ std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
     return res;
 }
 
-LevelGenerator::LevelGenerator() : points_count(points_initial_size), stars_count(stars_initial_size)
+LevelGenerator::LevelGenerator()
 {
     height_min = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 2;
     height_max = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 5;

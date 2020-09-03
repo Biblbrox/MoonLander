@@ -59,6 +59,14 @@ private:
     void update_text();
     void rescale_world();
 
+    /**
+     * Remove all entities that not alive
+     */
+    void filter_entities();
+
+    std::vector<utils::Rect> generate_clips(utils::Rect clip, size_t num_x,
+                                            size_t num_y);
+
     bool scaled = false;
     const GLfloat scale_factor = 1.5f;
 };
