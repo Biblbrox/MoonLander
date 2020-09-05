@@ -1,86 +1,46 @@
-#ifndef MOONLANDER_AUDIOTOOLS_H
-#define MOONLANDER_AUDIOTOOLS_H
+#ifndef MOONLANDER_AUDIO_H
+#define MOONLANDER_AUDIO_H
 
 #include <SDL_mixer.h>
 #include <string>
 #include <filesystem>
 #include <vector>
 #include <cassert>
+#include <GL/glew.h>
 
 namespace utils::audio {
     class Audio {
     public:
-        Audio() {};
+        Audio();
 
-        void addChunk(const std::string& chunkPath) {
-            if (!std::filesystem::exists(chunkPath)) {
-                // TODO: throw exception
-            }
+        void addChunk(const std::string& chunkPath);
 
-            Mix_Chunk *chunk = Mix_LoadWAV(chunkPath.c_str());
-            if (chunk == nullptr) {
-                // TODO: throw exception
-            }
+        void setMusic(const std::string& musicPath);
 
-            chunks.push_back(chunk);
-        }
+        void playChunk(int channel, size_t idx, int loops, bool faded = false);
 
-        void setMusic(const std::string& musicPath)
-        {
-            if (!std::filesystem::exists(musicPath)) {
-                // TODO: throw exception
-            }
+        void pauseChannel(int channel, bool faded = false);
+        void haltChannel(int channel, bool faded = false);
 
-            Mix_Music *mus = Mix_LoadMUS(musicPath.c_str());
-            if (mus == nullptr) {
-                // TODO: throw exception
-            }
+        bool isChannelPaused(int channel);
 
-            music = mus;
-        }
+        void resumeChannel(int channel);
 
-        void playChunk(int channel, size_t idx)
-        {
-            assert(channel >= -1);
-            assert(idx < chunks.size());
+        bool isChannelPlaying(int channel);
 
-            Mix_PlayChannel(channel, chunks[idx], -1);
-        }
+        void playMusic();
 
-        void stopChannel(int channel)
-        {
-            assert(channel >= -1);
-
-            Mix_Pause(channel);
-        }
-
-        void resumeChannel(int channel)
-        {
-            assert(channel >= -1);
-
-            Mix_Resume(channel);
-        }
-
-        void playMusic()
-        {
-            if (!Mix_PlayingMusic()) {
-                Mix_PlayMusic(music, -1);
-            } else {
-                if (Mix_PausedMusic())
-                    Mix_ResumeMusic();
-            }
-        }
-
-        void stopMusic()
-        {
-            if (Mix_PlayingMusic())
-                Mix_PauseMusic();
-        }
+        void pauseMusic();
+        void setFaded(bool fade);
+        void setFadeIn(GLfloat in);
+        void setFadeOut(GLfloat out);
 
     private:
         std::vector<Mix_Chunk *> chunks;
         Mix_Music* music;
-    }
+        GLfloat fade_in;
+        GLfloat fade_out;
+    };
 }
 
-#endif //MOONLANDER_AUDIOTOOLS_H
+#endif //MOONLANDER_AUDIO_H

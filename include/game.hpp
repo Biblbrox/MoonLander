@@ -9,8 +9,18 @@
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)
 
 class Game {
+private:
+    static std::shared_ptr<Game> instance;
 public:
     Game();
+    static std::shared_ptr<Game> getInstance()
+    {
+        if (!instance) {
+            instance = std::make_shared<Game>();
+        }
+
+        return instance;
+    }
 
     void initOnceSDL2();
     void initGL();
@@ -27,9 +37,9 @@ private:
     GLuint screen_w;
     GLuint screen_h;
 
-    SDL_GLContext glContext;
-
     bool is_runnable;
+
+    SDL_GLContext glContext;
 public:
     bool vsync_supported;
 private:

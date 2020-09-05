@@ -11,6 +11,7 @@ protected:
 public:
 
     //TODO: fix public constructor and make_shared problem
+    //TODO: fix ugly design
     MoonLanderProgram();
 
     static std::shared_ptr<MoonLanderProgram> getInstance()

@@ -8,18 +8,23 @@
 #include <constants.hpp>
 #include <functional>
 
+#define FREQUENCY 44100
+#define SAMPLE_FORMAT MIX_DEFAULT_FORMAT
+#define CHUNK_SIZE 2048
+#define NUM_CHANNELS 2
+
 using utils::log::Logger;
 using boost::format;
-
+// TODO: fix cleanup resources
 void Game::initOnceSDL2()
 {
     static bool didInit = false;
 
     if (!didInit) {
-        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
-                          "Can't init SDL\n");
+                          "Unable to init SDL\n");
             std::abort();
         }
 
@@ -28,9 +33,18 @@ void Game::initOnceSDL2()
         if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS) {
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
-                          "Can't init SDL_IMG\n");
+                          "Unable to init SDL_IMG\n");
             SDL_Quit();
             std::abort();
+        }
+
+        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT, NUM_CHANNELS, CHUNK_SIZE) < 0) {
+            Logger::write(utils::program_log_file_name(),
+                          utils::log::Category::INITIALIZATION_ERROR,
+                          "Unable to init SDL_Mixer\n");
+            SDL_Quit();
+            std::abort();
+
         }
 
         if (TTF_Init() == -1) {
@@ -81,11 +95,11 @@ void Game::initGL()
     if (glContext == nullptr) {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
-                      (format("OpenGL context could not be created! SDL Error: %s\n")
-                       % SDL_GetError()).str());
-        TTF_Quit();
-        IMG_Quit();
-        SDL_Quit();
+                      (format(
+                              "OpenGL context could not be created! "
+                              "SDL Error: %s\n"
+                      ) % SDL_GetError()).str());
+        quit();
         std::abort();
     }
 
@@ -139,7 +153,7 @@ void Game::initGL()
     {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
-                      (format("Error initializing OpenGL(Final)! %s\n")
+                      (format("Error initializing OpenGL! %s\n")
                        % gluErrorString(error)).str());
         quit();
         std::abort();
@@ -154,7 +168,8 @@ void Game::flush()
 
 void Game::quit()
 {
-    SDL_GL_DeleteContext(glContext);
+    if (glContext)
+        SDL_GL_DeleteContext(glContext);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
@@ -167,7 +182,7 @@ void Game::setRunnable(bool runnable)
 
 bool Game::isRunnable() const
 {
-    return is_runnable;
+    return Game::is_runnable;
 }
 
 void Game::initGame()
@@ -175,4 +190,4 @@ void Game::initGame()
     world.init();
 }
 
-
+std::shared_ptr<Game> Game::instance = nullptr;

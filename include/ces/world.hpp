@@ -8,6 +8,7 @@
 #include "../utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"
+#include "audio.h"
 
 /**
  * To avoid circular including
@@ -58,6 +59,10 @@ private:
     void update_ship();
     void update_text();
     void rescale_world();
+    void init_sound();
+    void init_sprites();
+    void init_text();
+    void init_level();
 
     /**
      * Remove all entities that not alive
@@ -69,6 +74,7 @@ private:
 
     bool scaled = false;
     const GLfloat scale_factor = 1.5f;
+    utils::audio::Audio audio;
 };
 
 #endif //MOONLANDER_WORLD_HPP
