@@ -4,17 +4,17 @@
 const int stars_initial_size = 500;
 const int points_initial_size = 500;
 
-using utils::Point;
+using glm::vec2;
 
 LevelGenerator::~LevelGenerator()
 {
 
 }
 
-std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
+std::vector<vec2> LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 {
     utils::RandomUniform urand;
-    std::vector<Point> gen(stars_initial_size);
+    std::vector<vec2> gen(stars_initial_size);
 
     for (auto& star: gen) {
         star.x = urand.generateu(left, right);
@@ -24,11 +24,11 @@ std::vector<Point> LevelGenerator::generate_stars(GLfloat left, GLfloat right) c
     return gen;
 }
 
-std::vector<Point> LevelGenerator::generate_lines(int initial_x) const
+std::vector<vec2> LevelGenerator::generate_lines(int initial_x) const
 {
     //TODO: tune parameters
     utils::RandomUniform urand;
-    std::vector<Point> res(points_initial_size);
+    std::vector<vec2> res(points_initial_size);
 
     const int platform_count_min = points_initial_size / 8;
     const int platform_count_max = points_initial_size / 3;
@@ -76,7 +76,7 @@ LevelGenerator::LevelGenerator()
     height_max = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 5;
 }
 
-void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point>& stars) const
+void LevelGenerator::extendToRight(std::vector<vec2>& points, std::vector<vec2>& stars) const
 {
     auto right = generate_lines(points[points.size() - 1].x);
 
@@ -92,7 +92,7 @@ void LevelGenerator::extendToRight(std::vector<Point>& points, std::vector<Point
     stars.insert(stars.end(), new_stars.begin(), new_stars.end());
 }
 
-void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>& stars) const
+void LevelGenerator::extendToLeft(std::vector<vec2>& points, std::vector<vec2>& stars) const
 {
     auto left = generate_lines(0);
 
@@ -100,7 +100,7 @@ void LevelGenerator::extendToLeft(std::vector<Point>& points, std::vector<Point>
     GLfloat line_length = std::abs(points[0].x - left[left.size() - 1].x);
 
     GLfloat initial_x = -left[left.size() - 1].x;
-    std::for_each(left.begin(), left.end(), [initial_x](Point& p){ p.x += initial_x; });
+    std::for_each(left.begin(), left.end(), [initial_x](vec2& p){ p.x += initial_x; });
 
     points.insert(points.end(), left.begin(), left.end());
     std::rotate(points.begin(), points.begin() + left.size(), points.end());

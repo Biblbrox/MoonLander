@@ -3,16 +3,15 @@
 layout (points) in;
 layout (points, max_vertices = 1) out;
 
-uniform mat4 ProjectionMatrix;
+in mat4 GeomProjectionMatrix[1];
+//in vec2 TexToGeom[1];
 
-in vec2 TexToGeom[];
-
-out vec2 TexToFrag;
+//out vec2 TexToFrag;
 
 void main()
 {
-    TexToFrag = TexToGeom[0];
-    gl_Position = ProjectionMatrix * gl_in[0].gl_Position;
+//    TexToFrag = TexToGeom[0];
+    gl_Position = GeomProjectionMatrix[0] * gl_in[0].gl_Position;
     EmitVertex();
 
     EndPrimitive();

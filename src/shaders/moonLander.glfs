@@ -1,17 +1,25 @@
 #version 330 core
 
-in vec2 TexCoords;
+// Texture coords
+in vec2 TexToFrag;
+
+// Texture number
+uniform sampler2D ourTexture;
+
+layout (std140) uniform TextureData
+{
+    // Primitives color
+    vec4 inColor;
+    // Wheter draw texture or primitives
+    bool renderTexture;
+};
 
 out vec4 outColor;
-
-uniform sampler2D ourTexture;
-uniform bool renderTexture;
-uniform vec4 inColor;
 
 void main()
 {
     if (renderTexture) {
-        outColor = texture(ourTexture, TexCoords);
+        outColor = texture(ourTexture, TexToFrag);
     } else {
         outColor = inColor;
     }

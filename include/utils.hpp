@@ -19,6 +19,8 @@
 #include "timer.hpp"
 #include "logger.hpp"
 
+using glm::vec2;
+
 namespace utils {
 
     constexpr const char* shader_log_file_name()
@@ -30,11 +32,6 @@ namespace utils {
     {
         return "moonlander_log.log";
     }
-
-    struct Point {
-        GLfloat x;
-        GLfloat y;
-    };
 
     struct Position {
         GLfloat x;
@@ -50,10 +47,10 @@ namespace utils {
     };
 
     struct RectPoints {
-        Point a;
-        Point b;
-        Point c;
-        Point d;
+        vec2 a;
+        vec2 b;
+        vec2 c;
+        vec2 d;
     };
 
     /**
@@ -253,8 +250,8 @@ namespace utils {
     }
 
     namespace physics {
-        GLfloat ship_altitude(const std::vector<Point> &points, GLfloat shipX, GLfloat shipY);
-        GLfloat alt_from_surface(const std::vector<Point> &line_points, GLfloat x, GLfloat alt);
+        GLfloat ship_altitude(const std::vector<vec2> &points, GLfloat shipX, GLfloat shipY);
+        GLfloat alt_from_surface(const std::vector<vec2> &line_points, GLfloat x, GLfloat alt);
     }
 
     /**
@@ -366,7 +363,7 @@ namespace utils {
          * @return
          */
         inline constexpr bool
-        lineLine(const Point &p11, const Point &p12, const Point &p21, const Point &p22) noexcept
+        lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21, const vec2 &p22) noexcept
         {
             GLfloat x1 = p11.x;
             GLfloat x2 = p12.x;

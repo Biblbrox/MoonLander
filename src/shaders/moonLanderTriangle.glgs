@@ -1,5 +1,20 @@
-#version 120
+#version 330 core
 
-void main() {
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
 
+in mat4 GeomProjectionMatrix[3];
+in vec2 TexToGeom[3];
+
+out vec2 TexToFrag;
+
+void main()
+{
+    for (int i = 0; i < 3; ++i) {
+        TexToFrag = TexToGeom[i];
+        gl_Position = GeomProjectionMatrix[i] * gl_in[i].gl_Position;
+        EmitVertex();
+    }
+
+    EndPrimitive();
 }

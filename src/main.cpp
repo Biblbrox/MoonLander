@@ -16,7 +16,6 @@ int main(int argc, char *args[])
 
         auto program = MoonLanderProgram::getInstance();
         program->loadProgram();
-        program->bind();
         program->setProjection(glm::ortho<GLfloat>(
                 0.0f, screen_width, screen_height,
                 0.0f, 1.0f, -1.0f));
@@ -28,6 +27,8 @@ int main(int argc, char *args[])
         program->updateProjection();
         program->updateColor();
         program->setTexture(0);
+
+        program->switchToLines();
 
         SDL_Event e;
         int32_t tick_interval = 1000 / 60;

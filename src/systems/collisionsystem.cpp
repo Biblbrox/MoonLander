@@ -1,5 +1,7 @@
 #include <systems/collisionsystem.hpp>
 
+using glm::vec2;
+
 void CollisionSystem::update(size_t delta)
 {
     auto levels = getEntitiesByTag<LevelComponent>();
@@ -40,8 +42,8 @@ void CollisionSystem::update(size_t delta)
 }
 
 bool CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
-                                           GLfloat ship_y, std::vector<utils::Point>& points,
-                                           std::vector<utils::Point>& stars, GLfloat angle) {
+                                           GLfloat ship_y, std::vector<vec2>& points,
+                                           std::vector<vec2>& stars, GLfloat angle) {
     utils::Rect coord = sprite.getCurrentClip();
     coord.x = ship_x;
     coord.y = ship_y;

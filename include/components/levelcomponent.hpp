@@ -4,10 +4,12 @@
 #include "../ces/component.hpp"
 #include "../models/levelgenerator.hpp"
 
+using glm::vec2;
+
 struct LevelComponent : Component
 {
-    std::vector<utils::Point> points;
-    std::vector<utils::Point> stars;
+    std::vector<vec2> points;
+    std::vector<vec2> stars;
 
     GLfloat scale_factor = 1.f;
 };

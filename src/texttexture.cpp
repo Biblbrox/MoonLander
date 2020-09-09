@@ -48,7 +48,12 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
 
     surface = utils::flipVertically(surface);
     if (!surface) {
-        SDL_Log("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        utils::log::Logger::write(utils::program_log_file_name(),
+                                  utils::log::Category::INTERNAL_ERROR,
+                                  (boost::format(
+                                          "Unable to render text surface! SDL_ttf Error: %s\n")
+                                   % TTF_GetError()).str());
+        std::abort();
     } else {
         GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
 

@@ -3,6 +3,7 @@
 #include <boost/format.hpp>
 
 using utils::log::Logger;
+using glm::vec2;
 
 utils::RandomUniform::RandomUniform() : generator(std::time(nullptr))
 {
@@ -35,16 +36,19 @@ GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint heigh
     glBindTexture(GL_TEXTURE_2D, 0);
 
     GLuint error = glGetError();
-    if (error != GL_NO_ERROR)
+    if (error != GL_NO_ERROR) {
         Logger::write(program_log_file_name(),
                       log::Category::INTERNAL_ERROR,
-                      (boost::format("Error loading texture from %1% pixels! %2%\n")
+                      (boost::format(
+                              "Error loading texture from %1% pixels! %2%\n")
                        % pixels % gluErrorString(error)).str());
+        std::abort();
+    }
 
     return textureID;
 }
 
-GLfloat utils::physics::ship_altitude(const std::vector<Point>& line_points, GLfloat shipX, GLfloat shipY)
+GLfloat utils::physics::ship_altitude(const std::vector<vec2>& line_points, GLfloat shipX, GLfloat shipY)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx = 0;
@@ -63,7 +67,7 @@ GLfloat utils::physics::ship_altitude(const std::vector<Point>& line_points, GLf
     return alt;
 }
 
-GLfloat utils::physics::alt_from_surface(const std::vector<Point>& line_points, const GLfloat x, const GLfloat alt)
+GLfloat utils::physics::alt_from_surface(const std::vector<vec2>& line_points, const GLfloat x, const GLfloat alt)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx;

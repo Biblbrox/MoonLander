@@ -25,8 +25,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
 
 set(CMAKE_CXX_STANDARD 20)
 set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hpp
-        include/texture.hpp include/camera.hpp
-        include/geometry.hpp include/timer.hpp
+        include/texture.hpp include/camera.hpp include/timer.hpp
         include/texttexture.hpp include/sprite.hpp include/moonlanderprogram.hpp
         include/game.hpp include/abstract/shaderprogram.hpp
         include/ces/world.hpp include/ces/component.hpp include/ces/entity.hpp include/ces/system.hpp
@@ -36,14 +35,14 @@ set(HPP include/constants.hpp include/utils.hpp include/models/levelgenerator.hp
         include/systems/particlerendersystem.h)
 
 set(CPP src/main.cpp src/utils.cpp src/levelgenerator.cpp src/texture.cpp
-        src/geometry.cpp src/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
+        src/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
         src/texttexture.cpp src/sprite.cpp src/game.cpp src/shaderprogram.cpp
         src/ces/component.cpp src/ces/system.cpp src/ces/world.cpp src/ces/entity.cpp
         src/systems/renderersystem.cpp src/systems/movementsystem.cpp
         src/systems/keyboardsystem.cpp src/systems/animationsystem.cpp
         src/systems/collisionsystem.cpp src/systems/physicssystem.cpp
         src/logger.cpp src/systems/particlerendersystem.cpp
-        src/audio.cpp)
+        src/audio.cpp src/render.cpp)
 
 set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)

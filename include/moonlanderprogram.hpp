@@ -4,6 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include "abstract/shaderprogram.hpp"
 #include <memory>
+#include <functional>
 
 class MoonLanderProgram: public ShaderProgram {
 protected:
@@ -32,6 +33,12 @@ public:
     void setTextureRendering(bool isTexture);
     void setTexture(int texture);
 
+    void switchToLines();
+    void switchToPoints();
+    void switchToTriangles();
+
+    void rebindUniforms();
+
     glm::mat4 getView() const;
     glm::mat4 getModel() const;
     glm::mat4 getProjection() const;
@@ -49,20 +56,29 @@ public:
 
 private:
     glm::mat4 projectionMatrix;
-    GLint projectionLoc;
 
     glm::mat4 modelMatrix;
-    GLint modelLoc;
 
     glm::mat4 viewMatrix;
-    GLint viewLoc;
 
     glm::vec4 color;
-    GLint colorLoc;
-
-    GLint isTextureLoc;
 
     GLint texLoc;
+
+    GLuint programs[3];
+    GLuint cur_program;
+
+    // First for TextureData, second for Matrices.
+    GLuint uniformPoints[2];
+    GLuint uniformLines[2];
+    GLuint uniformTriangles[2];
+
+    GLuint matricesUBO;
+    GLuint textureDataUBO;
+
+    int isTextureRender;
+
+    void remove_programs();
 };
 
 #endif //MOONLANDER_MOONLANDERPROGRAM_HPP

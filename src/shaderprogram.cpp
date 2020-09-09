@@ -25,6 +25,7 @@ bool ShaderProgram::bind() const
     if (error != GL_NO_ERROR) {
         printf("Error binding shader program! %s\n", gluErrorString(error));
         utils::log::printProgramLog(programID);
+        std::abort();
         return false;
     }
 
@@ -52,6 +53,9 @@ void ShaderProgram::setInt(const std::string& name, GLint value)
 
 void ShaderProgram::setFloat(const std::string &name, GLfloat value)
 {
+    using utils::log::Logger;
+    using boost::format;
+
     assert(!name.empty());
     GLint loc = glGetUniformLocation(programID, name.c_str());
     if (loc == -1) {
@@ -62,8 +66,9 @@ void ShaderProgram::setFloat(const std::string &name, GLfloat value)
     glUniform1f(loc, value);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        utils::log::Logger::write(utils::shader_log_file_name(), utils::log::Category::INTERNAL_ERROR,
-                                  (boost::format("Unable to set uniform variable \"%1%\"\n") % name).str());
+        Logger::write(utils::shader_log_file_name(),
+                      utils::log::Category::INTERNAL_ERROR,
+                      (format("Unable to set uniform variable \"%1%\"\n") % name).str());
         std::abort();
     }
 }
