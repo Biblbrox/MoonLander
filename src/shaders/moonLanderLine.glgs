@@ -1,9 +1,13 @@
 #version 330 core
 
 layout (lines_adjacency) in;
-layout (triangle_strip, max_vertices = 12) out;
+layout (triangle_strip, max_vertices = 24) out;
+
+uniform vec4 inColor;
 
 in mat4 GeomProjectionMatrix[4];
+
+out vec4 FragColor;
 
 void main()
 {
@@ -32,6 +36,68 @@ void main()
     // determine the length of the miter by projecting it onto normal and then inverse it
     float length_a = THICKNESS / dot(miter_a, n1);
     float length_b = THICKNESS / dot(miter_b, n1);
+
+    vec4 a = GeomProjectionMatrix[0] * vec4(p0 - length_a * miter_a, 0.0, 1.0);
+    vec4 c = GeomProjectionMatrix[0] * vec4(p1 - length_a * miter_a, 0.0, 1.0);
+    vec4 f = GeomProjectionMatrix[0] * vec4(p2 + length_b * miter_b, 0.0, 1.0);
+
+    bool fillArea = true;
+    /**
+    a*-------------*d
+     |             |
+     |             |
+     |             |
+     |             |
+     |             |
+    b*-------------*c
+    **/
+    if (fillArea) {
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        float depth = -100.0;
+        vec4 leftTrA = a;
+        vec4 leftTrB = vec4(leftTrA.x, leftTrA.y + depth, leftTrA.z, leftTrA.w);
+        vec4 leftTrD = c;
+        vec4 leftTrC = vec4(leftTrD.x, leftTrD.y + depth, leftTrD.z, leftTrD.w);
+
+        gl_Position = leftTrA; // a
+        EmitVertex();
+        gl_Position = leftTrB; // b
+        EmitVertex();
+        gl_Position = leftTrC; // c
+        EmitVertex();
+        EndPrimitive();
+
+        gl_Position = leftTrC; // c
+        EmitVertex();
+        gl_Position = leftTrD; // d
+        EmitVertex();
+        gl_Position = leftTrA; // a
+        EmitVertex();
+        EndPrimitive();
+
+        vec4 rightTrA = leftTrD;
+        vec4 rightTrB = leftTrC;
+        vec4 rightTrD = f;
+        vec4 rightTrC = vec4(rightTrD.x, rightTrD.y + depth, rightTrD.z, rightTrD.w);
+
+        gl_Position = rightTrA; // a
+        EmitVertex();
+        gl_Position = rightTrB; // b
+        EmitVertex();
+        gl_Position = rightTrC; // c
+        EmitVertex();
+        EndPrimitive();
+
+        gl_Position = rightTrC; // c
+        EmitVertex();
+        gl_Position = rightTrD; // d
+        EmitVertex();
+        gl_Position = rightTrA; // a
+        EmitVertex();
+        EndPrimitive();
+    }
+
+    FragColor = inColor;
 
     // generate the triangle strip
     gl_Position = GeomProjectionMatrix[0] * vec4(p1 + length_a * miter_a, 0.0, 1.0); // d

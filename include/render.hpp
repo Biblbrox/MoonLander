@@ -22,15 +22,9 @@ namespace render {
                     GLfloat x,
                     GLfloat y, GLfloat angle, GLfloat scale_factor);
 
-    void drawLevel(std::shared_ptr<MoonLanderProgram> program,
-                    std::vector<vec2> &points,
-                    std::vector<vec2> &stars, GLfloat scale_factor);
-
     void drawLinen(const std::vector<vec2>& points);
 
     void drawDots(const std::vector<vec2>& dots);
-
-    void drawLinenTriangulation(const std::vector<vec2>& points);
 
     void drawTriangles(const std::vector<vec2> &points);
 };

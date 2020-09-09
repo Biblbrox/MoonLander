@@ -3,15 +3,16 @@
 layout (points) in;
 layout (points, max_vertices = 1) out;
 
-in mat4 GeomProjectionMatrix[1];
-//in vec2 TexToGeom[1];
+uniform vec4 inColor;
 
-//out vec2 TexToFrag;
+in mat4 GeomProjectionMatrix[1];
+
+out vec4 FragColor;
 
 void main()
 {
-//    TexToFrag = TexToGeom[0];
     gl_Position = GeomProjectionMatrix[0] * gl_in[0].gl_Position;
+    FragColor = inColor;
     EmitVertex();
 
     EndPrimitive();

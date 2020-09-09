@@ -9,9 +9,28 @@ void RendererSystem::drawLevel()
     auto levelEntities = getEntitiesByTag<LevelComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (auto& [key, en]: levelEntities) {
-        render::drawLevel(program, en->getComponent<LevelComponent>()->points,
-                         en->getComponent<LevelComponent>()->stars,
-                         en->getComponent<LevelComponent>()->scale_factor);
+        GLfloat scale_factor = en->getComponent<LevelComponent>()->scale_factor;
+        program->setTextureRendering(false);
+
+        glm::mat4 scaling = glm::scale(glm::mat4(1.f),
+                                       glm::vec3(scale_factor, scale_factor,1.f));
+        program->leftMultModel(scaling);
+        program->updateModel();
+
+        program->switchToPoints();
+        program->setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+        program->updateColor();
+        render::drawDots(en->getComponent<LevelComponent>()->stars);
+
+        program->switchToLines();
+        program->setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+        program->updateColor();
+        render::drawLinen(en->getComponent<LevelComponent>()->points);
+
+        scaling = glm::scale(glm::mat4(1.f),
+                             glm::vec3(1 / scale_factor, 1 / scale_factor,1.f));
+        program->leftMultModel(scaling);
+        program->updateModel();
     }
 }
 

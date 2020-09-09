@@ -73,7 +73,7 @@ std::vector<vec2> LevelGenerator::generate_lines(int initial_x) const
 LevelGenerator::LevelGenerator()
 {
     height_min = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 2;
-    height_max = utils::getScreenHeight<GLfloat>() - utils::getScreenHeight<GLfloat>() / 5;
+    height_max = utils::getScreenHeight<GLfloat>();
 }
 
 void LevelGenerator::extendToRight(std::vector<vec2>& points, std::vector<vec2>& stars) const

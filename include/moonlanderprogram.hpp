@@ -64,6 +64,7 @@ private:
     glm::vec4 color;
 
     GLint texLoc;
+    GLint colorLoc;
 
     GLuint programs[3];
     GLuint cur_program;

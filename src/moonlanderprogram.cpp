@@ -228,11 +228,7 @@ void MoonLanderProgram::setColor(glm::vec4 color)
 
 void MoonLanderProgram::updateColor()
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, textureDataUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                    sizeof(glm::vec4), glm::value_ptr(color));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+    glUniform4f(colorLoc, color.x, color.y, color.z, color.w);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
         printf("Error while updating textureDataUBO! %s\n", gluErrorString(error));
         utils::log::printProgramLog(cur_program);
@@ -244,9 +240,7 @@ void MoonLanderProgram::setTextureRendering(bool isTexture)
 {
     isTextureRender = isTexture;
     glBindBuffer(GL_UNIFORM_BUFFER, textureDataUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER,
-                    next_offset(sizeof(glm::vec4), gl_bool_size),
-                    gl_bool_size, &isTextureRender);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, gl_bool_size, &isTextureRender);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
@@ -333,6 +327,11 @@ void MoonLanderProgram::rebindUniforms()
     texLoc = glGetUniformLocation(cur_program, "ourTexture");
     if (texLoc == -1) {
         printf( "%s is not a valid glsl program variable!\n", "ourTexture");
+    }
+
+    colorLoc = glGetUniformLocation(cur_program, "inColor");
+    if (colorLoc == -1) {
+        printf( "%s is not a valid glsl program variable!\n", "inColor");
     }
 }
 
