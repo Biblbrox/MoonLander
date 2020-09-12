@@ -4,9 +4,11 @@
 #include <SDL_types.h>
 #include <vector>
 
-namespace utils {
+namespace utils
+{
 
-    class Timer {
+    class Timer
+    {
     public:
         Timer();
 

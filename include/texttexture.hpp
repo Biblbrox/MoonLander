@@ -6,7 +6,8 @@
 #include "utils.hpp"
 #include "moonlanderprogram.hpp"
 
-class TextTexture: public Texture {
+class TextTexture: public Texture
+{
 
 public:
     TextTexture(std::string textureText,

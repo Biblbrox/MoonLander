@@ -20,7 +20,9 @@ utils::RandomUniform::RandomUniform() : generator(std::time(nullptr))
  * @param format
  * @return textureID
  */
-GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLenum format)
+GLuint
+utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
+                               GLenum format)
 {
     assert(pixels != nullptr);
     GLuint textureID;
@@ -48,7 +50,9 @@ GLuint utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint heigh
     return textureID;
 }
 
-GLfloat utils::physics::ship_altitude(const std::vector<vec2>& line_points, GLfloat shipX, GLfloat shipY)
+GLfloat
+utils::physics::ship_altitude(const std::vector<vec2>& line_points,
+                              GLfloat shipX, GLfloat shipY)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx = 0;
@@ -67,7 +71,9 @@ GLfloat utils::physics::ship_altitude(const std::vector<vec2>& line_points, GLfl
     return alt;
 }
 
-GLfloat utils::physics::alt_from_surface(const std::vector<vec2>& line_points, const GLfloat x, const GLfloat alt)
+GLfloat
+utils::physics::alt_from_surface(const std::vector<vec2>& line_points,
+                                 const GLfloat x, const GLfloat alt)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx;

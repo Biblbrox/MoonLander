@@ -1,14 +1,15 @@
-#ifndef MOONLANDER_PARTICLEENGINE_H
-#define MOONLANDER_PARTICLEENGINE_H
+#ifndef MOONLANDER_PARTICLEENGINE_HPP
+#define MOONLANDER_PARTICLEENGINE_HPP
 
 #include <sprite.hpp>
 #include <ces/entity.hpp>
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
 #include <components/displaycomponent.hpp>
-#include <components/particlespritecomponent.h>
+#include <components/particlespritecomponent.hpp>
 
-class ParticleEngine {
+class ParticleEngine
+{
 public:
     /**
      * Return clips.size() number generated particles from specific texture
@@ -47,8 +48,12 @@ public:
 
         for (size_t i = 0; i < clips.size(); ++i) {
             particle->sprite->addClipSprite(clips[i]);
-            particle->coords.push_back({init_coords[i].x, init_coords[i].y, init_coords[i].angle});
-            particle->vel.push_back({init_vel[i].x, init_vel[i].y, init_vel[i].angle});
+            particle->coords.push_back({init_coords[i].x,
+                                        init_coords[i].y,
+                                        init_coords[i].angle});
+            particle->vel.push_back({init_vel[i].x,
+                                     init_vel[i].y,
+                                     init_vel[i].angle});
         }
 
         particle->sprite->generateDataBuffer();
@@ -59,4 +64,4 @@ public:
 private:
 };
 
-#endif //MOONLANDER_PARTICLEENGINE_H
+#endif //MOONLANDER_PARTICLEENGINE_HPP

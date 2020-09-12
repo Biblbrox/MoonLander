@@ -10,22 +10,22 @@
 
 using glm::vec2;
 
-class LevelGenerator {
+class LevelGenerator
+{
 public:
     explicit LevelGenerator();
     ~LevelGenerator();
-    void extendToRight(std::vector<vec2>& points,
-                       std::vector<vec2>& stars) const;
-    void extendToLeft(std::vector<vec2>& points,
-                      std::vector<vec2>& stars) const;
-    std::vector<vec2> generate_lines(int initial_x) const;
+    void extendToRight(std::vector<vec2>& points,std::vector<vec2>& stars);
+    void extendToLeft(std::vector<vec2>& points, std::vector<vec2>& stars);
+    std::vector<vec2> generate_lines(vec2 initial_x);
     std::vector<vec2> generate_stars(GLfloat left, GLfloat right) const;
-
-private:
-    const GLfloat frame_width = 2000;
 
     GLfloat height_min;
     GLfloat height_max;
+private:
+    const GLfloat frame_width = 2000;
+
+    std::vector<vec2> platforms;
 };
 
 

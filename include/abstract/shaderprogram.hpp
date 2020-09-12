@@ -2,9 +2,10 @@
 #define MOONLANDER_SHADERPROGRAM_HPP
 
 #include <GL/glew.h>
-#include <iostream>
+#include <string>
 
-class ShaderProgram {
+class ShaderProgram
+{
 public:
     explicit ShaderProgram();
 

@@ -4,7 +4,8 @@
 #include "../include/sprite.hpp"
 #include "../include/ces/component.hpp"
 
-struct SpriteComponent : Component {
+struct SpriteComponent : Component
+{
     std::shared_ptr<Sprite> sprite;
 };
 

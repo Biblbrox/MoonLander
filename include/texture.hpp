@@ -9,7 +9,8 @@
  * Texture class.
  * This is only base methods. You can't create instance of this class
  */
-class Texture {
+class Texture
+{
 public:
     virtual ~Texture();
 

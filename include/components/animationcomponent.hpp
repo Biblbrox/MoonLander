@@ -4,7 +4,8 @@
 #include <ces/component.hpp>
 #include <GL/glew.h>
 
-struct AnimationComponent : Component {
+struct AnimationComponent : Component
+{
     GLuint cur_state = 0;
 };
 

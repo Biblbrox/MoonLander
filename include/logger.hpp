@@ -3,9 +3,11 @@
 
 #include <string>
 
-namespace utils::log {
+namespace utils::log
+{
 
-    enum class Category {
+    enum class Category
+    {
         INTERNAL_ERROR,
         FILE_ERROR,
         UNEXPECTED_ERROR,
@@ -13,7 +15,8 @@ namespace utils::log {
         INITIALIZATION_ERROR
     };
 
-    class Logger {
+    class Logger
+    {
     public:
         static void write(const std::string &file_name, Category category, const std::string &msg);
     };

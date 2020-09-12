@@ -21,7 +21,8 @@
 
 using glm::vec2;
 
-namespace utils {
+namespace utils
+{
 
     constexpr const char* shader_log_file_name()
     {
@@ -33,20 +34,23 @@ namespace utils {
         return "moonlander_log.log";
     }
 
-    struct Position {
+    struct Position
+    {
         GLfloat x;
         GLfloat y;
         GLfloat angle;
     };
 
-    struct Rect {
+    struct Rect
+    {
         GLfloat x;
         GLfloat y;
         GLfloat w;
         GLfloat h;
     };
 
-    struct RectPoints {
+    struct RectPoints
+    {
         vec2 a;
         vec2 b;
         vec2 c;
@@ -61,7 +65,8 @@ namespace utils {
     struct TypeList;
 
     template <typename H, typename... T>
-    struct TypeList<H, T...> {
+    struct TypeList<H, T...>
+    {
         using Head = H;
         using Tail = TypeList<T...>;
     };
@@ -70,12 +75,14 @@ namespace utils {
     struct TypeList<> {};
 
     template <typename TypeList>
-    struct Length {
+    struct Length
+    {
         static int const value = 1 + Length<typename TypeList::Tail>::value;
     };
 
     template <>
-    struct Length <TypeList<>> {
+    struct Length <TypeList<>>
+    {
         static int const value = 0;
     };
 
@@ -98,7 +105,8 @@ namespace utils {
     /**
      * Namespace for logging functions
      */
-    namespace log {
+    namespace log
+    {
 
         /**
          * Writes shader log to shader log file and standard output
@@ -249,7 +257,8 @@ namespace utils {
         return typeid(T).hash_code();
     }
 
-    namespace physics {
+    namespace physics
+    {
         GLfloat ship_altitude(const std::vector<vec2> &points, GLfloat shipX, GLfloat shipY);
         GLfloat alt_from_surface(const std::vector<vec2> &line_points, GLfloat x, GLfloat alt);
     }
@@ -353,7 +362,8 @@ namespace utils {
         return power * 2;
     }
 
-    namespace collision {
+    namespace collision
+    {
         /**
          * Check whether first line (p11, p12) intersect with second (p21, p22)
          * @param p11

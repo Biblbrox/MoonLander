@@ -5,7 +5,8 @@
 #include <functional>
 #include <SDL_quit.h>
 
-struct KeyboardComponent : Component {
+struct KeyboardComponent : Component
+{
     std::function<void(const Uint8*)> event_handler;
 };
 

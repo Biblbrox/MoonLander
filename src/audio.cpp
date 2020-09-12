@@ -1,7 +1,8 @@
-#include <audio.h>
+#include <audio.hpp>
 #include <iostream>
 
-void utils::audio::Audio::setMusic(const std::string &musicPath) {
+void utils::audio::Audio::setMusic(const std::string &musicPath)
+{
     if (!std::filesystem::exists(musicPath)) {
         // TODO: throw exception
     }
@@ -14,7 +15,8 @@ void utils::audio::Audio::setMusic(const std::string &musicPath) {
     music = mus;
 }
 
-void utils::audio::Audio::playChunk(int channel, size_t idx, int loops, bool faded)
+void
+utils::audio::Audio::playChunk(int channel, size_t idx, int loops, bool faded)
 {
     assert(channel >= -1);
     assert(idx < chunks.size());

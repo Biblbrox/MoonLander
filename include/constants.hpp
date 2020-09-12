@@ -9,7 +9,8 @@ const GLfloat engine_force = 1.f;
 const GLfloat rot_step = 0.004f;
 
 // types of surfaces like Moon, etc...
-enum class SurfaceType {
+enum class SurfaceType
+{
     MOON
 };
 

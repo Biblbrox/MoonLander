@@ -8,7 +8,8 @@ class World;
 /**
  * Base class for component
  */
-class Component {
+class Component
+{
 public:
     Component() = default;
     virtual ~Component() = default;

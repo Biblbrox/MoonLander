@@ -3,7 +3,8 @@
 
 #include <GL/glew.h>
 
-class Camera {
+class Camera
+{
 public:
     Camera();
     void lookAt(GLfloat x, GLfloat y);
@@ -20,8 +21,8 @@ public:
     void translate(GLfloat x, GLfloat y);
 
 private:
-    GLfloat x;
-    GLfloat y;
+    GLfloat m_x;
+    GLfloat m_y;
 
     GLfloat prev_x;
     GLfloat prev_y;

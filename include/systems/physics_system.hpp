@@ -2,10 +2,11 @@
 #define MOONLANDER_PHYSICS_SYSTEM_HPP
 
 #include <components/velocitycomponent.hpp>
-#include <components/particlespritecomponent.h>
+#include <components/particlespritecomponent.hpp>
 #include "../ces/system.hpp"
 
-class PhysicsSystem : public System <VelocityComponent, ParticleSpriteComponent> {
+class PhysicsSystem : public System <VelocityComponent, ParticleSpriteComponent>
+{
 public:
     void update(size_t delta) override;
 };

@@ -5,7 +5,8 @@
 #include <texttexture.hpp>
 #include "../include/ces/component.hpp"
 
-struct TextComponent : Component {
+struct TextComponent : Component
+{
     std::shared_ptr<TextTexture> texture;
 };
 

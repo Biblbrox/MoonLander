@@ -7,9 +7,11 @@
 
 /**
  * Animation system class.
- * Only entities which hold SpriteComponent and AnimationComponent both can be animated
+ * Only entities which hold SpriteComponent and AnimationComponent both
+ * can be animated.
  */
-class AnimationSystem : public System<SpriteComponent, AnimationComponent> {
+class AnimationSystem : public System<SpriteComponent, AnimationComponent>
+{
     void update(size_t delta) override;
 };
 

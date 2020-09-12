@@ -41,9 +41,11 @@ void CollisionSystem::update(size_t delta)
 
 }
 
-bool CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
-                                           GLfloat ship_y, std::vector<vec2>& points,
-                                           std::vector<vec2>& stars, GLfloat angle) {
+bool
+CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
+                                      GLfloat ship_y, std::vector<vec2>& points,
+                                      std::vector<vec2>& stars, GLfloat angle)
+{
     utils::Rect coord = sprite.getCurrentClip();
     coord.x = ship_x;
     coord.y = ship_y;
@@ -52,32 +54,28 @@ bool CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
     using utils::collision::lineLine;
     for (size_t i = 0; i < points.size() - 1; ++i) {
         GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
-        GLfloat curX = points[i].x;
-        GLfloat curY = points[i].y;
-        GLfloat nextX = points[i + 1].x;
-        GLfloat nextY = points[i + 1].y;
 
         if (points[i].x <= x && points[i + 1].x >= x) {
+            GLfloat curX = points[i].x;
+            GLfloat curY = points[i].y;
+            GLfloat nextX = points[i + 1].x;
+            GLfloat nextY = points[i + 1].y;
+            GLfloat nextNextX = points[i + 1].x;
+            GLfloat nextNextY = points[i + 1].y;
+
             bool left = lineLine(r.d, r.a, {curX, curY},{nextX, nextY});
-            bool right = lineLine(r.b, r.c, {curX, curY},
-                                         {points[i + 1].x, points[i + 1].y});
-            bool top = lineLine(r.c, r.d, {points[i].x, points[i].y},
-                                       {points[i + 1].x, points[i + 1].y});
-            bool bottom = lineLine(r.a, r.b, {points[i].x, points[i].y},
-                                          {points[i + 1].x, points[i + 1].y});
+            bool right = lineLine(r.b, r.c, {curX, curY}, {nextX, nextY});
+            bool top = lineLine(r.c, r.d, {curX, curY}, {nextX, nextY});
+            bool bottom = lineLine(r.a, r.b, {curX, curY}, {nextX, nextY});
             if (left || right || top || bottom)
                 return true;
 
             x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
             if (points[i + 1].x <= x && i != points.size() - 2) {
-                left = lineLine(r.d, r.a, {points[i + 1].x, points[i + 1].y},
-                                       {points[i + 2].x, points[i + 2].y});
-                right = lineLine(r.b, r.c, {points[i + 1].x, points[i + 1].y},
-                                        {points[i + 2].x, points[i + 2].y});
-                top = lineLine(r.c, r.d, {points[i + 1].x, points[i + 1].y},
-                                      {points[i + 2].x, points[i + 2].y});
-                bottom = lineLine(r.a, r.b, {points[i + 1].x, points[i + 1].y},
-                                         {points[i + 2].x, points[i + 2].y});
+                left = lineLine(r.d, r.a, {nextX, nextY}, {nextNextX, nextNextY});
+                right = lineLine(r.b, r.c, {nextX, nextY}, {nextNextX, nextNextY});
+                top = lineLine(r.c, r.d, {nextX, nextY}, {nextNextX, nextNextY});
+                bottom = lineLine(r.a, r.b, {nextX, nextY}, {nextNextX, nextNextY});
                 if (left || right || top || bottom)
                     return true;
             }

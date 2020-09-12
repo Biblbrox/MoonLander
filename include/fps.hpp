@@ -7,7 +7,8 @@
 
 #define FRAMETIMES 10
 
-class Fps {
+class Fps
+{
 public:
     Fps()
     {

@@ -9,16 +9,16 @@
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)
 #define IMG_FLAGS IMG_INIT_PNG
 
-class Game {
+class Game
+{
 private:
     static std::shared_ptr<Game> instance;
 public:
     Game();
     static std::shared_ptr<Game> getInstance()
     {
-        if (!instance) {
+        if (!instance)
             instance = std::make_shared<Game>();
-        }
 
         return instance;
     }

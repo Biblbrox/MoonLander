@@ -23,8 +23,9 @@ bool Sprite::load(const std::string& path)
             texture_width = surface->w;
             texture_height = surface->h;
 
-            textureID = utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
-                                                       texture_width, texture_height, texture_format);
+            textureID = utils::loadTextureFromPixels32(
+                    static_cast<GLuint*>(surface->pixels),
+                    texture_width, texture_height, texture_format);
             SDL_FreeSurface(surface);
         }
     }

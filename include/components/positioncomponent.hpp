@@ -4,7 +4,8 @@
 #include <GL/glew.h>
 #include "ces/component.hpp"
 
-struct PositionComponent : Component {
+struct PositionComponent : Component
+{
     GLfloat x;
     GLfloat y;
     GLfloat angle;

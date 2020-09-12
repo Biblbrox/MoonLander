@@ -8,7 +8,8 @@ class World;
 /**
  * System base class
  */
-class BaseSystem {
+class BaseSystem
+{
 public:
     virtual void setWorld(std::shared_ptr<World> world) final
     {

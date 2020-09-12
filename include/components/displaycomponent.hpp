@@ -4,7 +4,6 @@
 #include <GL/glew.h>
 #include "../ces/component.hpp"
 
-struct DisplayComponent : Component {
-};
+struct DisplayComponent : Component {};
 
 #endif //MOONLANDER_DISPLAYCOMPONENT_HPP

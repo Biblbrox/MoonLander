@@ -7,7 +7,8 @@
 
 using glm::vec2;
 
-namespace render {
+namespace render
+{
 
     /**
      * Render some subclass of Texture.

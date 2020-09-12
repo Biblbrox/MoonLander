@@ -2,7 +2,9 @@
 #include <fstream>
 #include <iostream>
 
-void utils::log::Logger::write(const std::string &file_name, Category category, const std::string &msg)
+void
+utils::log::Logger::write(const std::string &file_name, Category category,
+                          const std::string &msg)
 {
     std::ofstream file(file_name);
     std::string category_str;

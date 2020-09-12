@@ -5,7 +5,8 @@
 #include "utils.hpp"
 #include "moonlanderprogram.hpp"
 
-class Sprite: public Texture {
+class Sprite: public Texture
+{
 public:
     explicit Sprite(const std::string& path);
     ~Sprite();

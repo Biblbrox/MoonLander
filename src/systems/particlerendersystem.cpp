@@ -1,4 +1,4 @@
-#include <systems/particlerendersystem.h>
+#include <systems/particlerendersystem.hpp>
 #include <cstdlib>
 #include <render.hpp>
 
@@ -8,12 +8,12 @@ void ParticleRenderSystem::update(size_t delta)
     auto particles = getEntitiesByTag<ParticleSpriteComponent>();
     for (auto& [key, particle]: particles) {
         auto particleComp = particle->getComponent<ParticleSpriteComponent>();
-        for (size_t i = 0; i < particleComp->sprite->getSpritesCount(); ++i) {
-            particleComp->sprite->setIdx(i);
-            render::drawSprite(program,
-                             *particleComp->sprite, particleComp->coords[i].x,
-                             particleComp->coords[i].y, particleComp->coords[i].angle,
-                             1.5f);
+        auto sprite = particleComp->sprite;
+        auto coords = particleComp->coords;
+        for (size_t i = 0; i < sprite->getSpritesCount(); ++i) {
+            sprite->setIdx(i);
+            render::drawSprite(program, *sprite, coords[i].x,
+                               coords[i].y, coords[i].angle,1.5f);
         }
     }
 }

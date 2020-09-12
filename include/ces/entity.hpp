@@ -16,7 +16,8 @@ using utils::type_id;
  * Entity class
  * Each entity may contain several unique components
  */
-class Entity {
+class Entity
+{
 public:
 
     Entity() : alive(false) {}

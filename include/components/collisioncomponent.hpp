@@ -3,7 +3,8 @@
 
 #include <ces/component.hpp>
 
-struct CollisionComponent : Component {
+struct CollisionComponent : Component
+{
     bool has_collision = false;
 };
 

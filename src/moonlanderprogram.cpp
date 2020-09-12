@@ -62,7 +62,8 @@ bool MoonLanderProgram::loadProgram()
 
     // Geometry shader triangle
     geomShaders[2] = loadShaderFromFile(
-            getShaderPath("moonLanderTriangle.glgs"), GL_GEOMETRY_SHADER);
+            getShaderPath("moonLanderTriangle.glgs"),
+            GL_GEOMETRY_SHADER);
 
     if (geomShaders[2] == 0) {
         remove_programs();
@@ -130,13 +131,14 @@ bool MoonLanderProgram::loadProgram()
     // Create matrices buffer
     glGenBuffers(1, &matricesUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
-    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), nullptr,
+                 GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     // Bind matrices to 1 index in binding point array
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, matricesUBO);
 
     //  Create texture data buffer
-    size_t textureDataSize = 4 + sizeof(glm::vec4);
+    size_t textureDataSize = sizeof(glm::vec4);
     glGenBuffers(1, &textureDataUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, textureDataUBO);
     glBufferData(GL_UNIFORM_BUFFER, textureDataSize, nullptr, GL_DYNAMIC_DRAW);
@@ -230,7 +232,8 @@ void MoonLanderProgram::updateColor()
 {
     glUniform4f(colorLoc, color.x, color.y, color.z, color.w);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating textureDataUBO! %s\n", gluErrorString(error));
+        printf("Error while updating textureDataUBO! %s\n",
+               gluErrorString(error));
         utils::log::printProgramLog(cur_program);
         std::abort();
     }
@@ -244,7 +247,8 @@ void MoonLanderProgram::setTextureRendering(bool isTexture)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating textureDataUBO! %s\n", gluErrorString(error));
+        printf("Error while updating textureDataUBO! %s\n",
+               gluErrorString(error));
         utils::log::printProgramLog(cur_program);
         std::abort();
     }

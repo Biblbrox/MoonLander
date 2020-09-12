@@ -9,13 +9,12 @@
 #include <systems/renderersystem.hpp>
 #include <systems/movementsystem.hpp>
 #include <components/textcomponent.hpp>
-#include <SDL_ttf.h>
 #include <systems/keyboardsystem.hpp>
 #include <systems/animationsystem.hpp>
 #include <systems/collisionsystem.hpp>
 #include <systems/physics_system.hpp>
-#include <particle/particleengine.h>
-#include <systems/particlerendersystem.h>
+#include <particle/particleengine.hpp>
+#include <systems/particlerendersystem.hpp>
 
 using utils::log::Logger;
 using boost::format;
@@ -390,7 +389,8 @@ void World::init_level()
 
     LevelGenerator generator;
     auto levelComponent = level.getComponent<LevelComponent>();
-    levelComponent->points = generator.generate_lines(0);
+    levelComponent->points = generator.generate_lines(
+            vec2(0.f,generator.height_min + generator.height_max) / 2.f);
     GLfloat points_right_x =
             levelComponent->points[levelComponent->points.size() - 1].x;
     levelComponent->stars = generator.generate_stars(0, points_right_x);

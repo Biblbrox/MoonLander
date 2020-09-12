@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_PARTICLESPRITECOMPONENT_H
-#define MOONLANDER_PARTICLESPRITECOMPONENT_H
+#ifndef MOONLANDER_PARTICLESPRITECOMPONENT_HPP
+#define MOONLANDER_PARTICLESPRITECOMPONENT_HPP
 
 #include <ces/component.hpp>
 #include <GL/glew.h>
@@ -8,7 +8,8 @@
 /**
  * Particle Sprite Component. Each particle is clip of one sprite.
  */
-struct ParticleSpriteComponent : Component {
+struct ParticleSpriteComponent : Component
+{
     bool is_alive = false;
     GLfloat life_time;
 
@@ -27,4 +28,4 @@ struct ParticleSpriteComponent : Component {
     std::vector<utils::Position> vel;
 };
 
-#endif //MOONLANDER_PARTICLESPRITECOMPONENT_H
+#endif //MOONLANDER_PARTICLESPRITECOMPONENT_HPP

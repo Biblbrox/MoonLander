@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <components/velocitycomponent.hpp>
-#include <components/particlespritecomponent.h>
+#include <components/particlespritecomponent.hpp>
 #include "ces/system.hpp"
 #include "components/positioncomponent.hpp"
 
@@ -11,7 +11,8 @@
  * System that can handle game objects with
  * Position and Direction components, like spaceship
  */
-class MovementSystem: public System<PositionComponent, VelocityComponent, ParticleSpriteComponent>
+class MovementSystem: public
+        System<PositionComponent, VelocityComponent, ParticleSpriteComponent>
 {
 public:
     explicit MovementSystem();

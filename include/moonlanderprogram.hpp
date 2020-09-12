@@ -6,7 +6,8 @@
 #include <memory>
 #include <functional>
 
-class MoonLanderProgram: public ShaderProgram {
+class MoonLanderProgram: public ShaderProgram
+{
 protected:
     static std::shared_ptr<MoonLanderProgram> instance;
 public:

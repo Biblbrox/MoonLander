@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_AUDIO_H
-#define MOONLANDER_AUDIO_H
+#ifndef MOONLANDER_AUDIO_HPP
+#define MOONLANDER_AUDIO_HPP
 
 #include <SDL_mixer.h>
 #include <string>
@@ -8,8 +8,10 @@
 #include <cassert>
 #include <GL/glew.h>
 
-namespace utils::audio {
-    class Audio {
+namespace utils::audio
+{
+    class Audio
+    {
     public:
         Audio();
 
@@ -43,4 +45,4 @@ namespace utils::audio {
     };
 }
 
-#endif //MOONLANDER_AUDIO_H
+#endif //MOONLANDER_AUDIO_HPP

@@ -12,7 +12,8 @@
 /**
  * System that can handle level surface
  */
-class RendererSystem : public System<DisplayComponent, PositionComponent, TextComponent>
+class RendererSystem :
+        public System<DisplayComponent, PositionComponent, TextComponent>
 {
 public:
     explicit RendererSystem();

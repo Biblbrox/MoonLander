@@ -63,7 +63,8 @@ int main(int argc, char *args[])
         game->quit();
     } catch (std::exception& e) {
         utils::log::Logger::write(utils::program_log_file_name(),
-                                  utils::log::Category::UNEXPECTED_ERROR, e.what());
+                                  utils::log::Category::UNEXPECTED_ERROR,
+                                  e.what());
         return -1;
     }
 

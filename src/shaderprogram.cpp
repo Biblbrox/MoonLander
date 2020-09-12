@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <utils.hpp>
 
+using boost::format;
+
 ShaderProgram::ShaderProgram()
 {
     programID = 0;
@@ -46,21 +48,22 @@ void ShaderProgram::setInt(const std::string& name, GLint value)
 {
     assert(!name.empty());
     glUniform1i(glGetUniformLocation(programID, name.c_str()), value);
-    utils::log::Logger::write(utils::shader_log_file_name(), utils::log::Category::INTERNAL_ERROR,
-                              (boost::format("Unable to set uniform variable %1%\n") % name).str());
+    utils::log::Logger::write(utils::shader_log_file_name(),
+                              utils::log::Category::INTERNAL_ERROR,
+                              (format("Unable to set uniform variable %1%\n") % name).str());
     std::abort();
 }
 
 void ShaderProgram::setFloat(const std::string &name, GLfloat value)
 {
     using utils::log::Logger;
-    using boost::format;
 
     assert(!name.empty());
     GLint loc = glGetUniformLocation(programID, name.c_str());
     if (loc == -1) {
-        utils::log::Logger::write(utils::shader_log_file_name(), utils::log::Category::INTERNAL_ERROR,
-                                  (boost::format("Can't find location by name \"%1%\"\n") % name).str());
+        utils::log::Logger::write(utils::shader_log_file_name(),
+                                  utils::log::Category::INTERNAL_ERROR,
+                                  (format("Can't find location by name \"%1%\"\n") % name).str());
         std::abort();
     }
     glUniform1f(loc, value);

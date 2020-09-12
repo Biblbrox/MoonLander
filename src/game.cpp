@@ -36,10 +36,12 @@ void Game::initOnceSDL2()
             std::abort();
         }
 
-        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT, NUM_CHANNELS, CHUNK_SIZE) < 0) {
+        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT,
+                          NUM_CHANNELS, CHUNK_SIZE) < 0) {
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
                           "Unable to init SDL_Mixer\n");
+            IMG_Quit();
             SDL_Quit();
             std::abort();
 
@@ -49,6 +51,8 @@ void Game::initOnceSDL2()
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
                           "Can't init SDL_TTF\n");
+            IMG_Quit();
+            Mix_Quit();
             SDL_Quit();
             std::abort();
         }

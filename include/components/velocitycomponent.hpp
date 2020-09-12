@@ -4,7 +4,8 @@
 #include <GL/glew.h>
 #include "ces/component.hpp"
 
-struct VelocityComponent : Component {
+struct VelocityComponent : Component
+{
     GLfloat x = 0.f;
     GLfloat y = 0.f;
     GLfloat vel_angle = 0.f;

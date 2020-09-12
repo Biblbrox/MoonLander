@@ -27,8 +27,9 @@ void RendererSystem::drawLevel()
         program->updateColor();
         render::drawLinen(en->getComponent<LevelComponent>()->points);
 
-        scaling = glm::scale(glm::mat4(1.f),
-                             glm::vec3(1 / scale_factor, 1 / scale_factor,1.f));
+        scaling = glm::scale(
+                glm::mat4(1.f),glm::vec3(1 / scale_factor,
+                                         1 / scale_factor,1.f));
         program->leftMultModel(scaling);
         program->updateModel();
     }
@@ -52,11 +53,12 @@ void RendererSystem::drawText()
     auto textComponents = getEntitiesByTag<TextComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (auto& [key, en]: textComponents) {
-        render::drawSprite(program, *en->getComponent<TextComponent>()->texture,
-                         en->getComponent<PositionComponent>()->x,
-                         en->getComponent<PositionComponent>()->y,
-                         en->getComponent<PositionComponent>()->angle,
-                         en->getComponent<PositionComponent>()->scale_factor);
+        render::drawSprite(program,
+                           *en->getComponent<TextComponent>()->texture,
+                           en->getComponent<PositionComponent>()->x,
+                           en->getComponent<PositionComponent>()->y,
+                           en->getComponent<PositionComponent>()->angle,
+                           en->getComponent<PositionComponent>()->scale_factor);
     }
 }
 

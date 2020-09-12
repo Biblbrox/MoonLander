@@ -8,7 +8,7 @@
 #include "../utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"
-#include "audio.h"
+#include "audio.hpp"
 
 /**
  * To avoid circular including
@@ -18,7 +18,8 @@ class Component;
 
 using utils::type_id;
 
-class World {
+class World
+{
 public:
     World() = default;
     ~World() = default;
