@@ -20,11 +20,6 @@ public:
 
     void update(size_t delta) override;
 private:
-    Camera camera;
-
-    GLuint screen_width;
-    GLuint screen_height;
-
     void drawSprites();
     void drawLevel();
     void drawText();

@@ -5,7 +5,6 @@
 
 namespace utils::log
 {
-
     enum class Category
     {
         INTERNAL_ERROR,
@@ -18,7 +17,8 @@ namespace utils::log
     class Logger
     {
     public:
-        static void write(const std::string &file_name, Category category, const std::string &msg);
+        static void write(const std::string &file_name, Category category,
+                          const std::string &msg);
     };
 }
 

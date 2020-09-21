@@ -9,7 +9,6 @@ using glm::vec2;
 
 namespace render
 {
-
     /**
      * Render some subclass of Texture.
      * @param program
@@ -23,7 +22,7 @@ namespace render
                     GLfloat x,
                     GLfloat y, GLfloat angle, GLfloat scale_factor);
 
-    void drawLinen(const std::vector<vec2>& points);
+    void drawLinen(const std::vector<vec2>& points, bool adjacency = false);
 
     void drawDots(const std::vector<vec2>& dots);
 

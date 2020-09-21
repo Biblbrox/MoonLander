@@ -44,7 +44,8 @@ public:
      * @return
      */
     template <class ComponentType>
-    std::unordered_map<size_t, std::shared_ptr<Component>>::iterator getComponentIt()
+    std::unordered_map<size_t, std::shared_ptr<Component>>::iterator
+    getComponentIt()
     {
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "Template parameter class must be child of Component");
@@ -70,7 +71,8 @@ public:
         return std::dynamic_pointer_cast<ComponentType>(it->second);
     }
 
-    const std::unordered_map<size_t, std::shared_ptr<Component>>& getComponents() const;
+    const std::unordered_map<size_t, std::shared_ptr<Component>>&
+    getComponents() const;
 
     void setWorld(std::shared_ptr<World> world);
 
@@ -80,7 +82,7 @@ public:
 
 private:
     std::unordered_map<size_t, std::shared_ptr<Component>> components;
-    std::shared_ptr<World> pWorld;
+    std::shared_ptr<World> m_world;
     bool alive;
 };
 

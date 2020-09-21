@@ -2,6 +2,12 @@
 #include <utils.hpp>
 #include "../include/moonlanderprogram.hpp"
 
+using utils::getShaderPath;
+using utils::loadShaderFromFile;
+using glm::mat4;
+using glm::vec3;
+using glm::vec4;
+
 const int gl_bool_size = 4;
 const int gl_int_size = 4;
 const int gl_float_size = 4;
@@ -19,16 +25,17 @@ MoonLanderProgram::MoonLanderProgram()
     isTextureRender = false;
     texLoc = 0;
     cur_program = 0;
+    colorLoc = 0;
 }
 
 bool MoonLanderProgram::loadProgram()
 {
-    using utils::getShaderPath;
-    using utils::loadShaderFromFile;
-    GLuint geomShaders[3];
-
-    for (int i = 0; i < std::size(programs); ++i)
+    for (int i = 0; i < std::size(programs); ++i) {
         programs[i] = glCreateProgram();
+        if (programs[i] == 0) {
+            std::abort();
+        }
+    }
 
     // Vertex shader
     GLuint vertexShader = loadShaderFromFile(
@@ -40,36 +47,22 @@ bool MoonLanderProgram::loadProgram()
     }
     // Vertex shader end
 
-    // Geometry shader point
-    geomShaders[0] = loadShaderFromFile(
-            getShaderPath("moonLanderPoint.glgs"), GL_GEOMETRY_SHADER);
-
-    if (geomShaders[0] == 0) {
-        remove_programs();
-        std::abort();
-    }
-    // Geometry shader point end
-
-    // Geometry shader line
-    geomShaders[1] = loadShaderFromFile(
-            getShaderPath("moonLanderLine.glgs"), GL_GEOMETRY_SHADER);
-
-    if (geomShaders[1] == 0) {
-        remove_programs();
-        std::abort();
-    }
-    // Geometry shader line end
-
-    // Geometry shader triangle
-    geomShaders[2] = loadShaderFromFile(
+    GLuint geomShaders[4];
+    const std::string geomShadersStr[] = {
+            getShaderPath("moonLanderPoint.glgs"),
+            getShaderPath("moonLanderLineAdj.glgs"),
             getShaderPath("moonLanderTriangle.glgs"),
-            GL_GEOMETRY_SHADER);
+            getShaderPath("moonLanderLine.glgs")
+    };
 
-    if (geomShaders[2] == 0) {
-        remove_programs();
-        std::abort();
+    for (size_t i = 0; i < std::size(geomShaders); ++i) {
+        geomShaders[i] = loadShaderFromFile(geomShadersStr[i], GL_GEOMETRY_SHADER);
+
+        if (geomShaders[i] == 0) {
+            remove_programs();
+            std::abort();
+        }
     }
-    // Geometry shader point end
 
     // Fragment shader
     GLuint fragmentShader = loadShaderFromFile(
@@ -81,29 +74,36 @@ bool MoonLanderProgram::loadProgram()
     }
     // Fragment shader end
 
+    auto shaderDeleter = [geomShaders, fragmentShader, vertexShader](){
+        for (auto gs: geomShaders)
+            glDeleteShader(gs);
+        glDeleteShader(fragmentShader);
+        glDeleteShader(vertexShader);
+    };
+
     for (int i = 0; i < std::size(programs); ++i) {
         glAttachShader(programs[i], fragmentShader);
         glAttachShader(programs[i], vertexShader);
         glAttachShader(programs[i], geomShaders[i]);
+        if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+            std::abort();
+        }
 
         glLinkProgram(programs[i]);
-        GLint programSuccess = GL_TRUE;
-        glGetProgramiv(programs[i], GL_LINK_STATUS, &programSuccess);
-        if (programSuccess != GL_TRUE) {
+        GLint linkSuccess = GL_TRUE;
+        glGetProgramiv(programs[i], GL_LINK_STATUS, &linkSuccess);
+        if (linkSuccess != GL_TRUE) {
             printf("Error linking program %d!\n", programs[i]);
             utils::log::printProgramLog(programs[i]);
-            glDeleteShader(vertexShader);
-            glDeleteShader(fragmentShader);
-            glDeleteShader(geomShaders[i]);
-            glDeleteProgram(programs[i]);
-            programs[i] = 0;
+            shaderDeleter();
+            remove_programs();
             std::abort();
         }
     }
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    for (int i = 0; i < std::size(programs); ++i)
+    for (size_t i = 0; i < std::size(programs); ++i)
         glDeleteShader(geomShaders[i]);
 
     cur_program = programs[1];
@@ -112,33 +112,38 @@ bool MoonLanderProgram::loadProgram()
     uniformPoints[0] = glGetUniformBlockIndex(programs[0], "TextureData");
     uniformPoints[1] = glGetUniformBlockIndex(programs[0], "Matrices");
 
-    uniformLines[0] = glGetUniformBlockIndex(programs[1], "TextureData");
-    uniformLines[1] = glGetUniformBlockIndex(programs[1], "Matrices");
+    uniformLinesAdj[0] = glGetUniformBlockIndex(programs[1], "TextureData");
+    uniformLinesAdj[1] = glGetUniformBlockIndex(programs[1], "Matrices");
 
     uniformTriangles[0] = glGetUniformBlockIndex(programs[2], "TextureData");
     uniformTriangles[1] = glGetUniformBlockIndex(programs[2], "Matrices");
 
-    // Link each shader's uniform block to this uniform binding point
+    uniformLines[0] = glGetUniformBlockIndex(programs[3], "TextureData");
+    uniformLines[1] = glGetUniformBlockIndex(programs[3], "Matrices");
+
+    // Link each shader's uniform block to uniform binding point
     glUniformBlockBinding(programs[0], uniformPoints[0], 0); // Texture Data
     glUniformBlockBinding(programs[0], uniformPoints[1], 1); // Matrices
 
-    glUniformBlockBinding(programs[1], uniformLines[0], 0);
-    glUniformBlockBinding(programs[1], uniformLines[1], 1);
+    glUniformBlockBinding(programs[1], uniformLinesAdj[0], 0);
+    glUniformBlockBinding(programs[1], uniformLinesAdj[1], 1);
 
     glUniformBlockBinding(programs[2], uniformTriangles[0], 0);
     glUniformBlockBinding(programs[2], uniformTriangles[1], 1);
 
+    glUniformBlockBinding(programs[3], uniformLines[0], 0);
+    glUniformBlockBinding(programs[3], uniformLines[1], 1);
+
     // Create matrices buffer
     glGenBuffers(1, &matricesUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
-    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), nullptr,
-                 GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(mat4), nullptr, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     // Bind matrices to 1 index in binding point array
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, matricesUBO);
 
     //  Create texture data buffer
-    size_t textureDataSize = sizeof(glm::vec4);
+    size_t textureDataSize = sizeof(vec4);
     glGenBuffers(1, &textureDataUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, textureDataUBO);
     glBufferData(GL_UNIFORM_BUFFER, textureDataSize, nullptr, GL_DYNAMIC_DRAW);
@@ -146,7 +151,7 @@ bool MoonLanderProgram::loadProgram()
     // Bind texture data to 0 index in binding point array
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, textureDataUBO);
 
-    switchToTriangles();
+    switchToLinesAdj();
 
     return true;
 }
@@ -212,8 +217,8 @@ void MoonLanderProgram::updateModel()
 void MoonLanderProgram::updateView()
 {
     glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4),
-                    sizeof(glm::mat4), glm::value_ptr(viewMatrix));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4),
+                    sizeof(mat4), glm::value_ptr(viewMatrix));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
@@ -274,17 +279,32 @@ glm::mat4 MoonLanderProgram::getModel() const
     return modelMatrix;
 }
 
+//TODO: fix resource leaking
 MoonLanderProgram::~MoonLanderProgram() = default;
 
 std::shared_ptr<MoonLanderProgram> MoonLanderProgram::instance = nullptr;
 
-void MoonLanderProgram::switchToLines()
+void MoonLanderProgram::switchToLinesAdj()
 {
     cur_program = programs[1];
     glUseProgram(0);
     glUseProgram(cur_program);
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        printf("Unable to switch to line adjacency primitive rendering! %s\n",
+               gluErrorString(error));
+        utils::log::printProgramLog(cur_program);
+        std::abort();
+    }
+    rebindUniforms();
+    setTexture(0);
+}
+
+void MoonLanderProgram::switchToLines()
+{
+    cur_program = programs[3];
+    glUseProgram(0);
+    glUseProgram(cur_program);
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
         printf("Unable to switch to line primitive rendering! %s\n",
                gluErrorString(error));
         utils::log::printProgramLog(cur_program);
@@ -299,8 +319,7 @@ void MoonLanderProgram::switchToTriangles()
     cur_program = programs[2];
     glUseProgram(0);
     glUseProgram(cur_program);
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
         printf("Unable to switch to triangle primitive rendering! %s\n",
                gluErrorString(error));
         utils::log::printProgramLog(cur_program);
@@ -315,8 +334,7 @@ void MoonLanderProgram::switchToPoints()
     cur_program = programs[0];
     glUseProgram(0);
     glUseProgram(cur_program);
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
         printf("Unable to switch to point primitive rendering! %s\n",
                gluErrorString(error));
         utils::log::printProgramLog(cur_program);
@@ -330,12 +348,14 @@ void MoonLanderProgram::rebindUniforms()
 {
     texLoc = glGetUniformLocation(cur_program, "ourTexture");
     if (texLoc == -1) {
-        printf( "%s is not a valid glsl program variable!\n", "ourTexture");
+        printf("%s is not a valid glsl program variable!\n", "ourTexture");
+        std::abort();
     }
 
     colorLoc = glGetUniformLocation(cur_program, "inColor");
     if (colorLoc == -1) {
-        printf( "%s is not a valid glsl program variable!\n", "inColor");
+        printf("%s is not a valid glsl program variable!\n", "inColor");
+        std::abort();
     }
 }
 

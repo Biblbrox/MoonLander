@@ -20,10 +20,12 @@
 #include "logger.hpp"
 
 using glm::vec2;
+using boost::format;
+using utils::log::Logger;
+using utils::log::Category;
 
 namespace utils
 {
-
     constexpr const char* shader_log_file_name()
     {
         return "shader_log.log";
@@ -107,7 +109,6 @@ namespace utils
      */
     namespace log
     {
-
         /**
          * Writes shader log to shader log file and standard output
          * @param shader
@@ -125,12 +126,14 @@ namespace utils
                 if (infoLength > 0) {
                     log::Logger::write(shader_log_file_name(),
                                        log::Category::INTERNAL_ERROR,
-                                       (boost::format("Shader log:\n\n%s") % log_str).str());
+                                       (boost::format("Shader log:\n\n%s")
+                                        % log_str).str());
                 }
 
                 delete[] log_str;
             } else {
-                std::cerr << (boost::format("Name %d is not a shader\n") % shader).str() << std::endl;
+                std::cerr << (boost::format("Name %d is not a shader\n")
+                              % shader).str() << std::endl;
             }
         }
 
@@ -149,16 +152,14 @@ namespace utils
 
                 glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
                 if (infoLength > 0) {
-                    log::Logger::write(shader_log_file_name(),
-                                       log::Category::INTERNAL_ERROR,
-                                       (boost::format("Shader program log:\n\n%s") % log_str).str());
+                    Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
+                                  (format("Shader program log:\n\n%s") % log_str).str());
                 }
 
                 delete[] log_str;
             } else {
-                log::Logger::write(shader_log_file_name(),
-                                   log::Category::INTERNAL_ERROR,
-                                   (boost::format("Name %1% is not a program\n") % program).str());
+                Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
+                              (format("Name %1% is not a program\n") % program).str());
             }
         }
     }
@@ -170,7 +171,8 @@ namespace utils
      * @param angle
      * @return
      */
-    inline glm::mat4 rotate_around(const glm::mat4 &m, const glm::vec3 &v, GLfloat angle)
+    inline glm::mat4
+    rotate_around(const glm::mat4 &m, const glm::vec3 &v, GLfloat angle)
     {
         glm::mat4 tr1 = glm::translate(m, v);
         glm::mat4 ro = glm::rotate(tr1, angle, glm::vec3(0.f, 0.f, 1.f));
@@ -185,14 +187,28 @@ namespace utils
         explicit RandomUniform();
 
         template<typename T>
-        void fill_unique(const typename std::vector<T>::iterator &begin,
-                         const typename std::vector<T>::iterator &end, T left, T right)
+        void
+        fill_unique(const typename std::vector<T>::iterator &begin,
+                    const typename std::vector<T>::iterator &end, T left, T right,
+                    bool fix_near = false)
         {
-            std::generate(begin, end, [begin, end, left, right, this]() {
+            std::generate(begin, end, [begin, end, left, right, fix_near, this]() {
                 GLuint val = generateu<T>(left, right);
-                if (std::count(begin, end, val) != 0)
-                    while (std::find(begin, end, val) != end)
+                if (fix_near) {
+                    if (val != 0) {
+                        while (std::count(begin, end, val) != 0
+                               || std::count(begin, end, val - 1) != 0
+                               || std::count(begin, end, val + 1) != 0)
+                            val = generateu<T>(left, right);
+                    } else {
+                        while (std::count(begin, end, val) != 0
+                               || std::count(begin, end, val + 1) != 0)
+                            val = generateu<T>(left, right);
+                    }
+                } else {
+                    while (std::count(begin, end, val) != 0)
                         val = generateu<T>(left, right);
+                }
 
                 return val;
             });
@@ -259,8 +275,10 @@ namespace utils
 
     namespace physics
     {
-        GLfloat ship_altitude(const std::vector<vec2> &points, GLfloat shipX, GLfloat shipY);
-        GLfloat alt_from_surface(const std::vector<vec2> &line_points, GLfloat x, GLfloat alt);
+        GLfloat ship_altitude(const std::vector<vec2> &points, GLfloat shipX,
+                              GLfloat shipY);
+        GLfloat alt_from_surface(const std::vector<vec2> &line_points,
+                                 GLfloat x, GLfloat alt);
     }
 
     /**
@@ -319,10 +337,12 @@ namespace utils
     inline SDL_Surface* flipVertically(const SDL_Surface *sfc)
     {
         assert(sfc != nullptr);
-        SDL_Surface *result = SDL_CreateRGBSurface(sfc->flags, sfc->w, sfc->h,
-                                                   sfc->format->BytesPerPixel * 8, sfc->format->Rmask,
-                                                   sfc->format->Gmask,
-                                                   sfc->format->Bmask, sfc->format->Amask);
+        SDL_Surface *result =
+                SDL_CreateRGBSurface(sfc->flags, sfc->w, sfc->h,
+                                     sfc->format->BytesPerPixel * 8,
+                                     sfc->format->Rmask,
+                                     sfc->format->Gmask,
+                                     sfc->format->Bmask, sfc->format->Amask);
         // Number of pixels per row
         const auto pitch = sfc->pitch;
         // Total number of pixels
@@ -350,9 +370,10 @@ namespace utils
      * @param format
      * @return
      * */
-    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height, GLenum textureType = GL_RGBA);
+    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
+                                   GLenum textureType = GL_RGBA);
 
-    inline unsigned int power_two_floor(unsigned int val) noexcept
+    inline unsigned int power_two(unsigned int val) noexcept
     {
         unsigned int power = 2, nextVal = power * 2;
 
@@ -373,7 +394,8 @@ namespace utils
          * @return
          */
         inline constexpr bool
-        lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21, const vec2 &p22) noexcept
+        lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21,
+                 const vec2 &p22) noexcept
         {
             GLfloat x1 = p11.x;
             GLfloat x2 = p12.x;
@@ -386,10 +408,10 @@ namespace utils
             GLfloat y4 = p22.y;
 
             // calculate the distance to intersection point
-            GLfloat uA =
-                    ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
-            GLfloat uB =
-                    ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+            GLfloat uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3))
+                         / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+            GLfloat uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3))
+                         / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
 
             // if uA and uB are between 0-1, lines are colliding
             return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
@@ -429,9 +451,9 @@ namespace utils
      /**
      * Load shader from file by specific path
      * shaderType param may of the supported shader types
-     * If shader can't be loaded (file not found or bad read access) or can't be compiled
-     * std::runtime_error exception will be thrown. In second case information about error will be
-     * writen to shader log file
+     * If shader can't be loaded (file not found or bad read access)
+     * or can't be compiled std::runtime_error exception will be thrown.
+     * In second case information about error will be writen to shader log file
      * @param path
      * @param shaderType
      * @return
@@ -443,11 +465,10 @@ namespace utils
          std::string shaderString;
          std::ifstream sourceFile(path.c_str());
          if (!sourceFile.is_open()) {
-             log::Logger::write(shader_log_file_name(),
-                                log::Category::FILE_ERROR,
-                                (boost::format("Unable to open file %s\n")
-                                 % path.c_str()).str());
-             throw std::runtime_error((boost::format("Can't open shader source file %1%\n") % path).str());
+             Logger::write(shader_log_file_name(),Category::FILE_ERROR,
+                           (format("Unable to open file %s\n")
+                            % path.c_str()).str());
+             throw std::runtime_error((format("Can't open shader source file %1%\n") % path).str());
          }
 
          shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
@@ -461,17 +482,18 @@ namespace utils
          GLint shaderCompiled = GL_FALSE;
          glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
          if (shaderCompiled != GL_TRUE) {
-             log::Logger::write(shader_log_file_name(),
-                                log::Category::INTERNAL_ERROR,
-                                (boost::format("Unable to compile shader %d!\n\nSource:\n%s\n")
-                                 % shaderID % shaderSource).str());
+             Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
+                           (format("Unable to compile shader %d!\n\nSource:\n%s\n")
+                            % shaderID % shaderSource).str());
              log::printShaderLog(shaderID);
              glDeleteShader(shaderID);
-             throw std::runtime_error((boost::format("Unable to compile shader %1%\n\nSource:\n%2%\n")
+             sourceFile.close();
+             throw std::runtime_error((format("Unable to compile shader %1%\n\nSource:\n%2%\n")
                                        % shaderID % shaderSource).str());
          }
 
-        return shaderID;
+         sourceFile.close();
+         return shaderID;
     }
 
     /**

@@ -3,6 +3,7 @@
 #include <boost/format.hpp>
 
 using utils::log::Logger;
+using boost::format;
 using glm::vec2;
 
 utils::RandomUniform::RandomUniform() : generator(std::time(nullptr))
@@ -39,10 +40,8 @@ utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
 
     GLuint error = glGetError();
     if (error != GL_NO_ERROR) {
-        Logger::write(program_log_file_name(),
-                      log::Category::INTERNAL_ERROR,
-                      (boost::format(
-                              "Error loading texture from %1% pixels! %2%\n")
+        Logger::write(program_log_file_name(), log::Category::INTERNAL_ERROR,
+                      (boost::format("Error loading texture from %1% pixels! %2%\n")
                        % pixels % gluErrorString(error)).str());
         std::abort();
     }

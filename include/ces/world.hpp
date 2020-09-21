@@ -37,7 +37,8 @@ public:
 
         std::shared_ptr<SystemType> system(new SystemType());
         system->setWorld(std::shared_ptr<World>(this));
-        systems.insert({type_id<SystemType>(), std::static_pointer_cast<BaseSystem>(system)});
+        systems.insert({type_id<SystemType>(),
+                        std::static_pointer_cast<BaseSystem>(system)});
         return *system;
     }
 

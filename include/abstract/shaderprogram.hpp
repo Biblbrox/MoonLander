@@ -20,7 +20,7 @@ public:
     GLuint getProgramID();
 
 protected:
-    GLuint programID;
+    GLuint m_programID;
 };
 
 #endif //MOONLANDER_SHADERPROGRAM_HPP

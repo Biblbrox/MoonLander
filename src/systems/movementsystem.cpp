@@ -9,7 +9,7 @@ void MovementSystem::update(size_t delta)
 
         pos->x += vel->x;
         pos->y += vel->y;
-        pos->angle += vel->vel_angle;
+        pos->angle += vel->angle;
     }
 
     auto particles = getEntitiesByTag<ParticleSpriteComponent>();

@@ -28,7 +28,7 @@ int main(int argc, char *args[])
         program->updateColor();
         program->setTexture(0);
 
-        program->switchToLines();
+        program->switchToLinesAdj();
 
         SDL_Event e;
         int32_t tick_interval = 1000 / 60;

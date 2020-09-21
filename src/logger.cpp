@@ -28,5 +28,8 @@ utils::log::Logger::write(const std::string &file_name, Category category,
     std::string message = category_str + msg;
     file.write(message.c_str(), message.size());
     file.close();
-    std::cerr << message << "\n";
+    if (category == Category::INFO)
+        std::cout << message << "\n";
+    else
+        std::cerr << message << "\n";
 }

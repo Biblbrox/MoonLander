@@ -15,6 +15,7 @@ private:
     static std::shared_ptr<Game> instance;
 public:
     Game();
+    ~Game();
     static std::shared_ptr<Game> getInstance()
     {
         if (!instance)
@@ -40,12 +41,12 @@ private:
 
     bool is_runnable;
 
-    SDL_GLContext glContext;
+    SDL_GLContext m_glcontext;
 public:
     bool vsync_supported;
 private:
-    std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>> window;
-    World world;
+    SDL_Window* m_window;
+    World m_world;
 };
 
 #endif //MOONLANDER_GAME_HPP

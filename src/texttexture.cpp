@@ -3,6 +3,8 @@
 #include <string>
 #include <SDL_ttf.h>
 
+using utils::getResourcePath;
+
 void TextTexture::setText(const std::string& text_)
 {
     load(text_, color, font);
@@ -21,11 +23,11 @@ void TextTexture::setColor(SDL_Color color_)
     color = color_;
 }
 
-TextTexture::TextTexture(std::string textureText, SDL_Color color_, TTF_Font *font_)
+TextTexture::TextTexture(std::string textureText, SDL_Color color_,
+                         TTF_Font *font_)
 {
     if (font_ == nullptr) {
-        font = TTF_OpenFont(
-                utils::getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
         if (font == NULL) {
             SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
             std::abort();
@@ -41,10 +43,12 @@ TextTexture::TextTexture(std::string textureText, SDL_Color color_, TTF_Font *fo
     load(textureText, color, font);
 }
 
-void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Font* font_)
+void TextTexture::load(const std::string &textureText, SDL_Color color_,
+                       TTF_Font* font_)
 {
     freeTexture();
-    SDL_Surface* surface = TTF_RenderText_Blended(font_, textureText.c_str(), color_);
+    SDL_Surface* surface = TTF_RenderText_Blended(font_,
+                                                  textureText.c_str(), color_);
 
     surface = utils::flipVertically(surface);
     if (!surface) {
@@ -61,8 +65,9 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_, TTF_Fon
         texture_width = surface->w;
         texture_height = surface->h;
 
-        textureID = utils::loadTextureFromPixels32(static_cast<GLuint*>(surface->pixels),
-                                                   texture_width, texture_height, texture_format);
+        textureID = utils::loadTextureFromPixels32
+                (static_cast<GLuint*>(surface->pixels),
+                 texture_width, texture_height, texture_format);
         SDL_FreeSurface(surface);
 
         generateDataBuffer();
@@ -98,17 +103,21 @@ void TextTexture::generateDataBuffer()
         glBindVertexArray(vao_id);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                     GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                     GL_DYNAMIC_DRAW);
 
         //position attribute
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), nullptr);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
+                              4 * sizeof(GLfloat), nullptr);
         glEnableVertexAttribArray(0);
 
         //Tex coord attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                              4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);

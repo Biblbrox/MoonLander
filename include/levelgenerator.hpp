@@ -22,10 +22,9 @@ public:
 
     GLfloat height_min;
     GLfloat height_max;
+    std::vector<vec2> platforms;
 private:
     const GLfloat frame_width = 2000;
-
-    std::vector<vec2> platforms;
 };
 
 

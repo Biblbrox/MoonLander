@@ -8,7 +8,7 @@ struct VelocityComponent : Component
 {
     GLfloat x = 0.f;
     GLfloat y = 0.f;
-    GLfloat vel_angle = 0.f;
+    GLfloat angle = 0.f;
 };
 
 #endif //MOONLANDER_VELOCITYCOMPONENT_HPP

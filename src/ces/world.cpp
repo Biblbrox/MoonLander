@@ -47,10 +47,12 @@ void World::rescale_world()
     frame_height = scaled ? screen_height : (screen_height / scale_factor);
     auto ship = entities["ship"];
     auto level = entities["level"];
-    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[type_id<RendererSystem>()]);
+    size_t idx = type_id<RendererSystem>();
+    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(systems[idx]);
     auto shipPos = ship->getComponent<PositionComponent>();
 
-    level->getComponent<LevelComponent>()->scale_factor = scaled ? 1.f : scale_factor;
+    level->getComponent<LevelComponent>()->scale_factor = scaled ?
+                                                          1.f : scale_factor;
     auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
     for (auto& [key, en]: scaled_entities) {
         auto pos = en->getComponent<PositionComponent>();
@@ -70,6 +72,9 @@ void World::rescale_world()
 
 void World::update_ship()
 {
+    using utils::physics::ship_altitude;
+    using utils::Position;
+
     auto ship = entities["ship"];
     auto shipPos = ship->getComponent<PositionComponent>();
     auto shipVel = ship->getComponent<VelocityComponent>();
@@ -78,7 +83,8 @@ void World::update_ship()
             systems[type_id<RendererSystem>()]
     );
     auto levelComp = entities["level"]->getComponent<LevelComponent>();
-    const GLfloat shipHeight = (utils::physics::ship_altitude(levelComp->points, shipPos->x, shipPos->y));
+    const GLfloat shipHeight =
+            ship_altitude(levelComp->points, shipPos->x, shipPos->y);
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipHeight < alt_threshold && !scaled) // Need to increase scale
         || (shipHeight >= alt_threshold && scaled)) { // Need to decrease scale
@@ -101,8 +107,8 @@ void World::update_ship()
 
     if (colShip->has_collision) {
         utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
-        std::vector<utils::Position> coords(4, {shipPos->x, shipPos->y, shipPos->angle});
-        std::vector<utils::Position> vel(4, {shipVel->x, shipVel->y, shipVel->vel_angle});
+        std::vector<Position> coords(4, {shipPos->x, shipPos->y, shipPos->angle});
+        std::vector<Position> vel(4, {shipVel->x, shipVel->y, shipVel->angle});
 
         utils::RandomUniform rand;
         std::generate(vel.begin(), vel.end(), [&rand, shipVel](){
@@ -112,7 +118,8 @@ void World::update_ship()
             const GLfloat scale_vel_rot = 30.f;
             res.x = rand.generaten<GLfloat>(shipVel->x / scale_vel, deviation);
             res.y = rand.generaten<GLfloat>(shipVel->y / scale_vel, deviation);
-            res.angle = rand.generaten<GLfloat>(shipVel->vel_angle / scale_vel_rot, deviation);
+            res.angle = rand.generaten<GLfloat>(shipVel->angle
+                                                / scale_vel_rot, deviation);
             return res;
         });
 
@@ -210,13 +217,17 @@ void World::move_from_camera()
             pos->y -= camera.deltaY();
         } else {
             auto level = en->getComponent<LevelComponent>();
-            for (auto & point : level->points) {
+            for (auto& point : level->points) {
                 point.x -= camera.deltaX();
                 point.y -= camera.deltaY();
             }
             for (auto& star : level->stars) {
                 star.x -= camera.deltaX();
                 star.y -= camera.deltaY();
+            }
+            for (auto& platform: level->platforms) {
+                platform.x -= camera.deltaX();
+                platform.y -= camera.deltaY();
             }
         }
     }
@@ -230,8 +241,8 @@ World::generate_clips(utils::Rect clip, size_t num_x, size_t num_y)
 
     std::vector<utils::Rect> clips;
     clips.reserve(num_x * num_y);
-    for (GLfloat y = clip.y; y < (clip.y + clip.h); y += part_height)
-        for (GLfloat x = clip.x; x < (clip.x + clip.w); x += part_width)
+    for (GLfloat y = clip.y; y < clip.y + clip.h; y += part_height)
+        for (GLfloat x = clip.x; x < clip.x + clip.w; x += part_width)
             clips.push_back({x, y, part_width, part_height});
 
     return clips;
@@ -283,8 +294,9 @@ void World::init_sprites()
 
     auto shipPos = ship.getComponent<PositionComponent>();
     shipPos->x = screen_width / 2.f;
-    shipPos->y = alt_from_surface(entities["level"]->getComponent<LevelComponent>()->points,
-                                                  shipPos->x, screen_height / 4.f);
+    shipPos->y = alt_from_surface(
+            entities["level"]->getComponent<LevelComponent>()->points,
+            shipPos->x, screen_height / 4.f);
 
     auto shipVel = ship.getComponent<VelocityComponent>();
 
@@ -327,10 +339,10 @@ void World::init_sprites()
         }
 
         if (state[SDL_SCANCODE_LEFT])
-            shipVel->vel_angle -= rot_step;
+            shipVel->angle -= rot_step;
 
         if (state[SDL_SCANCODE_RIGHT])
-            shipVel->vel_angle += rot_step;
+            shipVel->angle += rot_step;
     };
 }
 
@@ -357,7 +369,8 @@ void World::init_text()
     velxText.activate();
 
     auto velxTexture = velxText.getComponent<TextComponent>();
-    velxTexture->texture = std::make_shared<TextTexture>("Horizontal speed: -000.000");
+    velxTexture->texture =
+            std::make_shared<TextTexture>("Horizontal speed: -000.000");
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = screen_width - screen_width / 4.2f;
@@ -371,7 +384,8 @@ void World::init_text()
     velyText.activate();
 
     auto velyTexture = velyText.getComponent<TextComponent>();
-    velyTexture->texture = std::make_shared<TextTexture>("Vertical speed: -000.000");
+    velyTexture->texture =
+            std::make_shared<TextTexture>("Vertical speed: -000.000");
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = screen_width - screen_width / 4.2f;
@@ -390,10 +404,11 @@ void World::init_level()
     LevelGenerator generator;
     auto levelComponent = level.getComponent<LevelComponent>();
     levelComponent->points = generator.generate_lines(
-            vec2(0.f,generator.height_min + generator.height_max) / 2.f);
+            vec2(0.f, generator.height_min + generator.height_max) / 2.f);
     GLfloat points_right_x =
             levelComponent->points[levelComponent->points.size() - 1].x;
     levelComponent->stars = generator.generate_stars(0, points_right_x);
+    levelComponent->platforms = generator.platforms;
     generator.extendToLeft(levelComponent->points, levelComponent->stars);
     generator.extendToRight(levelComponent->points, levelComponent->stars);
 }

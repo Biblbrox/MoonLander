@@ -57,7 +57,7 @@ public:
         static_assert(utils::Length<ComponentList>::value >= 2,
                       "Length of ComponentTypes must be greeter than 2");
 
-        auto bin = [](bool x, bool y){return x && y; };
+        auto bin = [](bool x, bool y){ return x && y; };
 
         auto filtered = pWorld->getEntities();
         for (auto it = filtered.begin(); it != filtered.end();) {

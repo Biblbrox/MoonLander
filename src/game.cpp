@@ -6,12 +6,14 @@
 #include <glm/geometric.hpp>
 #include <memory>
 #include <constants.hpp>
-#include <functional>
 
 #define FREQUENCY 44100
 #define SAMPLE_FORMAT MIX_DEFAULT_FORMAT
 #define CHUNK_SIZE 2048
 #define NUM_CHANNELS 2
+
+static bool imgInit = false;
+static bool mixerInit = false;
 
 using utils::log::Logger;
 using boost::format;
@@ -32,28 +34,27 @@ void Game::initOnceSDL2()
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
                           "Unable to init SDL_IMG\n");
-            SDL_Quit();
+            quit();
             std::abort();
         }
+        imgInit = true;
 
         if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT,
                           NUM_CHANNELS, CHUNK_SIZE) < 0) {
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
                           "Unable to init SDL_Mixer\n");
-            IMG_Quit();
-            SDL_Quit();
+            quit();
             std::abort();
 
         }
+        mixerInit = true;
 
         if (TTF_Init() == -1) {
             Logger::write(utils::program_log_file_name(),
                           utils::log::Category::INITIALIZATION_ERROR,
                           "Can't init SDL_TTF\n");
-            IMG_Quit();
-            Mix_Quit();
-            SDL_Quit();
+            quit();
             std::abort();
         }
 
@@ -75,12 +76,13 @@ void Game::initOnceSDL2()
 
 Game::Game() : is_runnable(true), vsync_supported(false)
 {
-    glContext = nullptr;
+    m_glcontext = nullptr;
+    m_window = nullptr;
 }
 
 void Game::update(size_t delta)
 {
-    world.update(delta);
+    m_world.update(delta);
 }
 
 void Game::initGL()
@@ -88,18 +90,13 @@ void Game::initGL()
     screen_w = utils::getScreenWidth<GLuint>();
     screen_h = utils::getScreenHeight<GLuint>();
 
-    using deleterType = typename std::function<void(SDL_Window*)>;
-    auto deleter = [](SDL_Window *win) {
-        SDL_DestroyWindow(win);
-    };
-    window = std::unique_ptr<SDL_Window, deleterType>(
-            SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h,
-                             WINDOW_FLAGS), deleter);
+    m_window = SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h,
+                                WINDOW_FLAGS);
 
-    glContext = SDL_GL_CreateContext(window.get());
+    m_glcontext = SDL_GL_CreateContext(m_window);
     // Init OpenGL context
-    if (glContext == nullptr) {
+    if (m_glcontext == nullptr) {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
                       (format(
@@ -169,15 +166,22 @@ void Game::initGL()
 void Game::flush()
 {
     glFlush();
-    SDL_GL_SwapWindow(window.get());
+    SDL_GL_SwapWindow(m_window);
 }
 
 void Game::quit()
 {
-    if (glContext)
-        SDL_GL_DeleteContext(glContext);
-    TTF_Quit();
-    IMG_Quit();
+    if (m_glcontext)
+        SDL_GL_DeleteContext(m_glcontext);
+    if (TTF_WasInit())
+        TTF_Quit();
+    if (imgInit)
+        IMG_Quit();
+    if (m_window)
+        SDL_DestroyWindow(m_window);
+    if (mixerInit)
+        Mix_Quit();
+
     SDL_Quit();
 }
 
@@ -193,7 +197,12 @@ bool Game::isRunnable() const
 
 void Game::initGame()
 {
-    world.init();
+    m_world.init();
 }
 
 std::shared_ptr<Game> Game::instance = nullptr;
+
+Game::~Game()
+{
+    quit();
+}

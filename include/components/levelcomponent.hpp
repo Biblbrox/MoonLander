@@ -10,6 +10,7 @@ struct LevelComponent : Component
 {
     std::vector<vec2> points;
     std::vector<vec2> stars;
+    std::vector<vec2> platforms;
 
     GLfloat scale_factor = 1.f;
 };

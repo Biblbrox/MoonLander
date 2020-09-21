@@ -4,7 +4,6 @@
 #include <glm/mat4x4.hpp>
 #include "abstract/shaderprogram.hpp"
 #include <memory>
-#include <functional>
 
 class MoonLanderProgram: public ShaderProgram
 {
@@ -34,6 +33,7 @@ public:
     void setTextureRendering(bool isTexture);
     void setTexture(int texture);
 
+    void switchToLinesAdj();
     void switchToLines();
     void switchToPoints();
     void switchToTriangles();
@@ -67,13 +67,14 @@ private:
     GLint texLoc;
     GLint colorLoc;
 
-    GLuint programs[3];
+    GLuint programs[4];
     GLuint cur_program;
 
     // First for TextureData, second for Matrices.
     GLuint uniformPoints[2];
-    GLuint uniformLines[2];
+    GLuint uniformLinesAdj[2];
     GLuint uniformTriangles[2];
+    GLuint uniformLines[2];
 
     GLuint matricesUBO;
     GLuint textureDataUBO;

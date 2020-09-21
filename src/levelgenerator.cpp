@@ -34,44 +34,32 @@ std::vector<vec2> LevelGenerator::generate_lines(vec2 initial_p)
     const int plat_count_min = points_initial_size / 8;
     const int plat_count_max = points_initial_size / 3;
 
-    const GLfloat point_dist_min = frame_width / points_initial_size * 4.f;
-    const GLfloat point_dist_max = frame_width / points_initial_size * 5.f;
-
-    const GLfloat plat_min_width = 30.f;
-    const GLfloat plat_max_width = 50.f;
+    const GLfloat point_dist_min = frame_width / points_initial_size * 7.f;
+    const GLfloat point_dist_max = frame_width / points_initial_size * 9.f;
 
     size_t platforms_count = urand.generateu(plat_count_min, plat_count_max);
-    platforms.reserve(platforms.size() + platforms_count);
     std::vector<GLuint> plat_idx(platforms_count, 0);
+    urand.fill_unique<GLuint>(plat_idx.begin(), plat_idx.end(), 0, res.size() - 2,
+                              true);
+    platforms.reserve(platforms.size() + platforms_count);
 
-
-    urand.fill_unique<GLuint>(plat_idx.begin(), plat_idx.end(), 0, res.size());
-
-    GLfloat plat_width;
     const GLfloat deviation = 20.f;
-    for (size_t i = 0; i < res.size(); ++i) {
-        if (i == 0) {
-            res[i].x = initial_p.x;
-            res[i].y = urand.generaten(initial_p.y, deviation);
-        } else {
-            if (std::count(plat_idx.begin(), plat_idx.end(), i) != 0) {
-                // platform case
-                plat_width = urand.generateu(plat_min_width, plat_max_width);
-                res[i].x = res[i - 1].x + urand.generateu(point_dist_min,
-                                                          point_dist_max);
-                res[i].y = urand.generaten(res[i - 1].y, deviation)
-                           + urand.generateu(-deviation, deviation);
-            } else if (std::count(plat_idx.begin(),
-                                  plat_idx.end(), i - 1) != 0) {
-                // prev. platform case
-                res[i].x = res[i - 1].x + plat_width;
-                res[i].y = res[i - 1].y;
-            } else { // normal case
-                res[i].x = res[i - 1].x + urand.generateu(point_dist_min,
-                                                          point_dist_max);
-                res[i].y = urand.generaten(res[i - 1].y, deviation)
-                           + urand.generateu(-deviation, deviation);
-            }
+    res[0].x = initial_p.x;
+    res[0].y = urand.generaten(initial_p.y, deviation);
+    for (size_t i = 1; i < res.size(); ++i) {
+        res[i].x = res[i - 1].x + urand.generateu(point_dist_min, point_dist_max);
+        if (std::count(plat_idx.begin(), plat_idx.end(), i) != 0) {
+            // platform case
+            res[i].y = urand.generaten(res[i - 1].y, deviation)
+                       + urand.generateu(-deviation, deviation);
+            platforms.push_back(res[i]);
+        } else if (std::count(plat_idx.begin(), plat_idx.end(), i - 1) != 0) {
+            // prev. platform case
+            res[i].y = res[i - 1].y;
+            platforms.push_back(res[i]);
+        } else { // normal case
+            res[i].y = urand.generaten(res[i - 1].y, deviation)
+                       + urand.generateu(-deviation, deviation);
         }
     }
 

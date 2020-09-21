@@ -1,10 +1,12 @@
 #include "../include/render.hpp"
 
 using glm::vec2;
+using glm::mat4;
+using glm::vec3;
+using utils::rotate_around;
 
-void render::drawLinen(const std::vector<vec2>& points)
+void render::drawLinen(const std::vector<vec2>& points, bool adjacency)
 {
-    assert(points.size() % 2 == 0 && "Points must be part of lines");
     auto vertices = points.data();
 
     GLuint verticesID = 0;
@@ -21,7 +23,14 @@ void render::drawLinen(const std::vector<vec2>& points)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, points.size());
+    if (adjacency) {
+        glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, points.size());
+    } else {
+        assert(points.size() % 2 == 0);
+        glDrawArrays(GL_LINES, 0, points.size());
+    }
+
+
     glDisableVertexAttribArray(0);
 
     glDeleteBuffers(1, &verticesID);
@@ -56,20 +65,14 @@ render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
                    GLfloat x,
                    GLfloat y, GLfloat angle, GLfloat scale_factor)
 {
-    using glm::mat4;
-    using glm::vec3;
-    using utils::rotate_around;
-
     program->switchToTriangles();
     program->setTextureRendering(true);
 
     if (texture.getVAO() != 0) {
         GLfloat half = texture.getWidth() / 2.f;
-        mat4 rotation = rotate_around(
-                mat4(1.f),vec3(x + half,y + half,0.f), angle);
+        mat4 rotation = rotate_around(mat4(1.f),vec3(x + half,y + half,0.f), angle);
         mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
-        mat4 scaling = scale(mat4(1.f),
-                             vec3(scale_factor, scale_factor, 1.f));
+        mat4 scaling = scale(mat4(1.f), vec3(scale_factor, scale_factor, 1.f));
         program->leftMultModel(scaling * rotation * translation);
         program->updateModel();
 
@@ -80,10 +83,8 @@ render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
         glBindVertexArray(0);
 
         translation = translate(mat4(1.f), vec3(-x, -y, 0.f));
-        rotation = rotate_around(
-                mat4(1.f),vec3(x + half,y + half,0.f), -angle);
-        scaling = scale(mat4(1.f),vec3(1 / scale_factor,
-                                       1 / scale_factor, 1.f));
+        rotation = rotate_around(mat4(1.f),vec3(x + half,y + half,0.f), -angle);
+        scaling = scale(mat4(1.f),vec3(1 / scale_factor, 1 / scale_factor, 1.f));
         program->leftMultModel(translation * rotation * scaling);
         program->updateModel();
     }
