@@ -24,11 +24,11 @@ public:
 
     GLuint getVAO() const override;
 private:
-    std::string text;
-    TTF_Font* font;
-    SDL_Color color;
+    std::string m_text;
+    TTF_Font* m_font;
+    SDL_Color m_color;
 
-    GLuint vao_id;
+    GLuint m_vaoId;
 };
 
 #endif //MOONLANDER_TEXTTEXTURE_HPP

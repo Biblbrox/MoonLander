@@ -5,7 +5,6 @@
 #include <ces/entity.hpp>
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
-#include <components/displaycomponent.hpp>
 #include <components/particlespritecomponent.hpp>
 
 class ParticleEngine
@@ -14,7 +13,7 @@ public:
     /**
      * Return clips.size() number generated particles from specific texture
      * Each particle is Entity with SpriteComponent, ParticleComponent,
-     * PositionComponent, VelocityComponent and DisplayComponent components.
+     * PositionComponent and VelocityComponent
      * Each particle named by convention "Particle {number of particle}"
      * @param texture_file
      * @param clips
@@ -38,7 +37,6 @@ public:
         auto en = std::make_shared<Entity>();
         en->addComponent<ParticleSpriteComponent>();
         en->addComponent<VelocityComponent>();
-        en->addComponent<DisplayComponent>();
         en->activate();
 
         auto particle = en->getComponent<ParticleSpriteComponent>();

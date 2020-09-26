@@ -15,13 +15,14 @@ namespace utils::audio
     public:
         Audio();
 
-        void addChunk(const std::string& chunkPath);
+        void addChunk(const std::string &chunkPath);
 
-        void setMusic(const std::string& musicPath);
+        void setMusic(const std::string &musicPath);
 
         void playChunk(int channel, size_t idx, int loops, bool faded = false);
 
         void pauseChannel(int channel, bool faded = false);
+
         void haltChannel(int channel, bool faded = false);
 
         bool isChannelPaused(int channel);
@@ -33,15 +34,18 @@ namespace utils::audio
         void playMusic();
 
         void pauseMusic();
+
         void setFaded(bool fade);
+
         void setFadeIn(GLfloat in);
+
         void setFadeOut(GLfloat out);
 
     private:
-        std::vector<Mix_Chunk *> chunks;
-        Mix_Music* music;
-        GLfloat fade_in;
-        GLfloat fade_out;
+        std::vector<Mix_Chunk *> m_chunks;
+        Mix_Music *m_music;
+        GLfloat m_fadeIn;
+        GLfloat m_fadeOut;
     };
 }
 

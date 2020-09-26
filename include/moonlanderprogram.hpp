@@ -56,30 +56,30 @@ public:
     bool loadProgram() override;
 
 private:
-    glm::mat4 projectionMatrix;
+    glm::mat4 m_projectionMatrix;
 
-    glm::mat4 modelMatrix;
+    glm::mat4 m_modelMatrix;
 
-    glm::mat4 viewMatrix;
+    glm::mat4 m_viewMatrix;
 
-    glm::vec4 color;
+    glm::vec4 m_color;
 
-    GLint texLoc;
-    GLint colorLoc;
+    GLint m_texLoc;
+    GLint m_colorLoc;
 
-    GLuint programs[4];
-    GLuint cur_program;
+    GLuint m_programs[4];
+    GLuint m_curProgram;
 
     // First for TextureData, second for Matrices.
-    GLuint uniformPoints[2];
-    GLuint uniformLinesAdj[2];
-    GLuint uniformTriangles[2];
-    GLuint uniformLines[2];
+    GLuint m_uniformPoints[2];
+    GLuint m_uniformLinesAdj[2];
+    GLuint m_uniformTriangles[2];
+    GLuint m_uniformLines[2];
 
-    GLuint matricesUBO;
-    GLuint textureDataUBO;
+    GLuint m_matricesUBO;
+    GLuint m_textureDataUBO;
 
-    int isTextureRender;
+    int m_isTextureRender;
 
     void remove_programs();
 };

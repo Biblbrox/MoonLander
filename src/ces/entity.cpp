@@ -4,13 +4,13 @@
 
 void Entity::activate()
 {
-    alive = true;
+    m_alive = true;
 }
 
 const std::unordered_map<size_t, std::shared_ptr<Component>>&
 Entity::getComponents() const
 {
-    return components;
+    return m_components;
 }
 
 void Entity::setWorld(std::shared_ptr<World> world)
@@ -20,10 +20,10 @@ void Entity::setWorld(std::shared_ptr<World> world)
 
 bool Entity::isActivate()
 {
-    return alive;
+    return m_alive;
 }
 
 void Entity::kill()
 {
-    alive = false;
+    m_alive = false;
 }

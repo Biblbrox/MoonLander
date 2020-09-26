@@ -2,6 +2,6 @@
 
 void Component::setWorld(std::shared_ptr<World> world)
 {
-    pWorld = world;
+    m_world = world;
 }
 

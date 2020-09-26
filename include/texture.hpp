@@ -28,10 +28,10 @@ public:
 protected:
     explicit Texture();
 
-    GLuint textureID;
+    GLuint m_textureId;
 
-    GLuint texture_width = 0;
-    GLuint texture_height = 0;
+    GLuint m_textureWidth = 0;
+    GLuint m_textureHeight = 0;
 };
 
 #endif //MOONLANDER_TEXTURE_HPP

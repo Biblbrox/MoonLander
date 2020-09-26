@@ -6,7 +6,6 @@
 
 namespace utils
 {
-
     class Timer
     {
     public:
@@ -23,11 +22,11 @@ namespace utils
         bool isPaused() const;
 
     private:
-        Uint32 startTicks;
-        Uint32 pausedTicks;
+        Uint32 m_startTicks;
+        Uint32 m_pausedTicks;
 
-        bool paused;
-        bool started;
+        bool m_paused;
+        bool m_started;
     };
 }
 

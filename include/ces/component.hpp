@@ -17,7 +17,7 @@ public:
     virtual void setWorld(std::shared_ptr<World> world) final;
 
 private:
-    std::shared_ptr<World> pWorld;
+    std::shared_ptr<World> m_world;
 };
 
 #endif //MOONLANDER_COMPONENT_HPP

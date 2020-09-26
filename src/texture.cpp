@@ -3,35 +3,35 @@
 
 Texture::Texture()
 {
-    textureID = 0;
+    m_textureId = 0;
 
-    texture_width = 0;
-    texture_height = 0;
+    m_textureWidth = 0;
+    m_textureHeight = 0;
 }
 
 GLuint Texture::getWidth() const
 {
-    return texture_width;
+    return m_textureWidth;
 }
 
 GLuint Texture::getHeight() const
 {
-    return texture_height;
+    return m_textureHeight;
 }
 
 GLuint Texture::getTextureID()
 {
-    return textureID;
+    return m_textureId;
 }
 
 void Texture::freeTexture()
 {
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
+    if (m_textureId != 0) {
+        glDeleteTextures(1, &m_textureId);
+        m_textureId = 0;
     }
 
-    texture_width = texture_height = 0;
+    m_textureWidth = m_textureHeight = 0;
 }
 
 Texture::~Texture()

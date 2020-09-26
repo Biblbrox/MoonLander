@@ -5,50 +5,50 @@
 
 using utils::getResourcePath;
 
-void TextTexture::setText(const std::string& text_)
+void TextTexture::setText(const std::string& text)
 {
-    load(text_, color, font);
-    text = text_;
+    load(text, m_color, m_font);
+    m_text = text;
 }
 
-void TextTexture::setFont(TTF_Font* font_)
+void TextTexture::setFont(TTF_Font* font)
 {
-    load(text, color, font_);
-    font = font_;
+    load(m_text, m_color, font);
+    m_font = font;
 }
 
-void TextTexture::setColor(SDL_Color color_)
+void TextTexture::setColor(SDL_Color color)
 {
-    load(text, color_, font);
-    color = color_;
+    load(m_text, color, m_font);
+    m_color = color;
 }
 
-TextTexture::TextTexture(std::string textureText, SDL_Color color_,
-                         TTF_Font *font_)
+TextTexture::TextTexture(std::string textureText, SDL_Color color,
+                         TTF_Font *font)
 {
-    if (font_ == nullptr) {
-        font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
-        if (font == NULL) {
+    if (font == nullptr) {
+        m_font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        if (m_font == NULL) {
             SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
             std::abort();
         }
     } else {
-        font = font_;
+        m_font = font;
     }
 
-    color = color_;
-    text = textureText;
-    vao_id = 0;
-    textureID = 0;
-    load(textureText, color, font);
+    m_color = color;
+    m_text = textureText;
+    m_vaoId = 0;
+    m_textureId = 0;
+    load(textureText, m_color, m_font);
 }
 
-void TextTexture::load(const std::string &textureText, SDL_Color color_,
-                       TTF_Font* font_)
+void TextTexture::load(const std::string &textureText, SDL_Color color,
+                       TTF_Font* font)
 {
     freeTexture();
-    SDL_Surface* surface = TTF_RenderText_Blended(font_,
-                                                  textureText.c_str(), color_);
+    SDL_Surface* surface = TTF_RenderText_Blended(font,
+                                                  textureText.c_str(), color);
 
     surface = utils::flipVertically(surface);
     if (!surface) {
@@ -62,12 +62,12 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_,
     } else {
         GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
 
-        texture_width = surface->w;
-        texture_height = surface->h;
+        m_textureWidth = surface->w;
+        m_textureHeight = surface->h;
 
-        textureID = utils::loadTextureFromPixels32
+        m_textureId = utils::loadTextureFromPixels32
                 (static_cast<GLuint*>(surface->pixels),
-                 texture_width, texture_height, texture_format);
+                 m_textureWidth, m_textureHeight, texture_format);
         SDL_FreeSurface(surface);
 
         generateDataBuffer();
@@ -76,9 +76,9 @@ void TextTexture::load(const std::string &textureText, SDL_Color color_,
 
 void TextTexture::generateDataBuffer()
 {
-    if (textureID != 0 && vao_id == 0) {
-        GLfloat quadWidth = texture_width;
-        GLfloat quadHeight = texture_height;
+    if (m_textureId != 0 && m_vaoId == 0) {
+        GLfloat quadWidth = m_textureWidth;
+        GLfloat quadHeight = m_textureHeight;
 
         GLfloat vertices[] = {
                 // positions            // texture coords
@@ -96,11 +96,11 @@ void TextTexture::generateDataBuffer()
         GLuint vbo_id;
         GLuint ibo_id;
 
-        glGenVertexArrays(1, &vao_id);
+        glGenVertexArrays(1, &m_vaoId);
         glGenBuffers(1, &vbo_id);
         glGenBuffers(1, &ibo_id);
 
-        glBindVertexArray(vao_id);
+        glBindVertexArray(m_vaoId);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
@@ -131,17 +131,17 @@ void TextTexture::generateDataBuffer()
 
 void TextTexture::freeVBO()
 {
-    if (vao_id != 0)
-        glDeleteVertexArrays(1, &vao_id);
+    if (m_vaoId != 0)
+        glDeleteVertexArrays(1, &m_vaoId);
 }
 
 TextTexture::~TextTexture()
 {
-    TTF_CloseFont(font);
+    TTF_CloseFont(m_font);
     freeVBO();
 }
 
 GLuint TextTexture::getVAO() const
 {
-    return vao_id;
+    return m_vaoId;
 }

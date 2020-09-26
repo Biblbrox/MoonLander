@@ -20,7 +20,7 @@ class Entity
 {
 public:
 
-    Entity() : alive(false) {}
+    Entity() : m_alive(false) {}
 
     /**
      * Create new component and return
@@ -33,9 +33,9 @@ public:
     {
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "Template parameter class must be child of Component");
-        components[type_id<ComponentType>()] =
+        m_components[type_id<ComponentType>()] =
                 std::static_pointer_cast<Component>(std::make_shared<ComponentType>());
-        return components[type_id<ComponentType>()];
+        return m_components[type_id<ComponentType>()];
     }
 
     /**
@@ -49,7 +49,7 @@ public:
     {
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "Template parameter class must be child of Component");
-        auto it = components.find(type_id<ComponentType>());
+        auto it = m_components.find(type_id<ComponentType>());
         return it;
     }
 
@@ -64,8 +64,8 @@ public:
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "Template parameter class must be child of Component");
 
-        auto it = components.find(type_id<ComponentType>());
-        if (it == components.end())
+        auto it = m_components.find(type_id<ComponentType>());
+        if (it == m_components.end())
             return std::shared_ptr<ComponentType>(nullptr);
 
         return std::dynamic_pointer_cast<ComponentType>(it->second);
@@ -81,9 +81,9 @@ public:
     void kill();
 
 private:
-    std::unordered_map<size_t, std::shared_ptr<Component>> components;
+    std::unordered_map<size_t, std::shared_ptr<Component>> m_components;
     std::shared_ptr<World> m_world;
-    bool alive;
+    bool m_alive;
 };
 
 #endif //MOONLANDER_ENTITY_HPP

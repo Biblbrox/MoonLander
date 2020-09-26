@@ -37,7 +37,7 @@ public:
 
         std::shared_ptr<SystemType> system(new SystemType());
         system->setWorld(std::shared_ptr<World>(this));
-        systems.insert({type_id<SystemType>(),
+        m_systems.insert({type_id<SystemType>(),
                         std::static_pointer_cast<BaseSystem>(system)});
         return *system;
     }
@@ -45,16 +45,16 @@ public:
     std::unordered_map<std::string, std::shared_ptr<Entity>> & getEntities();
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<Entity>> entities;
-    std::unordered_map<size_t, std::shared_ptr<BaseSystem>> systems;
-    std::vector<std::shared_ptr<Entity>> non_static;
-    Camera camera;
-    GLuint screen_height;
-    GLuint screen_width;
-    GLfloat frame_height;
-    GLfloat frame_width;
+    std::unordered_map<std::string, std::shared_ptr<Entity>> m_entities;
+    std::unordered_map<size_t, std::shared_ptr<BaseSystem>> m_systems;
+    std::vector<std::shared_ptr<Entity>> m_nonStatic;
+    Camera m_camera;
+    GLuint m_screenHeight;
+    GLuint m_screenWidth;
+    GLfloat m_frameHeight;
+    GLfloat m_frameWidth;
 
-    Fps fps;
+    Fps m_fps;
 
     void move_from_camera();
 
@@ -74,9 +74,9 @@ private:
     std::vector<utils::Rect> generate_clips(utils::Rect clip, size_t num_x,
                                             size_t num_y);
 
-    bool scaled = false;
-    const GLfloat scale_factor = 1.5f;
-    utils::audio::Audio audio;
+    bool m_scaled = false;
+    const GLfloat m_scaleFactor = 1.5f;
+    utils::audio::Audio m_audio;
 };
 
 #endif //MOONLANDER_WORLD_HPP

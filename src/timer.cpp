@@ -1,46 +1,46 @@
 #include <SDL_timer.h>
 #include "timer.hpp"
 
-utils::Timer::Timer() : startTicks(0), pausedTicks(0),
-                        paused(false), started(false)
+utils::Timer::Timer() : m_startTicks(0), m_pausedTicks(0),
+                        m_paused(false), m_started(false)
 {
 
 }
 
 void utils::Timer::start()
 {
-    started = true;
-    paused = false;
+    m_started = true;
+    m_paused = false;
 
-    startTicks = SDL_GetTicks();
-    pausedTicks = 0;
+    m_startTicks = SDL_GetTicks();
+    m_pausedTicks = 0;
 }
 
 void utils::Timer::stop()
 {
-    started = false;
-    paused = false;
+    m_started = false;
+    m_paused = false;
 
-    startTicks = 0;
-    pausedTicks = 0;
+    m_startTicks = 0;
+    m_pausedTicks = 0;
 }
 
 void utils::Timer::pause()
 {
-    if (started && !paused) {
-        paused = true;
+    if (m_started && !m_paused) {
+        m_paused = true;
 
-        pausedTicks = SDL_GetTicks() - startTicks;
-        startTicks = 0;
+        m_pausedTicks = SDL_GetTicks() - m_startTicks;
+        m_startTicks = 0;
     }
 }
 
 void utils::Timer::unpause()
 {
-    if (started && paused) {
-        paused = false;
+    if (m_started && m_paused) {
+        m_paused = false;
 
-        startTicks = SDL_GetTicks() - pausedTicks;
+        m_startTicks = SDL_GetTicks() - m_pausedTicks;
     }
 }
 
@@ -48,18 +48,18 @@ Uint32 utils::Timer::getTicks() const
 {
     Uint32 time = 0;
 
-    if (started)
-        time = paused ? pausedTicks : (SDL_GetTicks() - startTicks);
+    if (m_started)
+        time = m_paused ? m_pausedTicks : (SDL_GetTicks() - m_startTicks);
 
     return time;
 }
 
 bool utils::Timer::isStarted() const
 {
-    return started;
+    return m_started;
 }
 
 bool utils::Timer::isPaused() const
 {
-    return paused && started;
+    return m_paused && m_started;
 }

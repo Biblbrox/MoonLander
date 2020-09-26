@@ -26,11 +26,11 @@ public:
 
     GLuint getVAO() const override;
 protected:
-    std::vector<utils::Rect> clips;
+    std::vector<utils::Rect> m_clips;
 
-    GLuint* VAO;
-    GLuint tot_sprites;
-    GLuint cur_idx = 0;
+    GLuint* m_vao;
+    GLuint m_totSprites;
+    GLuint m_curIdx = 0;
 };
 
 #endif //MOONLANDER_SPRITE_HPP

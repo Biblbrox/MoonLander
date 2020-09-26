@@ -36,10 +36,10 @@ public:
 
     bool isRunnable() const;
 private:
-    GLuint screen_w;
-    GLuint screen_h;
+    GLuint m_screenWidth;
+    GLuint m_screenHeight;
 
-    bool is_runnable;
+    bool m_isRunnable;
 
     SDL_GLContext m_glcontext;
 public:

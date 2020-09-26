@@ -32,7 +32,7 @@ void RendererSystem::drawLevel()
         program->updateColor();
         render::drawLinen(en->getComponent<LevelComponent>()->points, true);
 
-        glLineWidth(4.f); // TODO: replace with gs thickness
+        glLineWidth(4.f);
         program->switchToLines();
         program->setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
         program->updateColor();

@@ -62,8 +62,7 @@ void render::drawDots(const std::vector<vec2>& dots)
 
 void
 render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
-                   GLfloat x,
-                   GLfloat y, GLfloat angle, GLfloat scale_factor)
+                   GLfloat x, GLfloat y, GLfloat angle, GLfloat scale_factor)
 {
     program->switchToTriangles();
     program->setTextureRendering(true);

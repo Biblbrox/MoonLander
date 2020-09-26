@@ -74,7 +74,7 @@ void Game::initOnceSDL2()
 }
 
 
-Game::Game() : is_runnable(true), vsync_supported(false)
+Game::Game() : m_isRunnable(true), vsync_supported(false)
 {
     m_glcontext = nullptr;
     m_window = nullptr;
@@ -87,11 +87,12 @@ void Game::update(size_t delta)
 
 void Game::initGL()
 {
-    screen_w = utils::getScreenWidth<GLuint>();
-    screen_h = utils::getScreenHeight<GLuint>();
+    m_screenWidth = utils::getScreenWidth<GLuint>();
+    m_screenHeight = utils::getScreenHeight<GLuint>();
 
-    m_window = SDL_CreateWindow(GAME_NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h,
+    m_window = SDL_CreateWindow(GAME_NAME.c_str(),
+                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                m_screenWidth, m_screenHeight,
                                 WINDOW_FLAGS);
 
     m_glcontext = SDL_GL_CreateContext(m_window);
@@ -187,12 +188,12 @@ void Game::quit()
 
 void Game::setRunnable(bool runnable)
 {
-    is_runnable = runnable;
+    m_isRunnable = runnable;
 }
 
 bool Game::isRunnable() const
 {
-    return Game::is_runnable;
+    return Game::m_isRunnable;
 }
 
 void Game::initGame()

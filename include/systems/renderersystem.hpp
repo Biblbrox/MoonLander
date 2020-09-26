@@ -6,14 +6,12 @@
 #include <camera.hpp>
 #include <components/textcomponent.hpp>
 #include "ces/system.hpp"
-#include "components/displaycomponent.hpp"
 #include "components/positioncomponent.hpp"
 
 /**
  * System that can handle level surface
  */
-class RendererSystem :
-        public System<DisplayComponent, PositionComponent, TextComponent>
+class RendererSystem : public System<PositionComponent, TextComponent>
 {
 public:
     explicit RendererSystem();

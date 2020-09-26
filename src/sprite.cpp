@@ -5,9 +5,9 @@
 Sprite::Sprite(const std::string& path)
 {
     load(path);
-    VAO = nullptr;
-    tot_sprites = 0;
-    cur_idx = 0;
+    m_vao = nullptr;
+    m_totSprites = 0;
+    m_curIdx = 0;
 }
 
 bool Sprite::load(const std::string& path)
@@ -20,12 +20,12 @@ bool Sprite::load(const std::string& path)
         } else {
             GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
 
-            texture_width = surface->w;
-            texture_height = surface->h;
+            m_textureWidth = surface->w;
+            m_textureHeight = surface->h;
 
-            textureID = utils::loadTextureFromPixels32(
+            m_textureId = utils::loadTextureFromPixels32(
                     static_cast<GLuint*>(surface->pixels),
-                    texture_width, texture_height, texture_format);
+                    m_textureWidth, m_textureHeight, texture_format);
             SDL_FreeSurface(surface);
         }
     }
@@ -35,27 +35,27 @@ bool Sprite::load(const std::string& path)
 
 GLuint Sprite::addClipSprite(utils::Rect clip)
 {
-    clips.push_back(clip);
-    return clips.size() - 1;
+    m_clips.push_back(clip);
+    return m_clips.size() - 1;
 }
 
 utils::Rect Sprite::getClip(GLuint idx)
 {
-    assert(idx < tot_sprites);
-    return clips[idx];
+    assert(idx < m_totSprites);
+    return m_clips[idx];
 }
 
 void Sprite::generateDataBuffer()
 {
-    if (textureID != 0 && !clips.empty()) {
-        tot_sprites = clips.size();
-        VAO = new GLuint[tot_sprites];
+    if (m_textureId != 0 && !m_clips.empty()) {
+        m_totSprites = m_clips.size();
+        m_vao = new GLuint[m_totSprites];
 
-        glGenVertexArrays(tot_sprites, VAO);
+        glGenVertexArrays(m_totSprites, m_vao);
         GLuint VBO;
         GLuint EBO;
-        GLfloat tw = texture_width;
-        GLfloat th = texture_height;
+        GLfloat tw = m_textureWidth;
+        GLfloat th = m_textureHeight;
 
         GLuint indices[] = {
                 3, 1, 0,
@@ -70,21 +70,21 @@ void Sprite::generateDataBuffer()
         vertices[12] = 0.f;
         vertices[13] = 0.f;
 
-        for (GLuint i = 0; i < tot_sprites; ++i) {
-            vertices[0] = clips[i].w;
-            vertices[2] = (clips[i].x + clips[i].w) / tw;
-            vertices[3] = (clips[i].y + clips[i].h) / th;
-            vertices[4] = clips[i].w;
-            vertices[5] = clips[i].h;
-            vertices[6] = (clips[i].x + clips[i].w) / tw;
-            vertices[7] = clips[i].y / th;
-            vertices[9] = clips[i].h;
-            vertices[10] = clips[i].x / tw;
-            vertices[11] = clips[i].y / th;
-            vertices[14] = clips[i].x / tw;
-            vertices[15] = (clips[i].y + clips[i].h) / th;
+        for (GLuint i = 0; i < m_totSprites; ++i) {
+            vertices[0] = m_clips[i].w;
+            vertices[2] = (m_clips[i].x + m_clips[i].w) / tw;
+            vertices[3] = (m_clips[i].y + m_clips[i].h) / th;
+            vertices[4] = m_clips[i].w;
+            vertices[5] = m_clips[i].h;
+            vertices[6] = (m_clips[i].x + m_clips[i].w) / tw;
+            vertices[7] = m_clips[i].y / th;
+            vertices[9] = m_clips[i].h;
+            vertices[10] = m_clips[i].x / tw;
+            vertices[11] = m_clips[i].y / th;
+            vertices[14] = m_clips[i].x / tw;
+            vertices[15] = (m_clips[i].y + m_clips[i].h) / th;
 
-            glBindVertexArray(VAO[i]);
+            glBindVertexArray(m_vao[i]);
             glGenBuffers(1, &VBO);
             glGenBuffers(1, &EBO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -112,12 +112,12 @@ void Sprite::generateDataBuffer()
         }
 
     } else {
-        if (textureID == 0) {
+        if (m_textureId == 0) {
             SDL_Log("No texture to render!\n");
             std::abort();
         }
 
-        if (clips.empty()) {
+        if (m_clips.empty()) {
             SDL_Log("No data generate from!\n");
             std::abort();
         }
@@ -126,12 +126,12 @@ void Sprite::generateDataBuffer()
 
 void Sprite::freeVBO()
 {
-    if (VAO != nullptr) {
-        glDeleteBuffers(tot_sprites, VAO);
-        VAO = nullptr;
+    if (m_vao != nullptr) {
+        glDeleteBuffers(m_totSprites, m_vao);
+        m_vao = nullptr;
     }
 
-    clips.clear();
+    m_clips.clear();
 }
 
 Sprite::~Sprite()
@@ -141,23 +141,23 @@ Sprite::~Sprite()
 
 GLuint Sprite::getVAO() const
 {
-    return VAO[cur_idx];
+    return m_vao[m_curIdx];
 }
 
 GLuint Sprite::getIdx() const
 {
-    return cur_idx;
+    return m_curIdx;
 }
 
 utils::Rect Sprite::getCurrentClip() const
 {
-    return clips[cur_idx];
+    return m_clips[m_curIdx];
 }
 
 void Sprite::setIdx(GLuint idx)
 {
-    assert(idx < this->tot_sprites);
-    cur_idx = idx;
+    assert(idx < this->m_totSprites);
+    m_curIdx = idx;
 }
 
 GLuint Sprite::getWidth() const
@@ -172,6 +172,6 @@ GLuint Sprite::getHeight() const
 
 GLuint Sprite::getSpritesCount() const
 {
-    return tot_sprites;
+    return m_totSprites;
 }
 
