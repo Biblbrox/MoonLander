@@ -24,8 +24,8 @@ private:
     GLfloat m_x;
     GLfloat m_y;
 
-    GLfloat prev_x;
-    GLfloat prev_y;
+    GLfloat m_prevX;
+    GLfloat m_prevY;
 };
 
 #endif //MOONLANDER_CAMERA_HPP

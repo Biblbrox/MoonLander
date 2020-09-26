@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <utils.hpp>
+#include <utils/utils.hpp>
 #include "../include/moonlanderprogram.hpp"
 
 using utils::getShaderPath;
@@ -259,9 +259,9 @@ void MoonLanderProgram::setTextureRendering(bool isTexture)
     }
 }
 
-void MoonLanderProgram::setTexture(int texture_)
+void MoonLanderProgram::setTexture(int texture)
 {
-    glUniform1i(m_texLoc, texture_);
+    glUniform1i(m_texLoc, texture);
 }
 
 glm::mat4 MoonLanderProgram::getView() const

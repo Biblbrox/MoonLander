@@ -2,7 +2,7 @@
 #define MOONLANDER_SPRITE_HPP
 
 #include "texture.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include "moonlanderprogram.hpp"
 
 class Sprite: public Texture

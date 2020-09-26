@@ -1,15 +1,10 @@
 #include <ctime>
-#include "../include/utils.hpp"
+#include "utils/utils.hpp"
 #include <boost/format.hpp>
 
 using utils::log::Logger;
 using boost::format;
 using glm::vec2;
-
-utils::RandomUniform::RandomUniform() : generator(std::time(nullptr))
-{
-
-}
 
 /**
  * Load opengl texture from pixels to GPU with specific format.

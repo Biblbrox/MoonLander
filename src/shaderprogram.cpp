@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <abstract/shaderprogram.hpp>
 #include <cstdio>
-#include <utils.hpp>
+#include <utils/utils.hpp>
 
 using boost::format;
 using utils::log::Logger;

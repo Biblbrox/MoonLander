@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <fps.hpp>
-#include "../utils.hpp"
+#include <utils/fps.hpp>
+#include "utils/utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"
 #include "audio.hpp"
@@ -54,7 +54,7 @@ private:
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
 
-    Fps m_fps;
+    utils::Fps m_fps;
 
     void move_from_camera();
 

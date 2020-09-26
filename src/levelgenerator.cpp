@@ -1,5 +1,6 @@
+#include <utils/random.h>
 #include "levelgenerator.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 
 const int stars_initial_size = 500;
 const int points_initial_size = 500;
@@ -14,7 +15,7 @@ LevelGenerator::~LevelGenerator()
 std::vector<vec2>
 LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 {
-    utils::RandomUniform urand;
+    utils::Random urand;
     std::vector<vec2> gen(stars_initial_size);
 
     for (auto& star: gen) {
@@ -28,7 +29,7 @@ LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 std::vector<vec2> LevelGenerator::generate_lines(vec2 initial_p)
 {
     //TODO: tune parameters
-    utils::RandomUniform urand;
+    utils::Random urand;
     std::vector<vec2> res(points_initial_size);
 
     const int plat_count_min = points_initial_size / 8;

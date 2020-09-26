@@ -1,8 +1,8 @@
 #include "exceptions/glexception.hpp"
 
-GLException::GLException(std::string msg) : message(std::move(msg)) {}
+GLException::GLException(std::string msg) : m_message(std::move(msg)) {}
 
 const char* GLException::what() const noexcept
 {
-    return message.c_str();
+    return m_message.c_str();
 }

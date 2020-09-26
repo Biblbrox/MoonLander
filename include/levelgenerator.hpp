@@ -6,7 +6,7 @@
 #include <moonlanderprogram.hpp>
 #include <camera.hpp>
 #include "constants.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 
 using glm::vec2;
 

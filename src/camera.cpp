@@ -2,10 +2,10 @@
 
 void Camera::lookAt(GLfloat x, GLfloat y)
 {
-    prev_x = this->m_x;
-    prev_y = this->m_y;
-    this->m_x = x;
-    this->m_y = y;
+    m_prevX = m_x;
+    m_prevY = m_y;
+    m_x = x;
+    m_y = y;
 }
 
 GLfloat Camera::getX() const
@@ -20,37 +20,37 @@ GLfloat Camera::getY() const
 
 void Camera::setX(GLfloat x)
 {
-    prev_x = this->m_x;
-     this->m_x = x;
+    m_prevX = m_x;
+    m_x = x;
 }
 
 void Camera::setY(GLfloat y)
 {
-    prev_y = this->m_y;
-    this->m_y = y;
+    m_prevY = m_y;
+    m_y = y;
 }
 
 Camera::Camera() : m_x(0.f), m_y(0.f)
 {
-    prev_x = this->m_x;
-    prev_y = this->m_y;
+    m_prevX = m_x;
+    m_prevY = m_y;
 }
 
 void Camera::translate(GLfloat x, GLfloat y)
 {
-    prev_x = this->m_x;
-    prev_y = this->m_y;
+    m_prevX = m_x;
+    m_prevY = m_y;
 
-    this->m_x += x;
-    this->m_y += y;
+    m_x += x;
+    m_y += y;
 }
 
 GLfloat Camera::deltaY() const
 {
-    return m_y - prev_y;
+    return m_y - m_prevY;
 }
 
 GLfloat Camera::deltaX() const
 {
-    return m_x - prev_x;
+    return m_x - m_prevX;
 }

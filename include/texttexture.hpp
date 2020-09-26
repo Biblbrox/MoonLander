@@ -3,7 +3,7 @@
 
 #include <SDL_ttf.h>
 #include "texture.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include "moonlanderprogram.hpp"
 
 class TextTexture: public Texture

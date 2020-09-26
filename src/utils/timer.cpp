@@ -1,5 +1,5 @@
 #include <SDL_timer.h>
-#include "timer.hpp"
+#include "utils/timer.hpp"
 
 utils::Timer::Timer() : m_startTicks(0), m_pausedTicks(0),
                         m_paused(false), m_started(false)

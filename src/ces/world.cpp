@@ -16,6 +16,7 @@
 #include <systems/physics_system.hpp>
 #include <particle/particleengine.hpp>
 #include <systems/particlerendersystem.hpp>
+#include <utils/random.h>
 
 using utils::log::Logger;
 using boost::format;
@@ -110,10 +111,10 @@ void World::update_ship()
 
     if (colShip->has_collision) {
         utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
-        std::vector<Position> coords(4, {shipPos->x, shipPos->y, shipPos->angle});
-        std::vector<Position> vel(4, {shipVel->x, shipVel->y, shipVel->angle});
+        std::vector<Position> coords(16, {shipPos->x, shipPos->y, shipPos->angle});
+        std::vector<Position> vel(16, {shipVel->x, shipVel->y, shipVel->angle});
 
-        utils::RandomUniform rand;
+        utils::Random rand;
         std::generate(vel.begin(), vel.end(), [&rand, shipVel](){
             utils::Position res{};
             const GLfloat deviation = 1.5f;
@@ -128,7 +129,7 @@ void World::update_ship()
 
         auto particle = ParticleEngine::generateParticleFromTexture(
                 utils::getResourcePath("lunar_lander_bw.png"),
-                generate_clips(shipClip, 2, 2),
+                generate_clips(shipClip, 4, 4),
                 coords, vel, 10000.f);
 
         m_entities.insert({"ship particle", particle});

@@ -5,7 +5,7 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
-#include "../utils.hpp"
+#include "utils/utils.hpp"
 
 class World;
 class Component;

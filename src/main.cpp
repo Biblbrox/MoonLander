@@ -1,4 +1,4 @@
-#include "../include/utils.hpp"
+#include "utils/utils.hpp"
 #include <SDL2/SDL.h>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>

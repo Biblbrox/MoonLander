@@ -2,9 +2,9 @@
 #include <string>
 #include <utility>
 
-FSException::FSException(std::string msg) : message(std::move(msg)) {}
+FSException::FSException(std::string msg) : m_message(std::move(msg)) {}
 
 const char* FSException::what() const noexcept
 {
-    return message.c_str();
+    return m_message.c_str();
 }
