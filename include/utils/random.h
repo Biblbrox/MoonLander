@@ -25,22 +25,10 @@ namespace utils
                           [begin, end, left, right, fix_near, this]() {
                               GLuint val = generateu<T>(left, right);
                               if (fix_near) {
-                                  if (val != 0) {
-                                      while (std::count(begin, end, val) != 0
-                                             ||
-                                             std::count(begin, end, val - 1) !=
-                                             0
-                                             ||
-                                             std::count(begin, end, val + 1) !=
-                                             0)
-                                          val = generateu<T>(left, right);
-                                  } else {
-                                      while (std::count(begin, end, val) != 0
-                                             ||
-                                             std::count(begin, end, val + 1) !=
-                                             0)
-                                          val = generateu<T>(left, right);
-                                  }
+                                  while (std::count(begin, end, val) != 0
+                                         || std::count(begin, end, val - 1) != 0
+                                         || std::count(begin, end, val + 1) != 0)
+                                      val = generateu<T>(left, right);
                               } else {
                                   while (std::count(begin, end, val) != 0)
                                       val = generateu<T>(left, right);

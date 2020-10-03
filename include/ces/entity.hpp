@@ -71,6 +71,17 @@ public:
         return std::dynamic_pointer_cast<ComponentType>(it->second);
     }
 
+    template <class ComponentType>
+    void removeComponent()
+    {
+        static_assert(std::is_base_of_v<Component, ComponentType>,
+                      "Template parameter class must be child of Component");
+
+        auto it = m_components.find(type_id<ComponentType>());
+        if (it != m_components.end())
+            m_components.erase(it);
+    }
+
     const std::unordered_map<size_t, std::shared_ptr<Component>>&
     getComponents() const;
 

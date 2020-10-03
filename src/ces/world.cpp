@@ -17,6 +17,7 @@
 #include <particle/particleengine.hpp>
 #include <systems/particlerendersystem.hpp>
 #include <utils/random.h>
+#include <components/lifetimecomponent.h>
 
 using utils::log::Logger;
 using boost::format;
@@ -110,34 +111,60 @@ void World::update_ship()
     auto colShip = ship->getComponent<CollisionComponent>();
 
     if (colShip->has_collision) {
-        utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
-        std::vector<Position> coords(16, {shipPos->x, shipPos->y, shipPos->angle});
-        std::vector<Position> vel(16, {shipVel->x, shipVel->y, shipVel->angle});
+        const std::vector<vec2>& platforms = levelComp->platforms;
+        bool landed = false;
+        assert(platforms.size() % 2 == 0);
+        for (size_t i = 0; i < platforms.size(); i += 2) {
+            GLfloat angle = shipPos->angle - shipPos->angle
+                                             / (2 * glm::pi<GLfloat>());
+            if (shipPos->x >= platforms[i].x
+                && shipPos->x <= platforms[i + 1].x
+                && angle >= -glm::pi<GLfloat>() / 6.f
+                && angle <= glm::pi<GLfloat>() / 6.f
+                && std::abs(shipVel->y * 60.f) <= 20) {
+                shipVel->x = 0;
+                shipVel->y = 0;
+                shipVel->angle = 0;
+                landed = true;
+            }
+        }
 
-        utils::Random rand;
-        std::generate(vel.begin(), vel.end(), [&rand, shipVel](){
-            utils::Position res{};
-            const GLfloat deviation = 1.5f;
-            const GLfloat scale_vel = 20.f;
-            const GLfloat scale_vel_rot = 30.f;
-            res.x = rand.generaten<GLfloat>(shipVel->x / scale_vel, deviation);
-            res.y = rand.generaten<GLfloat>(shipVel->y / scale_vel, deviation);
-            res.angle = rand.generaten<GLfloat>(shipVel->angle
-                                                / scale_vel_rot, deviation);
-            return res;
-        });
+        if (!landed) {
+            utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
+            std::vector<Position> coords(16, {shipPos->x, shipPos->y,
+                                              shipPos->angle});
+            std::vector<Position> vel(16,
+                                      {shipVel->x, shipVel->y, shipVel->angle});
 
-        auto particle = ParticleEngine::generateParticleFromTexture(
-                utils::getResourcePath("lunar_lander_bw.png"),
-                generate_clips(shipClip, 4, 4),
-                coords, vel, 10000.f);
+            utils::Random rand;
+            std::generate(vel.begin(), vel.end(), [&rand, shipVel]() {
+                utils::Position res{};
+                const GLfloat deviation = 1.5f;
+                const GLfloat scale_vel = 20.f;
+                const GLfloat scale_vel_rot = 30.f;
+                res.x = rand.generaten<GLfloat>(shipVel->x / scale_vel,
+                                                deviation);
+                res.y = rand.generaten<GLfloat>(shipVel->y / scale_vel,
+                                                deviation);
+                res.angle = rand.generaten<GLfloat>(shipVel->angle
+                                                    / scale_vel_rot, deviation);
+                return res;
+            });
 
-        m_entities.insert({"ship particle", particle});
+            auto particle = ParticleEngine::generateParticleFromTexture(
+                    utils::getResourcePath("lunar_lander_bw.png"),
+                    generate_clips(shipClip, 4, 4),
+                    coords, vel, 10000.f);
 
-        ship->kill();
+            m_entities.insert({"ship particle", particle});
+
+            ship->kill();
+
+            if (!m_audio.isChannelPlaying(crash_sound_channel))
+                m_audio.playChunk(crash_sound_channel, crash_idx, 0, false);
+        }
+
         m_audio.haltChannel(engine_channel, true);
-        if (!m_audio.isChannelPlaying(crash_sound_channel))
-            m_audio.playChunk(crash_sound_channel, crash_idx, 0, false);
     }
 }
 
@@ -155,10 +182,12 @@ void World::update_text()
     auto velxEntity = m_entities["velxText"];
     auto velyEntity = m_entities["velyText"];
     auto altEntity = m_entities["altitude"];
+    auto fuelEntity = m_entities["fuel"];
 
     auto textVelX = velxEntity->getComponent<TextComponent>();
     auto textVelY = velyEntity->getComponent<TextComponent>();
     auto textAlt = altEntity->getComponent<TextComponent>();
+    auto textFuel = fuelEntity->getComponent<TextComponent>();
 
     if (m_entities.contains("ship")) {
         auto shipEntity = m_entities["ship"];
@@ -166,6 +195,7 @@ void World::update_text()
 
         auto shipVel = shipEntity->getComponent<VelocityComponent>();
         auto shipPos = shipEntity->getComponent<PositionComponent>();
+        auto fuel = shipEntity->getComponent<LifeTimeComponent>();
 
         textVelX->texture->setText((format("Horizontal speed: %3d") %
                                     floor(shipVel->x * 60.f)).str());
@@ -174,6 +204,8 @@ void World::update_text()
         textAlt->texture->setText((format("Altitude: %3d") %
                                    floor(ship_altitude(points, shipPos->x,
                                                        shipPos->y) - SHIP_HEIGHT)).str());
+        textFuel->texture->setText((format("Fuel: %3d") %
+                                    fuel->time).str());
     } else {
         textVelX->texture->setText((format("Horizontal speed: %3d") %
                                     std::floor(0.f)).str());
@@ -190,9 +222,8 @@ void World::update(size_t delta)
 
     update_text();
 
-    for (auto& system: m_systems) {
+    for (auto& system: m_systems)
         system.second->update(delta);
-    }
 
     filter_entities();
 }
@@ -222,56 +253,6 @@ void World::init()
     m_nonStatic.push_back(m_entities["ship"]);
 }
 
-void World::move_from_camera()
-{
-    for (const auto& en: m_nonStatic) {
-        auto pos = en->getComponent<PositionComponent>();
-        if (pos != nullptr) {
-            pos->x -= m_camera.deltaX();
-            pos->y -= m_camera.deltaY();
-        } else {
-            auto level = en->getComponent<LevelComponent>();
-            for (auto& point : level->points) {
-                point.x -= m_camera.deltaX();
-                point.y -= m_camera.deltaY();
-            }
-            for (auto& star : level->stars) {
-                star.x -= m_camera.deltaX();
-                star.y -= m_camera.deltaY();
-            }
-            for (auto& platform: level->platforms) {
-                platform.x -= m_camera.deltaX();
-                platform.y -= m_camera.deltaY();
-            }
-        }
-    }
-}
-
-std::vector<utils::Rect>
-World::generate_clips(utils::Rect clip, size_t num_x, size_t num_y)
-{
-    GLfloat part_width = clip.w / num_x;
-    GLfloat part_height = clip.h / num_y;
-
-    std::vector<utils::Rect> clips;
-    clips.reserve(num_x * num_y);
-    for (GLfloat y = clip.y; y < clip.y + clip.h; y += part_height)
-        for (GLfloat x = clip.x; x < clip.x + clip.w; x += part_width)
-            clips.push_back({x, y, part_width, part_height});
-
-    return clips;
-}
-
-void World::filter_entities()
-{
-    for (auto it = m_entities.begin(); it != m_entities.end();) {
-        if (!it->second->isActivate())
-            it = m_entities.erase(it);
-        else
-            ++it;
-    }
-}
-
 void World::init_sound()
 {
     m_audio.addChunk(utils::getResourcePath("engine.wav"));
@@ -292,6 +273,7 @@ void World::init_sprites()
     ship.addComponent<KeyboardComponent>();
     ship.addComponent<AnimationComponent>();
     ship.addComponent<CollisionComponent>();
+    ship.addComponent<LifeTimeComponent>(); // fuel
     ship.activate();
 
     auto shipSprite = ship.getComponent<SpriteComponent>();
@@ -311,9 +293,12 @@ void World::init_sprites()
             m_entities["level"]->getComponent<LevelComponent>()->points,
             shipPos->x, m_screenHeight / 4.f);
 
-    auto shipVel = ship.getComponent<VelocityComponent>();
+    auto fuel = ship.getComponent<LifeTimeComponent>();
+    fuel->time = 200;
 
+    auto shipVel = ship.getComponent<VelocityComponent>();
     auto shipAnim = ship.getComponent<AnimationComponent>();
+
     // Ship reference invalidate
 
     Entity& earth = createEntity("earth");
@@ -335,8 +320,8 @@ void World::init_sprites()
 
     auto keyboardComponent = ship.getComponent<KeyboardComponent>();
     keyboardComponent->event_handler =
-            [shipVel, shipPos, shipAnim, this](const Uint8* state){
-        if (state[SDL_SCANCODE_UP]) {
+            [shipVel, shipPos, shipAnim, fuel, this](const Uint8* state) {
+        if (state[SDL_SCANCODE_UP] && fuel->time > 0) {
             shipVel->y += -engine_force / weight *
                           std::sin(shipPos->angle + glm::half_pi<GLfloat>());
             shipVel->x += -engine_force / weight *
@@ -345,6 +330,7 @@ void World::init_sprites()
             if (!m_audio.isChannelPlaying(engine_channel)
                 || m_audio.isChannelPaused(engine_channel))
                 m_audio.playChunk(engine_channel, engine_idx, -1, true);
+            fuel->time -= 1;
         } else {
             shipAnim->cur_state = 0;
             m_audio.haltChannel(engine_channel, true);
@@ -416,8 +402,21 @@ void World::init_text()
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
-    altPos->y = m_screenHeight / 6.f;
+    altPos->y = m_screenHeight / 7.f;
     altPos->scallable = false;
+
+    Entity& fuel = createEntity("fuel");
+    fuel.addComponent<PositionComponent>();
+    fuel.addComponent<TextComponent>();
+    fuel.activate();
+
+    auto fuelTexture = fuel.getComponent<TextComponent>();
+    fuelTexture->texture = std::make_shared<TextTexture>("Fuel: -000.000");
+
+    auto fuelPos = fuel.getComponent<PositionComponent>();
+    fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
+    fuelPos->y = m_screenHeight / 6.f;
+    fuelPos->scallable = false;
 }
 
 void World::init_level()
@@ -437,5 +436,40 @@ void World::init_level()
     levelComponent->platforms = generator.platforms;
     generator.extendToLeft(levelComponent->points, levelComponent->stars);
     generator.extendToRight(levelComponent->points, levelComponent->stars);
+}
+
+void World::move_from_camera()
+{
+    for (const auto& en: m_nonStatic) {
+        auto pos = en->getComponent<PositionComponent>();
+        if (pos != nullptr) {
+            pos->x -= m_camera.deltaX();
+            pos->y -= m_camera.deltaY();
+        } else {
+            auto level = en->getComponent<LevelComponent>();
+            for (auto& point : level->points) {
+                point.x -= m_camera.deltaX();
+                point.y -= m_camera.deltaY();
+            }
+            for (auto& star : level->stars) {
+                star.x -= m_camera.deltaX();
+                star.y -= m_camera.deltaY();
+            }
+            for (auto& platform: level->platforms) {
+                platform.x -= m_camera.deltaX();
+                platform.y -= m_camera.deltaY();
+            }
+        }
+    }
+}
+
+void World::filter_entities()
+{
+    for (auto it = m_entities.begin(); it != m_entities.end();) {
+        if (!it->second->isActivate())
+            it = m_entities.erase(it);
+        else
+            ++it;
+    }
 }
 

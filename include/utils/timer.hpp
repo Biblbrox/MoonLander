@@ -9,17 +9,17 @@ namespace utils
     class Timer
     {
     public:
-        Timer();
+        Timer() noexcept;
 
-        void start();
-        void stop();
-        void pause();
-        void unpause();
+        void start() noexcept;
+        void stop() noexcept;
+        void pause() noexcept;
+        void unpause() noexcept;
 
-        Uint32 getTicks() const;
+        Uint32 getTicks() const noexcept;
 
-        bool isStarted() const;
-        bool isPaused() const;
+        bool isStarted() const noexcept;
+        bool isPaused() const noexcept;
 
     private:
         Uint32 m_startTicks;

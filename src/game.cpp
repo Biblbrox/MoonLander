@@ -100,10 +100,8 @@ void Game::initGL()
     if (m_glcontext == nullptr) {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
-                      (format(
-                              "OpenGL context could not be created! "
-                              "SDL Error: %s\n"
-                      ) % SDL_GetError()).str());
+                      (format("OpenGL context could not be created! "
+                              "SDL Error: %s\n") % SDL_GetError()).str());
         quit();
         std::abort();
     }
@@ -140,7 +138,7 @@ void Game::initGL()
     glEnable(GL_MULTISAMPLE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //Use Vsync
-    if(SDL_GL_SetSwapInterval( -1 ) < 0) {
+    if(SDL_GL_SetSwapInterval(-1) < 0) {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
                       (format("Warning: Unable to enable VSync. "

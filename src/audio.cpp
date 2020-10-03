@@ -1,16 +1,18 @@
 #include <audio.hpp>
-#include <iostream>
+#include <boost/format.hpp>
+#include <exceptions/fsexception.hpp>
+#include <exceptions/sdlexception.h>
+
+using boost::format;
 
 void utils::audio::Audio::setMusic(const std::string &musicPath)
 {
-    if (!std::filesystem::exists(musicPath)) {
-        // TODO: throw exception
-    }
+    if (!std::filesystem::exists(musicPath))
+        throw FSException((format("File %s doesn't exists\n") % musicPath).str());
 
     Mix_Music *mus = Mix_LoadMUS(musicPath.c_str());
-    if (mus == nullptr) {
-        // TODO: throw exception
-    }
+    if (mus == nullptr)
+        throw SdlException((format("Unable to load music %s\n") % musicPath).str());
 
     m_music = mus;
 }
@@ -64,16 +66,12 @@ void utils::audio::Audio::pauseMusic()
 
 void utils::audio::Audio::addChunk(const std::string &chunkPath)
 {
-    if (!std::filesystem::exists(chunkPath)) {
-        // TODO: throw exception
-        std::cerr << "chunk not found" << std::endl;
-    }
+    if (!std::filesystem::exists(chunkPath))
+        throw FSException((format("File %s doesn't exists\n") % chunkPath).str());
 
     Mix_Chunk *chunk = Mix_LoadWAV(chunkPath.c_str());
-    if (chunk == nullptr) {
-        std::cerr << "unable to load chunk" << std::endl;
-        // TODO: throw exception
-    }
+    if (chunk == nullptr)
+        throw SdlException((format("Unable to load chunk %s\n") % chunkPath).str());
 
     m_chunks.push_back(chunk);
 }

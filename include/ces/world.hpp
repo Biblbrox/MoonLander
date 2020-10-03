@@ -71,9 +71,6 @@ private:
      */
     void filter_entities();
 
-    std::vector<utils::Rect> generate_clips(utils::Rect clip, size_t num_x,
-                                            size_t num_y);
-
     bool m_scaled = false;
     const GLfloat m_scaleFactor = 1.5f;
     utils::audio::Audio m_audio;

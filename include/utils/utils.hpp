@@ -15,6 +15,8 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include <components/positioncomponent.hpp>
+#include <exceptions/fsexception.hpp>
+#include <exceptions/glexception.hpp>
 #include "constants.hpp"
 #include "timer.hpp"
 #include "logger.hpp"
@@ -26,16 +28,6 @@ using utils::log::Category;
 
 namespace utils
 {
-    constexpr const char* shader_log_file_name()
-    {
-        return "shader_log.log";
-    }
-
-    constexpr const char* program_log_file_name()
-    {
-        return "moonlander_log.log";
-    }
-
     struct Position
     {
         GLfloat x;
@@ -58,6 +50,39 @@ namespace utils
         vec2 c;
         vec2 d;
     };
+
+    constexpr const char* shader_log_file_name()
+    {
+        return "shader_log.log";
+    }
+
+    constexpr const char* program_log_file_name()
+    {
+        return "moonlander_log.log";
+    }
+
+    /**
+     * Divide clip by multiple small clips.
+     * Number of clips = num_x * num_y.
+     * @param clip
+     * @param num_x
+     * @param num_y
+     * @return
+     */
+    std::vector<Rect>
+    inline generate_clips(Rect clip, size_t num_x, size_t num_y)
+    {
+        GLfloat part_width = clip.w / num_x;
+        GLfloat part_height = clip.h / num_y;
+
+        std::vector<Rect> clips;
+        clips.reserve(num_x * num_y);
+        for (GLfloat y = clip.y; y < clip.y + clip.h; y += part_height)
+            for (GLfloat x = clip.x; x < clip.x + clip.w; x += part_width)
+                clips.push_back({x, y, part_width, part_height});
+
+        return clips;
+    }
 
     /**
      * TypeList declaration
@@ -91,7 +116,8 @@ namespace utils
     template <class TL, class UnFunctor, class BinFunctor>
     auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
     {
-        static_assert(Length<TL>::value >= 2, "Length<TypeList<Args...>>::value >= 2");
+        static_assert(Length<TL>::value >= 2,
+                "Length<TypeList<Args...>>::value >= 2");
 
         typename TL::Head val;
         auto res = unfunc(val);
@@ -105,7 +131,7 @@ namespace utils
     }
 
     template<typename T>
-    inline constexpr size_t type_id() noexcept
+    constexpr size_t type_id() noexcept
     {
         return typeid(T).hash_code();
     }
@@ -158,14 +184,17 @@ namespace utils
 
                 glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
                 if (infoLength > 0) {
-                    Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
-                                  (format("Shader program log:\n\n%s") % log_str).str());
+                    Logger::write(shader_log_file_name(),
+                                  Category::INTERNAL_ERROR,
+                                  (format("Shader program log:\n\n%s")
+                                   % log_str).str());
                 }
 
                 delete[] log_str;
             } else {
                 Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
-                              (format("Name %1% is not a program\n") % program).str());
+                              (format("Name %1% is not a program\n")
+                               % program).str());
             }
         }
     }
@@ -287,7 +316,7 @@ namespace utils
     GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
                                    GLenum textureType = GL_RGBA);
 
-    inline unsigned int power_two(unsigned int val) noexcept
+    constexpr unsigned int power_two(unsigned int val) noexcept
     {
         unsigned int power = 2, nextVal = power * 2;
 
@@ -302,7 +331,6 @@ namespace utils
      * shaderType param may of the supported shader types
      * If shader can't be loaded (file not found or bad read access)
      * or can't be compiled std::runtime_error exception will be thrown.
-     * In second case information about error will be writen to shader log file
      * @param path
      * @param shaderType
      * @return
@@ -313,12 +341,10 @@ namespace utils
          GLuint shaderID = 0;
          std::string shaderString;
          std::ifstream sourceFile(path.c_str());
-         if (!sourceFile.is_open()) {
-             Logger::write(shader_log_file_name(),Category::FILE_ERROR,
-                           (format("Unable to open file %s\n")
-                            % path.c_str()).str());
-             throw std::runtime_error((format("Can't open shader source file %1%\n") % path).str());
-         }
+         if (!sourceFile.is_open())
+             throw FSException(
+                     (format("Can't open shader source file %1%\n")
+                      % path).str());
 
          shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
                              std::istreambuf_iterator<char>());
@@ -331,14 +357,11 @@ namespace utils
          GLint shaderCompiled = GL_FALSE;
          glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
          if (shaderCompiled != GL_TRUE) {
-             Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
-                           (format("Unable to compile shader %d!\n\nSource:\n%s\n")
-                            % shaderID % shaderSource).str());
-             log::printShaderLog(shaderID);
              glDeleteShader(shaderID);
              sourceFile.close();
-             throw std::runtime_error((format("Unable to compile shader %1%\n\nSource:\n%2%\n")
-                                       % shaderID % shaderSource).str());
+             throw GLException(
+                     (format("Unable to compile shader %1%\n\nSource:\n%2%\n")
+                      % shaderID % shaderSource).str());
          }
 
          sourceFile.close();

@@ -10,9 +10,8 @@ using glm::vec2;
  * @param p22
  * @return
 */
-inline constexpr bool
-lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21,
-         const vec2 &p22) noexcept
+constexpr bool lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21,
+                        const vec2 &p22) noexcept
 {
     GLfloat x1 = p11.x;
     GLfloat x2 = p12.x;
@@ -102,7 +101,6 @@ void CollisionSystem::update(size_t delta)
             }
         }
     }
-
 }
 
 bool

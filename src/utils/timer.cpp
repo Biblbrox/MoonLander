@@ -1,13 +1,13 @@
 #include <SDL_timer.h>
 #include "utils/timer.hpp"
 
-utils::Timer::Timer() : m_startTicks(0), m_pausedTicks(0),
+utils::Timer::Timer() noexcept : m_startTicks(0), m_pausedTicks(0),
                         m_paused(false), m_started(false)
 {
 
 }
 
-void utils::Timer::start()
+void utils::Timer::start() noexcept
 {
     m_started = true;
     m_paused = false;
@@ -16,7 +16,7 @@ void utils::Timer::start()
     m_pausedTicks = 0;
 }
 
-void utils::Timer::stop()
+void utils::Timer::stop() noexcept
 {
     m_started = false;
     m_paused = false;
@@ -25,7 +25,7 @@ void utils::Timer::stop()
     m_pausedTicks = 0;
 }
 
-void utils::Timer::pause()
+void utils::Timer::pause() noexcept
 {
     if (m_started && !m_paused) {
         m_paused = true;
@@ -35,7 +35,7 @@ void utils::Timer::pause()
     }
 }
 
-void utils::Timer::unpause()
+void utils::Timer::unpause() noexcept
 {
     if (m_started && m_paused) {
         m_paused = false;
@@ -44,7 +44,7 @@ void utils::Timer::unpause()
     }
 }
 
-Uint32 utils::Timer::getTicks() const
+Uint32 utils::Timer::getTicks() const noexcept
 {
     Uint32 time = 0;
 
@@ -54,12 +54,12 @@ Uint32 utils::Timer::getTicks() const
     return time;
 }
 
-bool utils::Timer::isStarted() const
+bool utils::Timer::isStarted() const noexcept
 {
     return m_started;
 }
 
-bool utils::Timer::isPaused() const
+bool utils::Timer::isPaused() const noexcept
 {
     return m_paused && m_started;
 }
