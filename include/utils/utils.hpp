@@ -277,7 +277,7 @@ namespace utils
      * @param sfc
      * @return
      */
-    inline SDL_Surface* flipVertically(const SDL_Surface *sfc)
+    inline SDL_Surface* flipVertically(const SDL_Surface* const sfc)
     {
         assert(sfc != nullptr);
         SDL_Surface *result =

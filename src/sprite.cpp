@@ -13,20 +13,22 @@ Sprite::Sprite(const std::string& path)
 bool Sprite::load(const std::string& path)
 {
     if (!path.empty()) {
-        SDL_Surface* surface = utils::flipVertically(IMG_Load(path.c_str()));
-        if (surface == nullptr) {
+        SDL_Surface* surface = IMG_Load(path.c_str());
+        SDL_Surface* flipped = utils::flipVertically(surface);
+        SDL_FreeSurface(surface);
+        if (flipped == nullptr) {
             SDL_Log("LoadTexture: %s\n", SDL_GetError());
             std::abort();
         } else {
-            GLenum texture_format = utils::getSurfaceFormatInfo(*surface);
+            GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-            m_textureWidth = surface->w;
-            m_textureHeight = surface->h;
+            m_textureWidth = flipped->w;
+            m_textureHeight = flipped->h;
 
             m_textureId = utils::loadTextureFromPixels32(
-                    static_cast<GLuint*>(surface->pixels),
+                    static_cast<GLuint*>(flipped->pixels),
                     m_textureWidth, m_textureHeight, texture_format);
-            SDL_FreeSurface(surface);
+            SDL_FreeSurface(flipped);
         }
     }
 

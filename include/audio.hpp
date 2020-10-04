@@ -7,6 +7,10 @@
 #include <vector>
 #include <cassert>
 #include <GL/glew.h>
+#include <functional>
+
+using chunkDeleter = std::function<void(Mix_Chunk*)>;
+using musDeleter = std::function<void(Mix_Music*)>;
 
 namespace utils::audio
 {
@@ -14,6 +18,7 @@ namespace utils::audio
     {
     public:
         Audio();
+        ~Audio();
 
         void addChunk(const std::string &chunkPath);
 
@@ -42,8 +47,8 @@ namespace utils::audio
         void setFadeOut(GLfloat out);
 
     private:
-        std::vector<Mix_Chunk *> m_chunks;
-        Mix_Music *m_music;
+        std::vector<std::unique_ptr<Mix_Chunk, chunkDeleter>> m_chunks;
+        std::unique_ptr<Mix_Music, musDeleter> m_music;
         GLfloat m_fadeIn;
         GLfloat m_fadeOut;
     };

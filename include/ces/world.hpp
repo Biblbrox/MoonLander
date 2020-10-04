@@ -21,8 +21,8 @@ using utils::type_id;
 class World
 {
 public:
-    World() = default;
-    ~World() = default;
+    World() : m_scaled(false) {};
+    ~World() {};
 
     void init();
     void update(size_t delta);
@@ -71,7 +71,7 @@ private:
      */
     void filter_entities();
 
-    bool m_scaled = false;
+    bool m_scaled;
     const GLfloat m_scaleFactor = 1.5f;
     utils::audio::Audio m_audio;
 };
