@@ -1,4 +1,5 @@
 #include <systems/collisionsystem.hpp>
+#include "../include/utils/utils.hpp"
 
 using glm::vec2;
 
@@ -46,11 +47,11 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
     bx = x + wid * cos(rot);
     by = y + wid * sin(rot);
 
-    cx = x + wid * cos(rot) - hgt * sin(rot);
-    cy = y + hgt * cos(rot) + wid * sin(rot);
-
     dx = x - hgt * sin(rot);
     dy = y + hgt * cos(rot);
+
+    cx = bx - hgt * sin(rot);
+    cy = dy + wid * sin(rot);
 
     temp_rect.a.x = x;
     temp_rect.a.y = y;
@@ -67,84 +68,81 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
 void CollisionSystem::update(size_t delta)
 {
     auto levels = getEntitiesByTag<LevelComponent>();
-    auto sprites = getEntitiesByTag<SpriteComponent>();
+    auto sprites = getEntitiesByTags<SpriteComponent, CollisionComponent>();
 
-    for (auto it = sprites.begin(); it != sprites.end(); ++it) {
-        for (auto jt = sprites.begin(); jt != sprites.end(); ++jt) {
-            if (jt != it &&
-                it->second->getComponent<CollisionComponent>() != nullptr
-                && jt->second->getComponent<CollisionComponent>() != nullptr) {
-                // Code to check collision between sprites
-            }
-        }
-    }
+    //for (auto it = sprites.begin(); it != sprites.end(); ++it) {
+    //    for (auto jt = sprites.begin(); jt != sprites.end(); ++jt) {
+    //        if (jt != it &&
+    //            it->second->getComponent<CollisionComponent>() != nullptr
+    //            && jt->second->getComponent<CollisionComponent>() != nullptr) {
+    //            // Code to check collision between sprites
+    //        }
+    //    }
+    //}
 
     // We need to check we have only one level (otherwise will be strange)
     assert(levels.size() == 1);
 
     auto level = levels.begin()->second->getComponent<LevelComponent>();
-    auto level_col = levels.begin()->second->getComponent<CollisionComponent>();
+    auto levelCol = levels.begin()->second->getComponent<CollisionComponent>();
     for (auto &[key, spriteEntity] : sprites) {
-        if (spriteEntity->getComponent<CollisionComponent>() != nullptr) {
-            auto sprite = spriteEntity->getComponent<SpriteComponent>()->sprite;
-            auto pos = spriteEntity->getComponent<PositionComponent>();
-            if (levelSpriteCollision(*sprite, pos->x, pos->y,
-                                     level->points,
-                                     level->stars, pos->angle)) {
-                spriteEntity->getComponent<CollisionComponent>()
-                            ->has_collision = true;
-                level_col->has_collision = true;
-            } else {
-                spriteEntity->getComponent<CollisionComponent>()->has_collision = false;
-                levels.begin()->second->
-                        getComponent<CollisionComponent>()->has_collision = false;
-            }
+        auto colComponent = spriteEntity->getComponent<CollisionComponent>();
+        auto sprite = spriteEntity->getComponent<SpriteComponent>()->sprite;
+        auto pos = spriteEntity->getComponent<PositionComponent>();
+        if (utils::physics::altitude(level->points, pos->x, pos->y) >= 250)
+            return;
+
+        if (levelSpriteCollision(*sprite, pos->x, pos->y,
+                                 level->points, level->stars, pos->angle)) {
+            colComponent->has_collision = true;
+            levelCol->has_collision = true;
+        } else {
+            colComponent->has_collision = false;
+            levelCol->has_collision = false;
         }
     }
 }
 
 bool
-CollisionSystem::levelSpriteCollision(Sprite &sprite, GLfloat ship_x,
-                                      GLfloat ship_y, std::vector<vec2> &points,
-                                      std::vector<vec2> &stars, GLfloat angle)
+CollisionSystem::levelSpriteCollision(const Sprite &sprite, GLfloat ship_x,
+                                      GLfloat ship_y, const std::vector<vec2> &points,
+                                      const std::vector<vec2> &stars, GLfloat angle)
 {
     utils::Rect coord = sprite.getCurrentClip();
     coord.x = ship_x;
     coord.y = ship_y;
     utils::RectPoints r = buildRectPoints(coord, angle);
 
-    for (size_t i = 0; i < points.size() - 1; ++i) {
-        GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
+    GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
+    auto rightBound = std::lower_bound(points.cbegin(), points.cend(), glm::vec2(x, 0.f),
+                                       [](const glm::vec2& pos1, const glm::vec2& pos2){
+                                           return pos1.x < pos2.x;
+    });
+    auto leftBound = std::prev(rightBound);
+    auto nextRightBound = std::next(rightBound);
 
-        if (points[i].x <= x && points[i + 1].x >= x) {
-            GLfloat curX = points[i].x;
-            GLfloat curY = points[i].y;
-            GLfloat nextX = points[i + 1].x;
-            GLfloat nextY = points[i + 1].y;
-            GLfloat nextNextX = points[i + 1].x;
-            GLfloat nextNextY = points[i + 1].y;
+    GLfloat curX = leftBound->x;
+    GLfloat curY = leftBound->y;
+    GLfloat nextX = rightBound->x;
+    GLfloat nextY = rightBound->y;
+    GLfloat nextNextX = nextRightBound == points.end() ? 0 : rightBound->x;
+    GLfloat nextNextY = nextRightBound == points.end() ? 0 : rightBound->y;
 
-            bool left = lineLine(r.d, r.a, {curX, curY}, {nextX, nextY});
-            bool right = lineLine(r.b, r.c, {curX, curY}, {nextX, nextY});
-            bool top = lineLine(r.c, r.d, {curX, curY}, {nextX, nextY});
-            bool bottom = lineLine(r.a, r.b, {curX, curY}, {nextX, nextY});
-            if (left || right || top || bottom)
-                return true;
+    bool left = lineLine(r.d, r.a, {curX, curY}, {nextX, nextY});
+    bool right = lineLine(r.b, r.c, {curX, curY}, {nextX, nextY});
+    bool top = lineLine(r.c, r.d, {curX, curY}, {nextX, nextY});
+    bool bottom = lineLine(r.a, r.b, {curX, curY}, {nextX, nextY});
+    if (left || right || top || bottom)
+        return true;
 
-            x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
-            if (points[i + 1].x <= x && i != points.size() - 2) {
-                left = lineLine(r.d, r.a, {nextX, nextY},
-                                {nextNextX, nextNextY});
-                right = lineLine(r.b, r.c, {nextX, nextY},
-                                 {nextNextX, nextNextY});
-                top = lineLine(r.c, r.d, {nextX, nextY},
-                               {nextNextX, nextNextY});
-                bottom = lineLine(r.a, r.b, {nextX, nextY},
-                                  {nextNextX, nextNextY});
-                if (left || right || top || bottom)
-                    return true;
-            }
-        }
+    x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
+    if (rightBound->x <= x && nextRightBound != points.end()) {
+        left = lineLine(r.d, r.a, {nextX, nextY}, {nextNextX, nextNextY});
+        right = lineLine(r.b, r.c, {nextX, nextY}, {nextNextX, nextNextY});
+        top = lineLine(r.c, r.d, {nextX, nextY}, {nextNextX, nextNextY});
+        bottom = lineLine(r.a, r.b, {nextX, nextY}, {nextNextX, nextNextY});
+        if (left || right || top || bottom)
+            return true;
     }
 
     return false;

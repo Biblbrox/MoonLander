@@ -21,8 +21,9 @@
 
 using utils::log::Logger;
 using boost::format;
-using utils::physics::ship_altitude;
+using utils::physics::altitude;
 using std::floor;
+using std::vector;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -77,7 +78,7 @@ void World::rescale_world()
 
 void World::update_ship()
 {
-    using utils::physics::ship_altitude;
+    using utils::physics::altitude;
     using utils::Position;
 
     auto ship = m_entities["ship"];
@@ -89,7 +90,7 @@ void World::update_ship()
     );
     auto levelComp = m_entities["level"]->getComponent<LevelComponent>();
     const GLfloat shipHeight =
-            ship_altitude(levelComp->points, shipPos->x, shipPos->y);
+            altitude(levelComp->points, shipPos->x, shipPos->y);
     const GLfloat alt_threshold = 100.f; // Threshold when world will be m_scaled
     if ((shipHeight < alt_threshold && !m_scaled) // Need to increase scale
         || (shipHeight >= alt_threshold && m_scaled)) { // Need to decrease scale
@@ -109,9 +110,8 @@ void World::update_ship()
     }
 
     auto colShip = ship->getComponent<CollisionComponent>();
-
     if (colShip->has_collision) {
-        const std::vector<vec2>& platforms = levelComp->platforms;
+        const vector<vec2>& platforms = levelComp->platforms;
         bool landed = false;
         assert(platforms.size() % 2 == 0);
         for (size_t i = 0; i < platforms.size(); i += 2) {
@@ -131,10 +131,10 @@ void World::update_ship()
 
         if (!landed) {
             utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
-            std::vector<Position> coords(16, {shipPos->x, shipPos->y,
-                                              shipPos->angle});
-            std::vector<Position> vel(16,
-                                      {shipVel->x, shipVel->y, shipVel->angle});
+            vector<Position> coords(16, {shipPos->x, shipPos->y,
+                                         shipPos->angle});
+            vector<Position> vel(16,
+                                 {shipVel->x, shipVel->y, shipVel->angle});
 
             utils::Random rand;
             std::generate(vel.begin(), vel.end(), [&rand, shipVel]() {
@@ -172,7 +172,7 @@ void World::update_text()
 {
     using boost::format;
 
-    if (debug) {
+    if constexpr (debug) {
         auto fpsEntity = m_entities["fpsText"];
         auto textFps = fpsEntity->getComponent<TextComponent>();
         textFps->texture->setText(
@@ -202,7 +202,7 @@ void World::update_text()
         textVelY->texture->setText((format("Vertical speed: %3d") %
                                     floor(-shipVel->y * 60.f)).str());
         textAlt->texture->setText((format("Altitude: %3d") %
-                                   floor(ship_altitude(points, shipPos->x,
+                                   floor(altitude(points, shipPos->x,
                                                        shipPos->y) - SHIP_HEIGHT)).str());
         textFuel->texture->setText((format("Fuel: %3d") %
                                     fuel->time).str());
@@ -294,7 +294,7 @@ void World::init_sprites()
             shipPos->x, m_screenHeight / 4.f);
 
     auto fuel = ship.getComponent<LifeTimeComponent>();
-    fuel->time = 200;
+    fuel->time = 1500;
 
     auto shipVel = ship.getComponent<VelocityComponent>();
     auto shipAnim = ship.getComponent<AnimationComponent>();
@@ -346,7 +346,7 @@ void World::init_sprites()
 
 void World::init_text()
 {
-    if (debug) {
+    if constexpr (debug) {
         // Fps entity
         Entity& fpsText = createEntity("fpsText");
         fpsText.addComponent<TextComponent>();

@@ -218,7 +218,7 @@ namespace utils
 
     namespace physics
     {
-        GLfloat ship_altitude(const std::vector<vec2> &points, GLfloat shipX,
+        GLfloat altitude(const std::vector<vec2> &points, GLfloat shipX,
                               GLfloat shipY);
         GLfloat alt_from_surface(const std::vector<vec2> &line_points,
                                  GLfloat x, GLfloat alt);
@@ -313,7 +313,7 @@ namespace utils
      * @param format
      * @return
      * */
-    GLuint loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
+    GLuint loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
                                    GLenum textureType = GL_RGBA);
 
     constexpr unsigned int power_two(unsigned int val) noexcept

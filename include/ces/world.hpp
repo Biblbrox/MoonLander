@@ -18,6 +18,12 @@ class Component;
 
 using utils::type_id;
 
+enum class GameStates {
+    NORMAL,
+    WIN,
+    FAIL
+};
+
 class World
 {
 public:
@@ -53,6 +59,7 @@ private:
     GLuint m_screenWidth;
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
+    GameStates m_state;
 
     utils::Fps m_fps;
 

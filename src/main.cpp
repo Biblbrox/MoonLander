@@ -1,7 +1,9 @@
-#include "utils/utils.hpp"
+#include "../include/base.h"
+#include "../include/utils/utils.hpp"
 #include <SDL2/SDL.h>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
+#include <valgrind/callgrind.h>
 
 int main(int argc, char *args[])
 {
@@ -35,6 +37,12 @@ int main(int argc, char *args[])
         size_t last_update_time = 0;
         int32_t delta_time = 0;
         size_t cur_time = 0;
+
+        if constexpr (debug) {
+            CALLGRIND_START_INSTRUMENTATION;
+            CALLGRIND_TOGGLE_COLLECT;
+        }
+
         while (game->isRunnable()) {
             glViewport(0.f, 0.f, screen_width, screen_height);
             glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -66,6 +74,11 @@ int main(int argc, char *args[])
                                   utils::log::Category::UNEXPECTED_ERROR,
                                   e.what());
         return -1;
+    }
+
+    if constexpr (debug) {
+        CALLGRIND_TOGGLE_COLLECT;
+        CALLGRIND_STOP_INSTRUMENTATION;
     }
 
     return 0;

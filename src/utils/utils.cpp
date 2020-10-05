@@ -17,7 +17,7 @@ using glm::vec2;
  * @return textureID
  */
 GLuint
-utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
+utils::loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
                                GLenum format)
 {
     assert(pixels != nullptr);
@@ -45,7 +45,7 @@ utils::loadTextureFromPixels32(GLuint *pixels, GLuint width, GLuint height,
 }
 
 GLfloat
-utils::physics::ship_altitude(const std::vector<vec2>& line_points,
+utils::physics::altitude(const std::vector<vec2>& line_points,
                               GLfloat shipX, GLfloat shipY)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");

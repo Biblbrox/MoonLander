@@ -14,6 +14,7 @@ bool Sprite::load(const std::string& path)
 {
     if (!path.empty()) {
         SDL_Surface* surface = IMG_Load(path.c_str());
+        //TODO: check surface and flipped for null
         SDL_Surface* flipped = utils::flipVertically(surface);
         SDL_FreeSurface(surface);
         if (flipped == nullptr) {

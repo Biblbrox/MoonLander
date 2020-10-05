@@ -15,10 +15,10 @@ class CollisionSystem : public System<CollisionComponent, SpriteComponent,
     void update(size_t delta) override;
 
 private:
-    bool levelSpriteCollision(Sprite &sprite,
+    bool levelSpriteCollision(const Sprite &sprite,
                               GLfloat ship_x,
-                              GLfloat ship_y, std::vector<vec2>& points,
-                              std::vector<vec2>& stars, GLfloat angle);
+                              GLfloat ship_y, const std::vector<vec2>& points,
+                              const std::vector<vec2>& stars, GLfloat angle);
 };
 
 #endif //MOONLANDER_COLLISIONSYSTEM_HPP

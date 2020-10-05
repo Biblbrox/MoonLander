@@ -6,7 +6,7 @@
 //
 
 #ifndef NDEBUG
-const bool debug = true;
+constexpr const bool debug = true;
 #else
 const bool debug = false;
 #endif

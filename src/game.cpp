@@ -17,7 +17,7 @@ static bool mixerInit = false;
 
 using utils::log::Logger;
 using boost::format;
-// TODO: fix cleanup resources
+
 void Game::initOnceSDL2()
 {
     static bool didInit = false;

@@ -69,7 +69,11 @@ render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
 
     if (texture.getVAO() != 0) {
         GLfloat half = texture.getWidth() / 2.f;
-        mat4 rotation = rotate_around(mat4(1.f),vec3(x + half,y + half,0.f), angle);
+        GLfloat centerX = x + half;
+        GLfloat centerY = y + half;
+        GLfloat invScale = 1.f / scale_factor;
+
+        mat4 rotation = rotate_around(mat4(1.f),vec3(centerX, centerY,0.f), angle);
         mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
         mat4 scaling = scale(mat4(1.f), vec3(scale_factor, scale_factor, 1.f));
         program->leftMultModel(scaling * rotation * translation);
@@ -81,9 +85,11 @@ render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
 
-        translation = translate(mat4(1.f), vec3(-x, -y, 0.f));
-        rotation = rotate_around(mat4(1.f),vec3(x + half,y + half,0.f), -angle);
-        scaling = scale(mat4(1.f),vec3(1 / scale_factor, 1 / scale_factor, 1.f));
+        translation[3] = glm::vec4(-x, -y, 0.f, 1);
+        rotation = rotate_around(mat4(1.f),vec3(centerX, centerY, 0.f), -angle);
+        scaling[0][0] = invScale;
+        scaling[1][1] = invScale;
+        scaling[2][2] = invScale;
         program->leftMultModel(translation * rotation * scaling);
         program->updateModel();
     }
