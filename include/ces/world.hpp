@@ -27,7 +27,7 @@ enum class GameStates {
 class World
 {
 public:
-    World() : m_scaled(false) {};
+    World() : m_scaled(false), m_state(GameStates::NORMAL) {};
     ~World() {};
 
     void init();

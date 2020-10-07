@@ -10,8 +10,8 @@ class TextTexture: public Texture
 {
 
 public:
-    TextTexture(std::string textureText,
-                SDL_Color color = {0x00, 0xFF, 0x00, 0xFF}, TTF_Font* font = nullptr);
+    TextTexture(std::string textureText, TTF_Font* font,
+                SDL_Color color = {0x00, 0xFF, 0x00, 0xFF});
     ~TextTexture() override;
 
     void load(const std::string& textureText, SDL_Color color, TTF_Font* font);

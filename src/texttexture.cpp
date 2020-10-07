@@ -25,19 +25,11 @@ void TextTexture::setColor(SDL_Color color)
     m_color = color;
 }
 
-TextTexture::TextTexture(std::string textureText, SDL_Color color,
-                         TTF_Font *font)
+TextTexture::TextTexture(std::string textureText, TTF_Font *font, SDL_Color color)
 {
-    if (!font) {
-        m_font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
-        if (!m_font) {
-            SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
-            std::abort();
-        }
-    } else {
-        m_font = font;
-    }
+    assert(font != nullptr);
 
+    m_font = font;
     m_color = color;
     m_text = textureText;
     m_vaoId = 0;
@@ -49,8 +41,8 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
                        TTF_Font* font)
 {
     freeTexture();
-    SDL_Surface* surface = TTF_RenderText_Blended(font,
-                                                  textureText.c_str(), color);
+    SDL_Surface* surface =
+            TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), color, 500);
 
     if (!surface)
         throw SdlException((format("Unable to create blended text. "

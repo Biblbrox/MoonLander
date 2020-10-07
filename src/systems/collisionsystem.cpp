@@ -135,7 +135,6 @@ CollisionSystem::levelSpriteCollision(const Sprite &sprite, GLfloat ship_x,
     if (left || right || top || bottom)
         return true;
 
-    x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
     if (rightBound->x <= x && nextRightBound != points.end()) {
         left = lineLine(r.d, r.a, {nextX, nextY}, {nextNextX, nextNextY});
         right = lineLine(r.b, r.c, {nextX, nextY}, {nextNextX, nextNextY});

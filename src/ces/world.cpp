@@ -20,6 +20,7 @@
 #include <components/lifetimecomponent.h>
 
 using utils::log::Logger;
+using utils::getResourcePath;
 using boost::format;
 using utils::physics::altitude;
 using std::floor;
@@ -51,6 +52,8 @@ void World::rescale_world()
 {
     m_frameWidth = m_scaled ? m_screenWidth : (m_screenWidth / m_scaleFactor);
     m_frameHeight = m_scaled ? m_screenHeight : (m_screenHeight / m_scaleFactor);
+    //m_frameWidth = m_screenWidth / m_scaleFactor;
+    //m_frameHeight = m_screenHeight / m_scaleFactor;
     auto ship = m_entities["ship"];
     auto level = m_entities["level"];
     size_t idx = type_id<RendererSystem>();
@@ -59,18 +62,19 @@ void World::rescale_world()
 
     level->getComponent<LevelComponent>()->scale_factor = m_scaled ?
                                                           1.f : m_scaleFactor;
+    //level->getComponent<LevelComponent>()->scale_factor = m_scaleFactor;
     auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
     for (auto& [key, en]: scaled_entities) {
         auto pos = en->getComponent<PositionComponent>();
         if (pos->scallable)
-            pos->scale_factor = m_scaled ? 1.f : m_scaleFactor;
+            pos->scale_factor = m_scaleFactor;
     }
     if (m_scaled)
         m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
-                      shipPos->y + m_camera.getY() - m_frameWidth / 5.f);
+                        shipPos->y + m_camera.getY() - m_frameWidth / 5.f);
     else
         m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
-                      shipPos->y + m_camera.getY() - m_frameHeight / 4.f);
+                        shipPos->y + m_camera.getY() - m_frameHeight / 4.f);
 
     m_scaled = !m_scaled;
     move_from_camera();
@@ -89,9 +93,8 @@ void World::update_ship()
             m_systems[type_id<RendererSystem>()]
     );
     auto levelComp = m_entities["level"]->getComponent<LevelComponent>();
-    const GLfloat shipHeight =
-            altitude(levelComp->points, shipPos->x, shipPos->y);
-    const GLfloat alt_threshold = 100.f; // Threshold when world will be m_scaled
+    const GLfloat shipHeight = altitude(levelComp->points, shipPos->x, shipPos->y);
+    const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipHeight < alt_threshold && !m_scaled) // Need to increase scale
         || (shipHeight >= alt_threshold && m_scaled)) { // Need to decrease scale
         rescale_world();
@@ -114,9 +117,8 @@ void World::update_ship()
         const vector<vec2>& platforms = levelComp->platforms;
         bool landed = false;
         assert(platforms.size() % 2 == 0);
+        GLfloat angle = shipPos->angle - shipPos->angle / (2 * glm::pi<GLfloat>());
         for (size_t i = 0; i < platforms.size(); i += 2) {
-            GLfloat angle = shipPos->angle - shipPos->angle
-                                             / (2 * glm::pi<GLfloat>());
             if (shipPos->x >= platforms[i].x
                 && shipPos->x <= platforms[i + 1].x
                 && angle >= -glm::pi<GLfloat>() / 6.f
@@ -126,35 +128,31 @@ void World::update_ship()
                 shipVel->y = 0;
                 shipVel->angle = 0;
                 landed = true;
+                m_state = GameStates::WIN;
             }
         }
 
         if (!landed) {
             utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
-            vector<Position> coords(16, {shipPos->x, shipPos->y,
-                                         shipPos->angle});
-            vector<Position> vel(16,
-                                 {shipVel->x, shipVel->y, shipVel->angle});
+            vector<Position> coords(16, {shipPos->x, shipPos->y, shipPos->angle});
+            vector<Position> vel(16, {shipVel->x, shipVel->y, shipVel->angle});
 
             utils::Random rand;
             std::generate(vel.begin(), vel.end(), [&rand, shipVel]() {
-                utils::Position res{};
                 const GLfloat deviation = 1.5f;
                 const GLfloat scale_vel = 20.f;
                 const GLfloat scale_vel_rot = 30.f;
-                res.x = rand.generaten<GLfloat>(shipVel->x / scale_vel,
-                                                deviation);
-                res.y = rand.generaten<GLfloat>(shipVel->y / scale_vel,
-                                                deviation);
-                res.angle = rand.generaten<GLfloat>(shipVel->angle
-                                                    / scale_vel_rot, deviation);
-                return res;
+                return utils::Position {
+                        rand.generaten(shipVel->x / scale_vel, deviation),
+                        rand.generaten(shipVel->y / scale_vel, deviation),
+                        rand.generaten(shipVel->angle / scale_vel_rot,
+                                       deviation)
+                };
             });
 
             auto particle = ParticleEngine::generateParticleFromTexture(
                     utils::getResourcePath("lunar_lander_bw.png"),
-                    generate_clips(shipClip, 4, 4),
-                    coords, vel, 10000.f);
+                    generate_clips(shipClip, 4, 4), coords, vel, 10000.f);
 
             m_entities.insert({"ship particle", particle});
 
@@ -162,6 +160,7 @@ void World::update_ship()
 
             if (!m_audio.isChannelPlaying(crash_sound_channel))
                 m_audio.playChunk(crash_sound_channel, crash_idx, 0, false);
+            m_state = GameStates::FAIL;
         }
 
         m_audio.haltChannel(engine_channel, true);
@@ -175,8 +174,7 @@ void World::update_text()
     if constexpr (debug) {
         auto fpsEntity = m_entities["fpsText"];
         auto textFps = fpsEntity->getComponent<TextComponent>();
-        textFps->texture->setText(
-                (boost::format("FPS: %+3d") % m_fps.get_fps()).str());
+        textFps->texture->setText((format("FPS: %+3d") % m_fps.get_fps()).str());
     }
 
     auto velxEntity = m_entities["velxText"];
@@ -189,7 +187,7 @@ void World::update_text()
     auto textAlt = altEntity->getComponent<TextComponent>();
     auto textFuel = fuelEntity->getComponent<TextComponent>();
 
-    if (m_entities.contains("ship")) {
+    if (m_state == GameStates::NORMAL || m_state == GameStates::WIN) {
         auto shipEntity = m_entities["ship"];
         auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
 
@@ -202,22 +200,64 @@ void World::update_text()
         textVelY->texture->setText((format("Vertical speed: %3d") %
                                     floor(-shipVel->y * 60.f)).str());
         textAlt->texture->setText((format("Altitude: %3d") %
-                                   floor(altitude(points, shipPos->x,
-                                                       shipPos->y) - SHIP_HEIGHT)).str());
-        textFuel->texture->setText((format("Fuel: %3d") %
-                                    fuel->time).str());
-    } else {
-        textVelX->texture->setText((format("Horizontal speed: %3d") %
-                                    std::floor(0.f)).str());
-        textVelY->texture->setText((format("Vertical speed: %3d") %
-                                    std::floor(0.f)).str());
+                                   floor(altitude(points, shipPos->x, shipPos->y)
+                                         - SHIP_HEIGHT)).str());
+        textFuel->texture->setText((format("Fuel: %3d") % fuel->time).str());
+
+        if (m_state == GameStates::WIN && m_entities.count("winText") == 0) {
+            Entity& winText = createEntity("winText");
+            winText.addComponent<TextComponent>();
+            winText.addComponent<PositionComponent>();
+            winText.activate();
+
+            auto winTextTexture = winText.getComponent<TextComponent>();
+            TTF_Font* font = TTF_OpenFont(
+                    getResourcePath("kenvector_future2.ttf").c_str(), 14);
+            if (font == nullptr) {
+                //TODO: do something
+            }
+            winTextTexture->texture =
+                    std::make_shared<TextTexture>("You win\nScore is 000.000",
+                                                  font);
+
+            auto winTextPos = winText.getComponent<PositionComponent>();
+            winTextPos->x = m_screenWidth / 2.f
+                            - winTextTexture->texture->getWidth() / 2.f;
+            winTextPos->y = m_screenWidth / 2.f
+                            - winTextTexture->texture->getHeight() - 2.f;
+            winTextPos->scallable = false;
+        } else if (m_state == GameStates::WIN) {
+            // TODO: what TODO ???
+        }
+    } else if (m_entities.count("failText") == 0) { // Fail case
+        textVelX->texture->setText((format("Horizontal speed: %3d") % 0).str());
+        textVelY->texture->setText((format("Vertical speed: %3d") % 0).str());
+
+        Entity& failText = createEntity("failText");
+        failText.addComponent<TextComponent>();
+        failText.addComponent<PositionComponent>();
+        failText.activate();
+
+        auto failTextTexture = failText.getComponent<TextComponent>();
+        TTF_Font* font = TTF_OpenFont(
+                getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        if (font == nullptr) {
+            //TODO: do something
+        }
+        failTextTexture->texture =
+                std::make_shared<TextTexture>("You fail", font);
+
+        auto failTextPos = failText.getComponent<PositionComponent>();
+        failTextPos->x = m_frameWidth / 2.f;
+        failTextPos->y = m_frameHeight / 2.f;
+        failTextPos->scallable = false;
     }
 }
 
 void World::update(size_t delta)
 {
     m_fps.update();
-    if (m_entities.count("ship") != 0)
+    if (m_state == GameStates::NORMAL || m_state == GameStates::WIN)
         update_ship();
 
     update_text();
@@ -279,12 +319,9 @@ void World::init_sprites()
     auto shipSprite = ship.getComponent<SpriteComponent>();
     shipSprite->sprite = std::make_shared<Sprite>(
             utils::getResourcePath("lunar_lander_bw.png"));
-    shipSprite->sprite->addClipSprite
-            ({.x = 0,  .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite
-            ({.x = 20, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite
-            ({.x = 40, .y = 32, .w = SHIP_WIDTH, .h = SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite({0, 32, SHIP_WIDTH, SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite({20, 32, SHIP_WIDTH, SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite({40, 32, SHIP_WIDTH, SHIP_HEIGHT});
     shipSprite->sprite->generateDataBuffer();
 
     auto shipPos = ship.getComponent<PositionComponent>();
@@ -298,7 +335,6 @@ void World::init_sprites()
 
     auto shipVel = ship.getComponent<VelocityComponent>();
     auto shipAnim = ship.getComponent<AnimationComponent>();
-
     // Ship reference invalidate
 
     Entity& earth = createEntity("earth");
@@ -307,9 +343,8 @@ void World::init_sprites()
     earth.activate();
 
     auto earthSprite = earth.getComponent<SpriteComponent>();
-    earthSprite->sprite =
-            std::make_shared<Sprite>(
-                    utils::getResourcePath("lunar_lander_bw.png"));
+    earthSprite->sprite = std::make_shared<Sprite>(
+            utils::getResourcePath("lunar_lander_bw.png"));
     earthSprite->sprite->addClipSprite({.x = 200, .y = 77, .w = 40, .h = 33});
     earthSprite->sprite->generateDataBuffer();
 
@@ -354,7 +389,9 @@ void World::init_text()
         fpsText.activate();
 
         auto fspTexture = fpsText.getComponent<TextComponent>();
-        fspTexture->texture = std::make_shared<TextTexture>("FPS: 000");
+        TTF_Font* font = TTF_OpenFont(
+                getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        fspTexture->texture = std::make_shared<TextTexture>("FPS: 000", font);
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -369,8 +406,13 @@ void World::init_text()
     velxText.activate();
 
     auto velxTexture = velxText.getComponent<TextComponent>();
+    TTF_Font* font = TTF_OpenFont(
+            getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    if (font == nullptr) {
+        //TODO: do something
+    }
     velxTexture->texture =
-            std::make_shared<TextTexture>("Horizontal speed: -000.000");
+            std::make_shared<TextTexture>("Horizontal speed: -000.000", font);
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -384,8 +426,12 @@ void World::init_text()
     velyText.activate();
 
     auto velyTexture = velyText.getComponent<TextComponent>();
+    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    if (font == nullptr) {
+        //TODO: do something
+    }
     velyTexture->texture =
-            std::make_shared<TextTexture>("Vertical speed: -000.000");
+            std::make_shared<TextTexture>("Vertical speed: -000.000", font);
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -398,7 +444,12 @@ void World::init_text()
     altitude.activate();
 
     auto altTexture = altitude.getComponent<TextComponent>();
-    altTexture->texture = std::make_shared<TextTexture>("Altitude: -000.000");
+    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    if (font == nullptr) {
+        //TODO: do something
+    }
+    altTexture->texture =
+            std::make_shared<TextTexture>("Altitude: -000.000", font);
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -411,7 +462,11 @@ void World::init_text()
     fuel.activate();
 
     auto fuelTexture = fuel.getComponent<TextComponent>();
-    fuelTexture->texture = std::make_shared<TextTexture>("Fuel: -000.000");
+    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    if (font == nullptr) {
+        //TODO: do something
+    }
+    fuelTexture->texture = std::make_shared<TextTexture>("Fuel: -000.000", font);
 
     auto fuelPos = fuel.getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -430,8 +485,7 @@ void World::init_level()
     auto levelComponent = level.getComponent<LevelComponent>();
     levelComponent->points = generator.generate_lines(
             vec2(0.f, generator.height_min + generator.height_max) / 2.f);
-    GLfloat points_right_x =
-            levelComponent->points[levelComponent->points.size() - 1].x;
+    GLfloat points_right_x = levelComponent->points.end()->x;
     levelComponent->stars = generator.generate_stars(0, points_right_x);
     levelComponent->platforms = generator.platforms;
     generator.extendToLeft(levelComponent->points, levelComponent->stars);
@@ -465,11 +519,7 @@ void World::move_from_camera()
 
 void World::filter_entities()
 {
-    for (auto it = m_entities.begin(); it != m_entities.end();) {
-        if (!it->second->isActivate())
-            it = m_entities.erase(it);
-        else
-            ++it;
-    }
+    for (auto it = m_entities.begin(); it != m_entities.end();)
+        it = !it->second->isActivate() ? m_entities.erase(it) : ++it;
 }
 
