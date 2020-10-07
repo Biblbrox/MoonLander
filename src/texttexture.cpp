@@ -42,8 +42,17 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
 {
     assert(!textureText.empty());
     freeTexture();
+    std::vector<std::string> lines = utils::split_to_lines(textureText);
+    std::string maxLenStr = *std::max_element(
+            lines.begin(), lines.end(),
+            [](const std::string& first, const std::string& second){
+                return first.size() < second.size();
+            });
+    int width;
+    TTF_SizeText(font, maxLenStr.c_str(), &width, nullptr);
     SDL_Surface* surface =
-            TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), color, 500);
+            TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), color,
+                                           width);
 
     if (!surface)
         throw SdlException((format("Unable to create blended text. "

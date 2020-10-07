@@ -216,7 +216,6 @@ void World::update_text()
                               (format("Unable to load font %s\n") % msgFont).str());
                 std::abort();
             }
-            // TODO: fix texture width
             winTextTexture->texture =
                     std::make_shared<TextTexture>("You win\nScore is 000.000",
                                                   font);
@@ -227,8 +226,6 @@ void World::update_text()
             winTextPos->y = m_screenHeight / 2.f
                             - winTextTexture->texture->getHeight() / 2.f;
             winTextPos->scallable = false;
-        } else if (m_state == GameStates::WIN) {
-            // TODO: what TODO ???
         }
     } else if (m_entities.count("failText") == 0) { // Fail case
         textVelX->texture->setText((format("Horizontal speed: %3d") % 0).str());
@@ -260,14 +257,16 @@ void World::update_text()
 
 void World::update(size_t delta)
 {
-    m_fps.update();
+    if constexpr (debug)
+        m_fps.update();
+
     // TODO: stop game if win or fail
     if (m_state == GameStates::NORMAL || m_state == GameStates::WIN)
         update_ship();
 
     update_text();
 
-    for (auto& system: m_systems)
+    for (auto &system: m_systems)
         system.second->update(delta);
 
     filter_entities();

@@ -17,6 +17,7 @@
 #include <components/positioncomponent.hpp>
 #include <exceptions/fsexception.hpp>
 #include <exceptions/glexception.hpp>
+#include <sstream>
 #include "constants.hpp"
 #include "timer.hpp"
 #include "logger.hpp"
@@ -59,6 +60,17 @@ namespace utils
     constexpr const char* program_log_file_name()
     {
         return "moonlander_log.log";
+    }
+
+    inline std::vector<std::string> split_to_lines(const std::string& str)
+    {
+        std::vector<std::string> res;
+        std::istringstream str_stream(str);
+        std::string line;
+        while (std::getline(str_stream, line))
+            res.push_back(line);
+
+        return res;
     }
 
     /**
