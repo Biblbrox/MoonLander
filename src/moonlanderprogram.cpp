@@ -279,7 +279,6 @@ glm::mat4 MoonLanderProgram::getModel() const
     return m_modelMatrix;
 }
 
-//TODO: fix resource leaking
 MoonLanderProgram::~MoonLanderProgram() = default;
 
 std::shared_ptr<MoonLanderProgram> MoonLanderProgram::instance = nullptr;

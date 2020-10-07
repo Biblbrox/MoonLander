@@ -40,6 +40,7 @@ TextTexture::TextTexture(std::string textureText, TTF_Font *font, SDL_Color colo
 void TextTexture::load(const std::string &textureText, SDL_Color color,
                        TTF_Font* font)
 {
+    assert(!textureText.empty());
     freeTexture();
     SDL_Surface* surface =
             TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), color, 500);
@@ -51,21 +52,20 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
 
     SDL_Surface* flipped = utils::flipVertically(surface);
     SDL_FreeSurface(surface);
-    if (!flipped) {
+    if (!flipped)
         throw SdlException((format("Unable to flip surface %p\n") % surface).str());
-    } else {
-        GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-        m_textureWidth = flipped->w;
-        m_textureHeight = flipped->h;
+    GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-        m_textureId = utils::loadTextureFromPixels32
-                (static_cast<GLuint*>(flipped->pixels),
-                 m_textureWidth, m_textureHeight, texture_format);
-        SDL_FreeSurface(flipped);
+    m_textureWidth = flipped->w;
+    m_textureHeight = flipped->h;
 
-        generateDataBuffer();
-    }
+    m_textureId = utils::loadTextureFromPixels32
+            (static_cast<GLuint*>(flipped->pixels),
+             m_textureWidth, m_textureHeight, texture_format);
+    SDL_FreeSurface(flipped);
+
+    generateDataBuffer();
 }
 
 void TextTexture::generateDataBuffer()

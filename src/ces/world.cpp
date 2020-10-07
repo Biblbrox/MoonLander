@@ -35,6 +35,8 @@ const int crash_sound_channel = 1;
 const int engine_idx = 0;
 const int crash_idx = 1;
 
+const char* msgFont = "kenvector_future2.ttf";
+
 Entity& World::createEntity(const std::string& name)
 {
     std::shared_ptr<Entity> ent = std::make_shared<Entity>();
@@ -52,8 +54,6 @@ void World::rescale_world()
 {
     m_frameWidth = m_scaled ? m_screenWidth : (m_screenWidth / m_scaleFactor);
     m_frameHeight = m_scaled ? m_screenHeight : (m_screenHeight / m_scaleFactor);
-    //m_frameWidth = m_screenWidth / m_scaleFactor;
-    //m_frameHeight = m_screenHeight / m_scaleFactor;
     auto ship = m_entities["ship"];
     auto level = m_entities["level"];
     size_t idx = type_id<RendererSystem>();
@@ -62,12 +62,11 @@ void World::rescale_world()
 
     level->getComponent<LevelComponent>()->scale_factor = m_scaled ?
                                                           1.f : m_scaleFactor;
-    //level->getComponent<LevelComponent>()->scale_factor = m_scaleFactor;
     auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
     for (auto& [key, en]: scaled_entities) {
         auto pos = en->getComponent<PositionComponent>();
         if (pos->scallable)
-            pos->scale_factor = m_scaleFactor;
+            pos->scale_factor = m_scaled ? 1.f : m_scaleFactor;
     }
     if (m_scaled)
         m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
@@ -211,11 +210,13 @@ void World::update_text()
             winText.activate();
 
             auto winTextTexture = winText.getComponent<TextComponent>();
-            TTF_Font* font = TTF_OpenFont(
-                    getResourcePath("kenvector_future2.ttf").c_str(), 14);
+            TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
             if (font == nullptr) {
-                //TODO: do something
+                Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                              (format("Unable to load font %s\n") % msgFont).str());
+                std::abort();
             }
+            // TODO: fix texture width
             winTextTexture->texture =
                     std::make_shared<TextTexture>("You win\nScore is 000.000",
                                                   font);
@@ -223,8 +224,8 @@ void World::update_text()
             auto winTextPos = winText.getComponent<PositionComponent>();
             winTextPos->x = m_screenWidth / 2.f
                             - winTextTexture->texture->getWidth() / 2.f;
-            winTextPos->y = m_screenWidth / 2.f
-                            - winTextTexture->texture->getHeight() - 2.f;
+            winTextPos->y = m_screenHeight / 2.f
+                            - winTextTexture->texture->getHeight() / 2.f;
             winTextPos->scallable = false;
         } else if (m_state == GameStates::WIN) {
             // TODO: what TODO ???
@@ -239,17 +240,20 @@ void World::update_text()
         failText.activate();
 
         auto failTextTexture = failText.getComponent<TextComponent>();
-        TTF_Font* font = TTF_OpenFont(
-                getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
         if (font == nullptr) {
-            //TODO: do something
+            Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                          (format("Unable to load font %s\n") % msgFont).str());
+            std::abort();
         }
         failTextTexture->texture =
                 std::make_shared<TextTexture>("You fail", font);
 
         auto failTextPos = failText.getComponent<PositionComponent>();
-        failTextPos->x = m_frameWidth / 2.f;
-        failTextPos->y = m_frameHeight / 2.f;
+        failTextPos->x = m_screenWidth / 2.f
+                         - failTextTexture->texture->getWidth() / 2.f;
+        failTextPos->y = m_screenHeight / 2.f
+                         - failTextTexture->texture->getHeight() / 2.f;
         failTextPos->scallable = false;
     }
 }
@@ -257,6 +261,7 @@ void World::update_text()
 void World::update(size_t delta)
 {
     m_fps.update();
+    // TODO: stop game if win or fail
     if (m_state == GameStates::NORMAL || m_state == GameStates::WIN)
         update_ship();
 
@@ -389,8 +394,12 @@ void World::init_text()
         fpsText.activate();
 
         auto fspTexture = fpsText.getComponent<TextComponent>();
-        TTF_Font* font = TTF_OpenFont(
-                getResourcePath("kenvector_future2.ttf").c_str(), 14);
+        TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
+        if (font == nullptr) {
+            Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                          (format("Unable to load font %s\n") % msgFont).str());
+            std::abort();
+        }
         fspTexture->texture = std::make_shared<TextTexture>("FPS: 000", font);
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
@@ -406,10 +415,11 @@ void World::init_text()
     velxText.activate();
 
     auto velxTexture = velxText.getComponent<TextComponent>();
-    TTF_Font* font = TTF_OpenFont(
-            getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
     if (font == nullptr) {
-        //TODO: do something
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load font %s\n") % msgFont).str());
+        std::abort();
     }
     velxTexture->texture =
             std::make_shared<TextTexture>("Horizontal speed: -000.000", font);
@@ -426,9 +436,11 @@ void World::init_text()
     velyText.activate();
 
     auto velyTexture = velyText.getComponent<TextComponent>();
-    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
     if (font == nullptr) {
-        //TODO: do something
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load font %s\n") % msgFont).str());
+        std::abort();
     }
     velyTexture->texture =
             std::make_shared<TextTexture>("Vertical speed: -000.000", font);
@@ -444,9 +456,11 @@ void World::init_text()
     altitude.activate();
 
     auto altTexture = altitude.getComponent<TextComponent>();
-    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
     if (font == nullptr) {
-        //TODO: do something
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load font %s\n") % msgFont).str());
+        std::abort();
     }
     altTexture->texture =
             std::make_shared<TextTexture>("Altitude: -000.000", font);
@@ -462,9 +476,11 @@ void World::init_text()
     fuel.activate();
 
     auto fuelTexture = fuel.getComponent<TextComponent>();
-    font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
+    font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
     if (font == nullptr) {
-        //TODO: do something
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load font %s\n") % msgFont).str());
+        std::abort();
     }
     fuelTexture->texture = std::make_shared<TextTexture>("Fuel: -000.000", font);
 

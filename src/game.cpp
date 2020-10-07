@@ -128,7 +128,6 @@ void Game::initGL()
     //Initialize clear color
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
-    // TODO: fix ugly lines
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
