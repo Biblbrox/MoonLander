@@ -4,6 +4,10 @@
 #include <exception>
 #include <string>
 
+/**
+ * Exception class that can be throw when happened some error
+ * with gl functions.
+ */
 class GLException: public std::exception
 {
 public:

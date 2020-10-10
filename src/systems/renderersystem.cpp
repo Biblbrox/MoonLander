@@ -58,7 +58,7 @@ void RendererSystem::drawSprites()
     auto sprites = getEntitiesByTag<SpriteComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (const auto& [key, en]: sprites) {
-        render::drawSprite(program, *en->getComponent<SpriteComponent>()->sprite,
+        render::drawSprite(*en->getComponent<SpriteComponent>()->sprite,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,
@@ -71,8 +71,7 @@ void RendererSystem::drawText()
     auto textComponents = getEntitiesByTag<TextComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (const auto& [key, en]: textComponents) {
-        render::drawSprite(program,
-                           *en->getComponent<TextComponent>()->texture,
+        render::drawSprite(*en->getComponent<TextComponent>()->texture,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,
@@ -80,7 +79,7 @@ void RendererSystem::drawText()
     }
 }
 
-void RendererSystem::update(size_t delta)
+void RendererSystem::update_state(size_t delta)
 {
     drawLevel();
     drawSprites();

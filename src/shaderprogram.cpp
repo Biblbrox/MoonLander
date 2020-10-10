@@ -22,18 +22,18 @@ void ShaderProgram::freeProgram()
     glDeleteProgram(m_programID);
 }
 
-bool ShaderProgram::bind() const
+void ShaderProgram::bind() const
 {
     glUseProgram(m_programID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        printf("Error binding shader program! %s\n", gluErrorString(error));
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INTERNAL_ERROR,
+                      (format("Erro binding shader program! %s%\n") %
+                       gluErrorString(error)).str());
         utils::log::printProgramLog(m_programID);
         std::abort();
-        return false;
     }
-
-    return true;
 }
 
 void ShaderProgram::unbind()
@@ -53,16 +53,16 @@ void ShaderProgram::setInt(const std::string& name, GLint value)
     assert(!name.empty());
     GLint loc = glGetUniformLocation(m_programID, name.c_str());
     if (loc == -1) {
-        utils::log::Logger::write(utils::shader_log_file_name(),
-                                  utils::log::Category::INTERNAL_ERROR,
-                                  (format("Unable to set uniform variable %1%\n") %
-                                   name).str());
+        Logger::write(utils::shader_log_file_name(),
+                      utils::log::Category::INTERNAL_ERROR,
+                      (format("Unable to set uniform variable %1%\n") %
+                       name).str());
         std::abort();
     }
     glUniform1i(loc, value);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        Logger::write(utils::shader_log_file_name(),Category::INTERNAL_ERROR,
+        Logger::write(utils::program_log_file_name(),Category::INTERNAL_ERROR,
                       (format("Unable to set uniform variable \"%1%\"\n") % name).str());
         std::abort();
     }
@@ -75,7 +75,7 @@ void ShaderProgram::setFloat(const std::string &name, GLfloat value)
     assert(!name.empty());
     GLint loc = glGetUniformLocation(m_programID, name.c_str());
     if (loc == -1) {
-        Logger::write(utils::shader_log_file_name(),Category::INTERNAL_ERROR,
+        Logger::write(utils::program_log_file_name(),Category::INTERNAL_ERROR,
                       (format("Can't find location by name \"%1%\"\n") % name).str());
         std::abort();
     }

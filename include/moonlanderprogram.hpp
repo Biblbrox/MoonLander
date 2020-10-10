@@ -70,7 +70,7 @@ private:
     GLuint m_programs[4];
     GLuint m_curProgram;
 
-    // First for TextureData, second for Matrices.
+    // Zero for TextureData, One - for Matrices.
     GLuint m_uniformPoints[2];
     GLuint m_uniformLinesAdj[2];
     GLuint m_uniformTriangles[2];

@@ -18,17 +18,11 @@ class Component;
 
 using utils::type_id;
 
-enum class GameStates {
-    NORMAL,
-    WIN,
-    FAIL
-};
-
 class World
 {
 public:
-    World() : m_scaled(false), m_state(GameStates::NORMAL) {};
-    ~World() {};
+    World() : m_scaled(false), m_wasInit(false) {};
+    ~World() = default;;
 
     void init();
     void update(size_t delta);
@@ -42,13 +36,13 @@ public:
                       "Template parameter class must be child of BaseSystem");
 
         std::shared_ptr<SystemType> system(new SystemType());
-        system->setWorld(std::shared_ptr<World>(this));
+        system->setWorld(this);
         m_systems.insert({type_id<SystemType>(),
                         std::static_pointer_cast<BaseSystem>(system)});
         return *system;
     }
 
-    std::unordered_map<std::string, std::shared_ptr<Entity>> & getEntities();
+    std::unordered_map<std::string, std::shared_ptr<Entity>>& getEntities();
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Entity>> m_entities;
@@ -59,7 +53,6 @@ private:
     GLuint m_screenWidth;
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
-    GameStates m_state;
 
     utils::Fps m_fps;
 
@@ -72,6 +65,7 @@ private:
     void init_sprites();
     void init_text();
     void init_level();
+    void init_ship();
 
     /**
      * Remove all entities that not alive
@@ -81,6 +75,8 @@ private:
     bool m_scaled;
     const GLfloat m_scaleFactor = 1.5f;
     utils::audio::Audio m_audio;
+
+    bool m_wasInit;
 };
 
 #endif //MOONLANDER_WORLD_HPP

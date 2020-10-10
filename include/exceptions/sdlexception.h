@@ -4,6 +4,10 @@
 #include <exception>
 #include <string>
 
+/**
+ * Exception class that can be throw when some error happened
+ * with sdl functions.
+ */
 class SdlException : public std::exception
 {
 public:

@@ -14,7 +14,7 @@ class Texture
 public:
     virtual ~Texture();
 
-    virtual GLuint getTextureID();
+    virtual GLuint getTextureID() const;
 
     virtual GLuint getWidth() const;
     virtual GLuint getHeight() const;

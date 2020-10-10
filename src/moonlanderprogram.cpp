@@ -7,6 +7,11 @@ using utils::loadShaderFromFile;
 using glm::mat4;
 using glm::vec3;
 using glm::vec4;
+using utils::log::Logger;
+using utils::log::Category;
+using utils::program_log_file_name;
+using utils::shader_log_file_name;
+using boost::format;
 
 const int gl_bool_size = 4;
 const int gl_int_size = 4;
@@ -33,15 +38,33 @@ bool MoonLanderProgram::loadProgram()
     for (int i = 0; i < std::size(m_programs); ++i) {
         m_programs[i] = glCreateProgram();
         if (m_programs[i] == 0) {
+            remove_programs();
+            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                          (format("Unable to create program %d\n")
+                           % m_programs[i]).str());
             std::abort();
         }
     }
 
     // Vertex shader
-    GLuint vertexShader = loadShaderFromFile(
-            getShaderPath("moonLander.glvs"), GL_VERTEX_SHADER);
-
-    if (vertexShader == 0) {
+    GLuint vertexShader;
+    try {
+        vertexShader = loadShaderFromFile(
+                getShaderPath("moonLander.glvs"), GL_VERTEX_SHADER);
+    } catch (const FSException& e) {
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      e.what());
+        remove_programs();
+        std::abort();
+    } catch (const GLException& e) {
+        Logger::write(shader_log_file_name(), Category::SHADER_COMPILE_ERROR,
+                      e.what());
+        utils::log::printShaderLog(vertexShader);
+        remove_programs();
+        std::abort();
+    } catch (const std::exception& e) {
+        Logger::write(program_log_file_name(), Category::UNEXPECTED_ERROR,
+                      (format("Unexpected error: %s\n") % e.what()).str());
         remove_programs();
         std::abort();
     }
@@ -56,19 +79,47 @@ bool MoonLanderProgram::loadProgram()
     };
 
     for (size_t i = 0; i < std::size(geomShaders); ++i) {
-        geomShaders[i] = loadShaderFromFile(geomShadersStr[i], GL_GEOMETRY_SHADER);
-
-        if (geomShaders[i] == 0) {
+        try {
+            geomShaders[i] = loadShaderFromFile(geomShadersStr[i],
+                                                GL_GEOMETRY_SHADER);
+        } catch (const FSException& e) {
+            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                          e.what());
+            remove_programs();
+            std::abort();
+        } catch (const GLException& e) {
+            Logger::write(shader_log_file_name(), Category::SHADER_COMPILE_ERROR,
+                          e.what());
+            utils::log::printShaderLog(geomShaders[i]);
+            remove_programs();
+            std::abort();
+        } catch (const std::exception& e) {
+            Logger::write(program_log_file_name(), Category::UNEXPECTED_ERROR,
+                          (format("Unexpected error: %s\n") % e.what()).str());
             remove_programs();
             std::abort();
         }
     }
 
     // Fragment shader
-    GLuint fragmentShader = loadShaderFromFile(
-            getShaderPath("moonLander.glfs"), GL_FRAGMENT_SHADER);
-
-    if (fragmentShader == 0) {
+    GLuint fragmentShader;
+    try {
+         fragmentShader = loadShaderFromFile(
+                getShaderPath("moonLander.glfs"), GL_FRAGMENT_SHADER);
+    } catch (const FSException& e) {
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      e.what());
+        remove_programs();
+        std::abort();
+    } catch (const GLException& e) {
+        Logger::write(shader_log_file_name(), Category::SHADER_COMPILE_ERROR,
+                      e.what());
+        utils::log::printShaderLog(fragmentShader);
+        remove_programs();
+        std::abort();
+    } catch (const std::exception& e) {
+        Logger::write(program_log_file_name(), Category::UNEXPECTED_ERROR,
+                      (format("Unexpected error: %s\n") % e.what()).str());
         remove_programs();
         std::abort();
     }
@@ -86,6 +137,8 @@ bool MoonLanderProgram::loadProgram()
         glAttachShader(m_programs[i], vertexShader);
         glAttachShader(m_programs[i], geomShaders[i]);
         if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                          "Unable to attach shaders: %s\n");
             std::abort();
         }
 
@@ -93,7 +146,9 @@ bool MoonLanderProgram::loadProgram()
         GLint linkSuccess = GL_TRUE;
         glGetProgramiv(m_programs[i], GL_LINK_STATUS, &linkSuccess);
         if (linkSuccess != GL_TRUE) {
-            printf("Error linking program %d!\n", m_programs[i]);
+            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                          (format("Unable to link program: %d, %s\n")
+                           % m_programs[i] % glGetError()).str());
             utils::log::printProgramLog(m_programs[i]);
             shaderDeleter();
             remove_programs();
@@ -194,7 +249,9 @@ void MoonLanderProgram::updateProjection()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating matricesUBO! %s\n", gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Error while updating matricesUBO(m_projectionMatrix)! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -208,7 +265,9 @@ void MoonLanderProgram::updateModel()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating matricesUBO! %s\n", gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Error while updating matricesUBO(m_modelMatrix)! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -222,7 +281,10 @@ void MoonLanderProgram::updateView()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating matricesUBO! %s\n", gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Error while updating"
+                              " matricesUBO(m_viewMatrix)! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -237,8 +299,9 @@ void MoonLanderProgram::updateColor()
 {
     glUniform4f(m_colorLoc, m_color.x, m_color.y, m_color.z, m_color.w);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating textureDataUBO! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Error while updating color! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -247,13 +310,15 @@ void MoonLanderProgram::updateColor()
 void MoonLanderProgram::setTextureRendering(bool isTexture)
 {
     m_isTextureRender = isTexture;
-    glBindBuffer(GL_UNIFORM_BUFFER, m_textureDataUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_textureDataUBO); // ERROR here
     glBufferSubData(GL_UNIFORM_BUFFER, 0, gl_bool_size, &m_isTextureRender);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Error while updating textureDataUBO! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Error while updating "
+                              "textureDataUBO(m_isTextureRender)! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -279,7 +344,13 @@ glm::mat4 MoonLanderProgram::getModel() const
     return m_modelMatrix;
 }
 
-MoonLanderProgram::~MoonLanderProgram() = default;
+MoonLanderProgram::~MoonLanderProgram()
+{
+    glDeleteBuffers(1, &m_matricesUBO);
+    glDeleteBuffers(1, &m_textureDataUBO);
+
+    m_matricesUBO = m_textureDataUBO = 0;
+}
 
 std::shared_ptr<MoonLanderProgram> MoonLanderProgram::instance = nullptr;
 
@@ -289,8 +360,10 @@ void MoonLanderProgram::switchToLinesAdj()
     glUseProgram(0);
     glUseProgram(m_curProgram);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Unable to switch to line adjacency primitive rendering! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Unable to switch to line adjacency"
+                              " primitive rendering! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -304,8 +377,10 @@ void MoonLanderProgram::switchToLines()
     glUseProgram(0);
     glUseProgram(m_curProgram);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Unable to switch to line primitive rendering! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Unable to switch to line"
+                              " primitive rendering! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -319,8 +394,10 @@ void MoonLanderProgram::switchToTriangles()
     glUseProgram(0);
     glUseProgram(m_curProgram);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Unable to switch to triangle primitive rendering! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Unable to switch to triangle"
+                              " primitive rendering! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -334,8 +411,10 @@ void MoonLanderProgram::switchToPoints()
     glUseProgram(0);
     glUseProgram(m_curProgram);
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        printf("Unable to switch to point primitive rendering! %s\n",
-               gluErrorString(error));
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("Unable to switch to points"
+                              " primitive rendering! %s\n")
+                       % gluErrorString(error)).str());
         utils::log::printProgramLog(m_curProgram);
         std::abort();
     }
@@ -347,13 +426,17 @@ void MoonLanderProgram::rebindUniforms()
 {
     m_texLoc = glGetUniformLocation(m_curProgram, "ourTexture");
     if (m_texLoc == -1) {
-        printf("%s is not a valid glsl program variable!\n", "ourTexture");
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("%s is not a valid glsl program variable!\n")
+                       % "ourTexture").str());
         std::abort();
     }
 
     m_colorLoc = glGetUniformLocation(m_curProgram, "inColor");
     if (m_colorLoc == -1) {
-        printf("%s is not a valid glsl program variable!\n", "inColor");
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("%s is not a valid glsl program variable!\n")
+                       % "inColor").str());
         std::abort();
     }
 }
@@ -361,7 +444,9 @@ void MoonLanderProgram::rebindUniforms()
 void MoonLanderProgram::remove_programs()
 {
     for (int i = 0; i < std::size(m_programs); ++i) {
-        glDeleteProgram(m_programs[i]);
-        m_programs[i] = 0;
+        if (glIsProgram(m_programs[i])) {
+            glDeleteProgram(m_programs[i]);
+            m_programs[i] = 0;
+        }
     }
 }

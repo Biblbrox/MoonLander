@@ -12,7 +12,7 @@ using glm::vec2;
 class CollisionSystem : public System<CollisionComponent, SpriteComponent,
         LevelComponent, PositionComponent>
 {
-    void update(size_t delta) override;
+    void update_state(size_t delta) override;
 
 private:
     bool levelSpriteCollision(const Sprite &sprite,

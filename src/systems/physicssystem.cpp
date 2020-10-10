@@ -1,6 +1,6 @@
 #include "../../include/systems/physics_system.hpp"
 
-void PhysicsSystem::update(size_t delta)
+void PhysicsSystem::update_state(size_t delta)
 {
     auto entities = getEntitiesByTag<VelocityComponent>();
     for (auto& [key, en] : entities)

@@ -46,31 +46,10 @@ utils::loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height
 
 GLfloat
 utils::physics::altitude(const std::vector<vec2>& line_points,
-                              GLfloat shipX, GLfloat shipY)
+                              GLfloat x, GLfloat y)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
     size_t line_idx = 0;
-    for (size_t i = 0; i < line_points.size() - 1; ++i) {
-        if (line_points[i].x <= shipX && line_points[i + 1].x > shipX) {
-            line_idx = i;
-            break;
-        }
-    }
-
-    GLfloat alt = (shipX - line_points[line_idx].x)
-                  / (line_points[line_idx + 1].x - line_points[line_idx].x)
-                  * (line_points[line_idx + 1].y - line_points[line_idx].y)
-                  + line_points[line_idx].y - shipY;
-
-    return alt;
-}
-
-GLfloat
-utils::physics::alt_from_surface(const std::vector<vec2>& line_points,
-                                 const GLfloat x, const GLfloat alt)
-{
-    assert(line_points.size() >= 2 && "line_points size must be >= 2");
-    size_t line_idx;
     for (size_t i = 0; i < line_points.size() - 1; ++i) {
         if (line_points[i].x <= x && line_points[i + 1].x > x) {
             line_idx = i;
@@ -78,10 +57,10 @@ utils::physics::alt_from_surface(const std::vector<vec2>& line_points,
         }
     }
 
-    GLfloat res = (x - line_points[line_idx].x)
+    GLfloat alt = (x - line_points[line_idx].x)
                   / (line_points[line_idx + 1].x - line_points[line_idx].x)
                   * (line_points[line_idx + 1].y - line_points[line_idx].y)
-                  + line_points[line_idx].y - alt;
+                  + line_points[line_idx].y - y;
 
-    return res;
+    return alt;
 }

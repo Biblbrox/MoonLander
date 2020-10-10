@@ -15,7 +15,7 @@ public:
     virtual void setFloat(const std::string& str, GLfloat value);
     virtual void setInt(const std::string &name, GLint value);
 
-    bool bind() const;
+    void bind() const;
     void unbind();
     GLuint getProgramID();
 

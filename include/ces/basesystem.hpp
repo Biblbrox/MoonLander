@@ -11,15 +11,35 @@ class World;
 class BaseSystem
 {
 public:
-    virtual void setWorld(std::shared_ptr<World> world) final
+    BaseSystem(): m_stopped(false), m_world(nullptr) {};
+    virtual ~BaseSystem() = default;
+
+    virtual void setWorld(World* world) final
     {
         m_world = world;
     }
 
-    virtual void update(size_t delta) = 0;
+    virtual void update(size_t delta) final
+    {
+        if (!m_stopped)
+            update_state(delta);
+    }
+
+    virtual void stop() final
+    {
+        m_stopped = true;
+    }
+
+    virtual void start() final
+    {
+        m_stopped = false;
+    }
 
 protected:
-    std::shared_ptr<World> m_world;
+    virtual void update_state(size_t delta) = 0;
+
+    World* m_world;
+    bool m_stopped;
 };
 
 #endif //MOONLANDER_BASESYSTEM_HPP

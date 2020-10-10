@@ -10,7 +10,6 @@
 #include "basesystem.hpp"
 #include "entity.hpp"
 
-//class Entity;
 class World;
 
 using utils::type_id;
@@ -59,6 +58,7 @@ public:
     auto getEntitiesByTags() const
     {
         //TODO: add static_assert check
+
         using ComponentList = utils::TypeList<ComponentTypes...>;
         static_assert(utils::Length<ComponentList>::value >= 2,
                       "Length of ComponentTypes must be greeter than 2");

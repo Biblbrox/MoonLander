@@ -18,6 +18,7 @@
 #include <systems/particlerendersystem.hpp>
 #include <utils/random.h>
 #include <components/lifetimecomponent.h>
+#include <game.hpp>
 
 using utils::log::Logger;
 using utils::getResourcePath;
@@ -25,6 +26,10 @@ using boost::format;
 using utils::physics::altitude;
 using std::floor;
 using std::vector;
+using std::make_shared;
+using std::sin;
+using std::cos;
+using glm::half_pi;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -39,8 +44,8 @@ const char* msgFont = "kenvector_future2.ttf";
 
 Entity& World::createEntity(const std::string& name)
 {
-    std::shared_ptr<Entity> ent = std::make_shared<Entity>();
-    ent->setWorld(std::shared_ptr<World>(this));
+    std::shared_ptr<Entity> ent = make_shared<Entity>();
+    ent->setWorld(this);
     m_entities.insert({name, ent});
     return *m_entities[name];
 }
@@ -127,16 +132,18 @@ void World::update_ship()
                 shipVel->y = 0;
                 shipVel->angle = 0;
                 landed = true;
-                m_state = GameStates::WIN;
+                Game::getInstance()->setState(GameStates::WIN);
+                break;
             }
         }
 
         if (!landed) {
-            utils::Rect shipClip = {0, 32, SHIP_WIDTH, SHIP_HEIGHT};
+            utils::Rect shipClip{0, 32, SHIP_WIDTH, SHIP_HEIGHT};
             vector<Position> coords(16, {shipPos->x, shipPos->y, shipPos->angle});
             vector<Position> vel(16, {shipVel->x, shipVel->y, shipVel->angle});
 
             utils::Random rand;
+            // Init velocities of particles
             std::generate(vel.begin(), vel.end(), [&rand, shipVel]() {
                 const GLfloat deviation = 1.5f;
                 const GLfloat scale_vel = 20.f;
@@ -144,22 +151,22 @@ void World::update_ship()
                 return utils::Position {
                         rand.generaten(shipVel->x / scale_vel, deviation),
                         rand.generaten(shipVel->y / scale_vel, deviation),
-                        rand.generaten(shipVel->angle / scale_vel_rot,
-                                       deviation)
+                        rand.generaten(shipVel->angle / scale_vel_rot, deviation)
                 };
             });
 
-            auto particle = ParticleEngine::generateParticleFromTexture(
+            auto particle = ParticleEngine::generateFromTexture(
                     utils::getResourcePath("lunar_lander_bw.png"),
                     generate_clips(shipClip, 4, 4), coords, vel, 10000.f);
 
+            particle->setWorld(this);
             m_entities.insert({"ship particle", particle});
 
             ship->kill();
 
             if (!m_audio.isChannelPlaying(crash_sound_channel))
                 m_audio.playChunk(crash_sound_channel, crash_idx, 0, false);
-            m_state = GameStates::FAIL;
+            Game::getInstance()->setState(GameStates::FAIL);
         }
 
         m_audio.haltChannel(engine_channel, true);
@@ -186,7 +193,9 @@ void World::update_text()
     auto textAlt = altEntity->getComponent<TextComponent>();
     auto textFuel = fuelEntity->getComponent<TextComponent>();
 
-    if (m_state == GameStates::NORMAL || m_state == GameStates::WIN) {
+    auto game = Game::getInstance();
+    if (game->getState() == GameStates::NORMAL
+        || game->getState() == GameStates::WIN) {
         auto shipEntity = m_entities["ship"];
         auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
 
@@ -203,22 +212,23 @@ void World::update_text()
                                          - SHIP_HEIGHT)).str());
         textFuel->texture->setText((format("Fuel: %3d") % fuel->time).str());
 
-        if (m_state == GameStates::WIN && m_entities.count("winText") == 0) {
+        if (game->getState() == GameStates::WIN
+            && m_entities.count("winText") == 0) {
             Entity& winText = createEntity("winText");
-            winText.addComponent<TextComponent>();
-            winText.addComponent<PositionComponent>();
+            winText.addComponents<TextComponent, PositionComponent>();
             winText.activate();
 
             auto winTextTexture = winText.getComponent<TextComponent>();
             TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-            if (font == nullptr) {
+            if (!font) {
                 Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                               (format("Unable to load font %s\n") % msgFont).str());
                 std::abort();
             }
             winTextTexture->texture =
-                    std::make_shared<TextTexture>("You win\nScore is 000.000",
-                                                  font);
+                    make_shared<TextTexture>("You win\nScore is 000.000\n"
+                                             "To play again press Enter",
+                                             font);
 
             auto winTextPos = winText.getComponent<PositionComponent>();
             winTextPos->x = m_screenWidth / 2.f
@@ -227,13 +237,13 @@ void World::update_text()
                             - winTextTexture->texture->getHeight() / 2.f;
             winTextPos->scallable = false;
         }
-    } else if (m_entities.count("failText") == 0) { // Fail case
+    } else if (game->getState() == GameStates::FAIL
+               && m_entities.count("failText") == 0) { // Fail case
         textVelX->texture->setText((format("Horizontal speed: %3d") % 0).str());
         textVelY->texture->setText((format("Vertical speed: %3d") % 0).str());
 
         Entity& failText = createEntity("failText");
-        failText.addComponent<TextComponent>();
-        failText.addComponent<PositionComponent>();
+        failText.addComponents<TextComponent, PositionComponent>();
         failText.activate();
 
         auto failTextTexture = failText.getComponent<TextComponent>();
@@ -244,7 +254,8 @@ void World::update_text()
             std::abort();
         }
         failTextTexture->texture =
-                std::make_shared<TextTexture>("You fail", font);
+                make_shared<TextTexture>("You fail\n"
+                                         "To play again press Enter", font);
 
         auto failTextPos = failText.getComponent<PositionComponent>();
         failTextPos->x = m_screenWidth / 2.f
@@ -260,41 +271,72 @@ void World::update(size_t delta)
     if constexpr (debug)
         m_fps.update();
 
-    // TODO: stop game if win or fail
-    if (m_state == GameStates::NORMAL || m_state == GameStates::WIN)
+    auto game = Game::getInstance();
+    if (game->getState() == GameStates::WIN
+        && game->getPrevState() != GameStates::WIN) {
+        m_systems[type_id<MovementSystem>()]->stop();
+        m_entities["ship"]->removeComponent<KeyboardComponent>();
+    }
+
+    if (game->getState() == GameStates::NORMAL
+        || game->getState() == GameStates::WIN)
         update_ship();
 
     update_text();
 
+    filter_entities();
     for (auto &system: m_systems)
         system.second->update(delta);
-
-    filter_entities();
 }
 
 void World::init()
 {
-    m_screenWidth = utils::getScreenWidth<GLuint>();
-    m_screenHeight = utils::getScreenHeight<GLuint>();
-    m_frameWidth = m_screenWidth;
-    m_frameHeight = m_screenHeight;
+    if (!m_wasInit) {
+        m_screenWidth = utils::getScreenWidth<GLuint>();
+        m_screenHeight = utils::getScreenHeight<GLuint>();
+        m_frameWidth = m_screenWidth;
+        m_frameHeight = m_screenHeight;
 
-    // Order of initialization is matter
-    init_level();
-    init_sprites();
-    init_text();
-    init_sound();
+        // Order of initialization is matter
+        init_level();
+        init_ship();
+        init_sprites();
+        init_text();
+        init_sound();
+        init_sound();
 
-    createSystem<RendererSystem>();
-    createSystem<MovementSystem>();
-    createSystem<KeyboardSystem>();
-    createSystem<AnimationSystem>();
-    createSystem<CollisionSystem>();
-    createSystem<PhysicsSystem>();
-    createSystem<ParticleRenderSystem>();
+        createSystem<RendererSystem>();
+        createSystem<MovementSystem>();
+        createSystem<KeyboardSystem>();
+        createSystem<AnimationSystem>();
+        createSystem<CollisionSystem>();
+        createSystem<PhysicsSystem>();
+        createSystem<ParticleRenderSystem>();
 
-    m_nonStatic.push_back(m_entities["level"]);
-    m_nonStatic.push_back(m_entities["ship"]);
+        m_nonStatic.push_back(m_entities["level"]);
+        m_nonStatic.push_back(m_entities["ship"]);
+
+        m_wasInit = true;
+    } else {
+        if (m_entities.count("winText") != 0)
+            m_entities.erase("winText");
+
+        if (m_entities.count("failText") != 0)
+            m_entities.erase("failText");
+
+        if (m_entities.count("ship") != 0)
+            m_entities.erase("ship");
+
+        if (m_entities.count("ship particle") != 0)
+            m_entities.erase("ship particle");
+
+        m_camera.lookAt(0, 0);
+        //move_from_camera();
+        init_ship();
+        rescale_world();
+        m_scaled = false;
+        m_nonStatic[1] = m_entities["ship"];
+    }
 }
 
 void World::init_sound()
@@ -309,97 +351,38 @@ void World::init_sprites()
 {
     using namespace utils::physics;
 
-    // Ship entity
-    Entity& ship = createEntity("ship");
-    ship.addComponent<PositionComponent>();
-    ship.addComponent<SpriteComponent>();
-    ship.addComponent<VelocityComponent>();
-    ship.addComponent<KeyboardComponent>();
-    ship.addComponent<AnimationComponent>();
-    ship.addComponent<CollisionComponent>();
-    ship.addComponent<LifeTimeComponent>(); // fuel
-    ship.activate();
-
-    auto shipSprite = ship.getComponent<SpriteComponent>();
-    shipSprite->sprite = std::make_shared<Sprite>(
-            utils::getResourcePath("lunar_lander_bw.png"));
-    shipSprite->sprite->addClipSprite({0, 32, SHIP_WIDTH, SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite({20, 32, SHIP_WIDTH, SHIP_HEIGHT});
-    shipSprite->sprite->addClipSprite({40, 32, SHIP_WIDTH, SHIP_HEIGHT});
-    shipSprite->sprite->generateDataBuffer();
-
-    auto shipPos = ship.getComponent<PositionComponent>();
-    shipPos->x = m_screenWidth / 2.f;
-    shipPos->y = alt_from_surface(
-            m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, m_screenHeight / 4.f);
-
-    auto fuel = ship.getComponent<LifeTimeComponent>();
-    fuel->time = 1500;
-
-    auto shipVel = ship.getComponent<VelocityComponent>();
-    auto shipAnim = ship.getComponent<AnimationComponent>();
-    // Ship reference invalidate
-
-    Entity& earth = createEntity("earth");
-    earth.addComponent<PositionComponent>();
-    earth.addComponent<SpriteComponent>();
+    Entity &earth = createEntity("earth");
+    earth.addComponents<PositionComponent, SpriteComponent>();
     earth.activate();
 
     auto earthSprite = earth.getComponent<SpriteComponent>();
-    earthSprite->sprite = std::make_shared<Sprite>(
+    earthSprite->sprite = make_shared<Sprite>(
             utils::getResourcePath("lunar_lander_bw.png"));
-    earthSprite->sprite->addClipSprite({.x = 200, .y = 77, .w = 40, .h = 33});
+    earthSprite->sprite->addClipSprite({200, 77, 40, 33});
     earthSprite->sprite->generateDataBuffer();
 
     auto earthPos = earth.getComponent<PositionComponent>();
     earthPos->x = m_screenWidth / 10.f;
     earthPos->y = m_screenHeight / 10.f;
     earthPos->scallable = false;
-
-    auto keyboardComponent = ship.getComponent<KeyboardComponent>();
-    keyboardComponent->event_handler =
-            [shipVel, shipPos, shipAnim, fuel, this](const Uint8* state) {
-        if (state[SDL_SCANCODE_UP] && fuel->time > 0) {
-            shipVel->y += -engine_force / weight *
-                          std::sin(shipPos->angle + glm::half_pi<GLfloat>());
-            shipVel->x += -engine_force / weight *
-                          std::cos(shipPos->angle + glm::half_pi<GLfloat>());
-            shipAnim->cur_state = (SDL_GetTicks() / 100) % 2 + 1;
-            if (!m_audio.isChannelPlaying(engine_channel)
-                || m_audio.isChannelPaused(engine_channel))
-                m_audio.playChunk(engine_channel, engine_idx, -1, true);
-            fuel->time -= 1;
-        } else {
-            shipAnim->cur_state = 0;
-            m_audio.haltChannel(engine_channel, true);
-        }
-
-        if (state[SDL_SCANCODE_LEFT])
-            shipVel->angle -= rot_step;
-
-        if (state[SDL_SCANCODE_RIGHT])
-            shipVel->angle += rot_step;
-    };
 }
 
 void World::init_text()
 {
     if constexpr (debug) {
         // Fps entity
-        Entity& fpsText = createEntity("fpsText");
-        fpsText.addComponent<TextComponent>();
-        fpsText.addComponent<PositionComponent>();
+        Entity &fpsText = createEntity("fpsText");
+        fpsText.addComponents<TextComponent, PositionComponent>();
         fpsText.activate();
 
         auto fspTexture = fpsText.getComponent<TextComponent>();
-        TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-        if (font == nullptr) {
+        TTF_Font *font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
+        if (!font) {
             Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                           (format("Unable to load font %s\n") % msgFont).str());
             std::abort();
         }
-        fspTexture->texture = std::make_shared<TextTexture>("FPS: 000", font);
+        fspTexture->texture = make_shared<TextTexture>("FPS: 000", font);
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -408,20 +391,19 @@ void World::init_text()
     }
 
     // Velocity x entity
-    Entity& velxText = createEntity("velxText");
-    velxText.addComponent<TextComponent>();
-    velxText.addComponent<PositionComponent>();
+    Entity &velxText = createEntity("velxText");
+    velxText.addComponents<TextComponent, PositionComponent>();
     velxText.activate();
 
     auto velxTexture = velxText.getComponent<TextComponent>();
-    TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-    if (font == nullptr) {
+    TTF_Font *font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
+    if (!font) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
     velxTexture->texture =
-            std::make_shared<TextTexture>("Horizontal speed: -000.000", font);
+            make_shared<TextTexture>("Horizontal speed: -000.000", font);
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -429,59 +411,55 @@ void World::init_text()
     velxPos->scallable = false;
 
     // Velocity y entity
-    Entity& velyText = createEntity("velyText");
-    velyText.addComponent<TextComponent>();
-    velyText.addComponent<PositionComponent>();
+    Entity &velyText = createEntity("velyText");
+    velyText.addComponents<TextComponent, PositionComponent>();
     velyText.activate();
 
     auto velyTexture = velyText.getComponent<TextComponent>();
     font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-    if (font == nullptr) {
+    if (!font) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
     velyTexture->texture =
-            std::make_shared<TextTexture>("Vertical speed: -000.000", font);
+            make_shared<TextTexture>("Vertical speed: -000.000", font);
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
     velyPos->y = m_screenHeight / 8.f;
     velyPos->scallable = false;
 
-    Entity& altitude = createEntity("altitude");
-    altitude.addComponent<TextComponent>();
-    altitude.addComponent<PositionComponent>();
+    Entity &altitude = createEntity("altitude");
+    altitude.addComponents<TextComponent, PositionComponent>();
     altitude.activate();
 
     auto altTexture = altitude.getComponent<TextComponent>();
     font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-    if (font == nullptr) {
+    if (!font) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
-    altTexture->texture =
-            std::make_shared<TextTexture>("Altitude: -000.000", font);
+    altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font);
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
     altPos->y = m_screenHeight / 7.f;
     altPos->scallable = false;
 
-    Entity& fuel = createEntity("fuel");
-    fuel.addComponent<PositionComponent>();
-    fuel.addComponent<TextComponent>();
+    Entity &fuel = createEntity("fuel");
+    fuel.addComponents<PositionComponent, TextComponent>();
     fuel.activate();
 
     auto fuelTexture = fuel.getComponent<TextComponent>();
     font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-    if (font == nullptr) {
+    if (!font) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
-    fuelTexture->texture = std::make_shared<TextTexture>("Fuel: -000.000", font);
+    fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font);
 
     auto fuelPos = fuel.getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -492,8 +470,7 @@ void World::init_text()
 void World::init_level()
 {
     Entity& level = createEntity("level");
-    level.addComponent<LevelComponent>();
-    level.addComponent<CollisionComponent>();
+    level.addComponents<LevelComponent, CollisionComponent>();
     level.activate();
 
     LevelGenerator generator;
@@ -506,6 +483,64 @@ void World::init_level()
     generator.extendToLeft(levelComponent->points, levelComponent->stars);
     generator.extendToRight(levelComponent->points, levelComponent->stars);
 }
+
+void World::init_ship()
+{
+    using namespace utils::physics;
+    // Ship entity
+    Entity &ship = createEntity("ship");
+    ship.addComponents<PositionComponent, SpriteComponent, VelocityComponent,
+            KeyboardComponent, AnimationComponent, CollisionComponent,
+            /*fuel*/ LifeTimeComponent>();
+    ship.activate();
+
+    auto shipSprite = ship.getComponent<SpriteComponent>();
+    shipSprite->sprite = make_shared<Sprite>(
+            utils::getResourcePath("lunar_lander_bw.png"));
+    shipSprite->sprite->addClipSprite({0, 32, SHIP_WIDTH, SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite({20, 32, SHIP_WIDTH, SHIP_HEIGHT});
+    shipSprite->sprite->addClipSprite({40, 32, SHIP_WIDTH, SHIP_HEIGHT});
+    shipSprite->sprite->generateDataBuffer();
+
+    auto shipPos = ship.getComponent<PositionComponent>();
+    shipPos->x = m_screenWidth / 2.f;
+    shipPos->y = altitude(
+            m_entities["level"]->getComponent<LevelComponent>()->points,
+            shipPos->x, m_screenHeight / 4.f);
+
+    auto fuel = ship.getComponent<LifeTimeComponent>();
+    fuel->time = 1500;
+
+    auto shipVel = ship.getComponent<VelocityComponent>();
+    auto shipAnim = ship.getComponent<AnimationComponent>();
+
+    auto keyboardComponent = ship.getComponent<KeyboardComponent>();
+    keyboardComponent->event_handler = [shipVel, shipPos, shipAnim, fuel, this]
+            (const Uint8 *state) {
+        if (state[SDL_SCANCODE_UP] && fuel->time > 0) {
+            shipVel->y += -engine_force / weight *
+                          sin(shipPos->angle + half_pi<GLfloat>());
+            shipVel->x += -engine_force / weight *
+                          cos(shipPos->angle + half_pi<GLfloat>());
+            shipAnim->cur_state = (SDL_GetTicks() / 100) % 2 + 1;
+            if (!m_audio.isChannelPlaying(engine_channel)
+                || m_audio.isChannelPaused(engine_channel))
+                m_audio.playChunk(engine_channel, engine_idx, -1, true);
+            fuel->time -= 1;
+        } else {
+            shipAnim->cur_state = 0; m_audio.haltChannel(engine_channel, true);
+        }
+
+        if (state[SDL_SCANCODE_LEFT])
+            shipVel->angle -= rot_step;
+
+        if (state[SDL_SCANCODE_RIGHT])
+            shipVel->angle += rot_step;
+    };
+    // Ship reference invalidate
+}
+
+
 
 void World::move_from_camera()
 {

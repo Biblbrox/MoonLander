@@ -4,6 +4,10 @@
 #include <exception>
 #include <string>
 
+/**
+ * Exception class that can be throw when happened some error
+ * with file system(can't open file, no access, etc..)
+ */
 class FSException: public std::exception
 {
 public:

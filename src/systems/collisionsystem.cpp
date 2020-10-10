@@ -65,7 +65,7 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
     return temp_rect;
 }
 
-void CollisionSystem::update(size_t delta)
+void CollisionSystem::update_state(size_t delta)
 {
     auto levels = getEntitiesByTag<LevelComponent>();
     auto sprites = getEntitiesByTags<SpriteComponent, CollisionComponent>();

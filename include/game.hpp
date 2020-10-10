@@ -9,6 +9,13 @@
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)
 #define IMG_FLAGS IMG_INIT_PNG
 
+enum class GameStates {
+    NORMAL,
+    WIN,
+    FAIL,
+    NEED_REPLAY
+};
+
 class Game
 {
 private:
@@ -33,6 +40,9 @@ public:
 
     void update(size_t delta);
     void setRunnable(bool runnable);
+    void setState(GameStates state);
+    GameStates getState() const;
+    GameStates getPrevState() const;
 
     bool isRunnable() const;
 private:
@@ -47,6 +57,8 @@ public:
 private:
     SDL_Window* m_window;
     World m_world;
+    GameStates m_state;
+    GameStates m_prevState;
 };
 
 #endif //MOONLANDER_GAME_HPP

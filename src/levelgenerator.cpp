@@ -12,6 +12,12 @@ LevelGenerator::~LevelGenerator()
 
 }
 
+/**
+ * Generate stars with x coordinate in range {left, right}
+ * @param left
+ * @param right
+ * @return
+ */
 std::vector<vec2>
 LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
 {
@@ -26,6 +32,11 @@ LevelGenerator::generate_stars(GLfloat left, GLfloat right) const
     return gen;
 }
 
+/**
+ * Generate lines where first line has x coordinate as initial_p
+ * @param initial_p
+ * @return
+ */
 std::vector<vec2> LevelGenerator::generate_lines(vec2 initial_p)
 {
     //TODO: tune parameters
@@ -40,7 +51,7 @@ std::vector<vec2> LevelGenerator::generate_lines(vec2 initial_p)
 
     size_t platforms_count = urand.generateu(plat_count_min, plat_count_max);
     std::vector<GLuint> plat_idx(platforms_count, 0);
-    urand.fill_unique<GLuint>(plat_idx.begin(), plat_idx.end(), 0, res.size() - 2,
+    urand.fill_unique(plat_idx.begin(), plat_idx.end(), (size_t)0, res.size() - 2,
                               true);
     platforms.reserve(platforms.size() + platforms_count);
 

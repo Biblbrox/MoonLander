@@ -19,7 +19,7 @@ GLuint Texture::getHeight() const
     return m_textureHeight;
 }
 
-GLuint Texture::getTextureID()
+GLuint Texture::getTextureID() const
 {
     return m_textureId;
 }

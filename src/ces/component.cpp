@@ -1,6 +1,6 @@
 #include <ces/component.hpp>
 
-void Component::setWorld(std::shared_ptr<World> world)
+void Component::setWorld(World* world)
 {
     m_world = world;
 }

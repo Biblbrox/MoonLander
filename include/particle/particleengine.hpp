@@ -20,7 +20,7 @@ public:
      * @return
      */
     static std::shared_ptr<Entity>
-    generateParticleFromTexture(const std::string& texture_file,
+    generateFromTexture(const std::string& texture_file,
                                 const std::vector<utils::Rect>& clips,
                                 const std::vector<utils::Position>& init_coords,
                                 const std::vector<utils::Position>& init_vel,

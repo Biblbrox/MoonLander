@@ -1,6 +1,6 @@
 #include "systems/movementsystem.hpp"
 
-void MovementSystem::update(size_t delta)
+void MovementSystem::update_state(size_t delta)
 {
     auto entities = getEntitiesByTags<PositionComponent, VelocityComponent>();
     for (auto& [key, en]: entities) {

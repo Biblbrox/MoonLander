@@ -13,7 +13,7 @@ Entity::getComponents() const
     return m_components;
 }
 
-void Entity::setWorld(std::shared_ptr<World> world)
+void Entity::setWorld(World* world)
 {
     m_world = world;
 }

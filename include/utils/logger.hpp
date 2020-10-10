@@ -11,7 +11,8 @@ namespace utils::log
         FILE_ERROR,
         UNEXPECTED_ERROR,
         INFO,
-        INITIALIZATION_ERROR
+        INITIALIZATION_ERROR,
+        SHADER_COMPILE_ERROR
     };
 
     class Logger

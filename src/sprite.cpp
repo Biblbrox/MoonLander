@@ -132,6 +132,7 @@ void Sprite::freeVBO()
 {
     if (m_vao != nullptr) {
         glDeleteBuffers(m_totSprites, m_vao);
+        delete[] m_vao;
         m_vao = nullptr;
     }
 

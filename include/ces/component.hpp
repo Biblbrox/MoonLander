@@ -11,13 +11,13 @@ class World;
 class Component
 {
 public:
-    Component() = default;
+    Component() : m_world(nullptr) {};
     virtual ~Component() = default;
 
-    virtual void setWorld(std::shared_ptr<World> world) final;
+    virtual void setWorld(World* world) final;
 
 private:
-    std::shared_ptr<World> m_world;
+    World* m_world;
 };
 
 #endif //MOONLANDER_COMPONENT_HPP

@@ -11,15 +11,23 @@ namespace utils
     class Random
     {
     public:
-        explicit Random() : m_generator(std::time(nullptr))
-        {}
+        explicit Random() : m_generator(std::time(nullptr)) {}
 
-        template<typename T>
-        void
-        fill_unique(const typename std::vector<T>::iterator &begin,
-                    const typename std::vector<T>::iterator &end, T left,
-                    T right,
-                    bool fix_near = false)
+        /**
+         * Fill sequence with unique elements
+         * fix_near parameter controls whether near elements
+         * can differ by 1 from each other.
+         * @tparam T
+         * @tparam ForwardIterator
+         * @param begin
+         * @param end
+         * @param left
+         * @param right
+         * @param fix_near
+         */
+        template<typename T, class ForwardIterator>
+        void fill_unique(ForwardIterator begin, ForwardIterator end, T left,
+                         T right, bool fix_near = false)
         {
             std::generate(begin, end,
                           [begin, end, left, right, fix_near, this]() {
@@ -38,9 +46,17 @@ namespace utils
                           });
         }
 
-        template<typename T>
-        void fill_gauss(const typename std::vector<T>::iterator &begin,
-                        const typename std::vector<T>::iterator &end, T mean,
+        /**
+         * Fill sequence with gassian distributed numbers
+         * @tparam T
+         * @tparam ForwardIterator
+         * @param begin
+         * @param end
+         * @param mean
+         * @param deviation
+         */
+        template<typename T, class ForwardIterator>
+        void fill_gauss(ForwardIterator begin, ForwardIterator end, T mean,
                         T deviation)
         {
             std::generate(begin, end, [mean, deviation, this]() {
@@ -48,15 +64,31 @@ namespace utils
             });
         }
 
-        template<typename T>
-        void fill(const typename std::vector<T>::iterator &begin,
-                  const typename std::vector<T>::iterator &end, T left, T right)
+        /**
+         * Fill sequence with uniform distributed numbers
+         * @tparam T
+         * @tparam ForwardIterator
+         * @param begin
+         * @param end
+         * @param left
+         * @param right
+         */
+        template<typename T, class ForwardIterator>
+        void fill(ForwardIterator begin, ForwardIterator end, T left, T right)
         {
             std::generate(begin, end, [left, right, this]() {
                 return generateu<T>(left, right);
             });
         }
 
+        /**
+         * Generate number of type T with uniform distribution
+         * in range [a, b]
+         * @tparam T
+         * @param a
+         * @param b
+         * @return
+         */
         template<typename T>
         T generateu(T a, T b)
         {
@@ -64,12 +96,19 @@ namespace utils
             return dist(this->m_generator);
         }
 
+        /**
+         * Generate number of type T with gaussian distribution
+         * @tparam T
+         * @param mean - mean value
+         * @param std - standard deviation
+         * @return
+         */
         template<typename T>
-        T generaten(T mean, T svariance)
+        T generaten(T mean, T std)
         {
             static_assert(std::is_floating_point_v<T>,
                           "Template parameter of generaten must be floating point");
-            std::normal_distribution<T> dist(mean, svariance);
+            std::normal_distribution<T> dist(mean, std);
             return dist(this->m_generator);
         }
 

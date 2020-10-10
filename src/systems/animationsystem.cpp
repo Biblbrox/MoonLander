@@ -1,6 +1,6 @@
 #include <systems/animationsystem.hpp>
 
-void AnimationSystem::update(size_t delta)
+void AnimationSystem::update_state(size_t delta)
 {
     auto entities = getEntities();
     for (auto& [key, en]: entities) {

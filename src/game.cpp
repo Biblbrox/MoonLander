@@ -74,7 +74,9 @@ void Game::initOnceSDL2()
 }
 
 
-Game::Game() : m_isRunnable(true), vsync_supported(false)
+Game::Game() : m_state(GameStates::NORMAL),
+               m_prevState(GameStates::NORMAL),
+               m_isRunnable(true), vsync_supported(false)
 {
     m_glcontext = nullptr;
     m_window = nullptr;
@@ -82,6 +84,11 @@ Game::Game() : m_isRunnable(true), vsync_supported(false)
 
 void Game::update(size_t delta)
 {
+    if (m_state == GameStates::NEED_REPLAY) {
+        m_world.init(); // Reinit world
+        m_state = GameStates::NORMAL;
+    }
+
     m_world.update(delta);
 }
 
@@ -97,7 +104,7 @@ void Game::initGL()
 
     m_glcontext = SDL_GL_CreateContext(m_window);
     // Init OpenGL context
-    if (m_glcontext == nullptr) {
+    if (!m_glcontext) {
         Logger::write(utils::program_log_file_name(),
                       utils::log::Category::INITIALIZATION_ERROR,
                       (format("OpenGL context could not be created! "
@@ -203,4 +210,20 @@ std::shared_ptr<Game> Game::instance = nullptr;
 Game::~Game()
 {
     quit();
+}
+
+GameStates Game::getState() const
+{
+    return m_state;
+}
+
+void Game::setState(GameStates state)
+{
+    m_prevState = m_state;
+    m_state = state;
+}
+
+GameStates Game::getPrevState() const
+{
+    return m_prevState;
 }
