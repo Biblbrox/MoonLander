@@ -14,6 +14,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 #include <components/positioncomponent.hpp>
 #include <exceptions/fsexception.hpp>
 #include <exceptions/glexception.hpp>
@@ -65,11 +67,7 @@ namespace utils
     inline std::vector<std::string> split_to_lines(const std::string& str)
     {
         std::vector<std::string> res;
-        std::istringstream str_stream(str);
-        std::string line;
-        while (std::getline(str_stream, line))
-            res.push_back(line);
-
+        boost::split(res, str, boost::is_any_of("\n"), boost::token_compress_on);
         return res;
     }
 
@@ -367,9 +365,8 @@ namespace utils
          std::string shaderString;
          std::ifstream sourceFile(path.c_str());
          if (!sourceFile.is_open())
-             throw FSException(
-                     (format("Can't open shader source file %1%\n")
-                      % path).str());
+             throw FSException((format("Can't open shader source file %1%\n")
+                                % path).str());
 
          shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
                              std::istreambuf_iterator<char>());

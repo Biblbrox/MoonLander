@@ -39,10 +39,10 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
 {
     utils::RectPoints temp_rect{};
     GLfloat bx, by, cx, cy, dx, dy;
-    GLfloat x = rect.x;
-    GLfloat y = rect.y;
-    GLfloat wid = rect.w;
-    GLfloat hgt = rect.h;
+    const GLfloat x = rect.x;
+    const GLfloat y = rect.y;
+    const GLfloat wid = rect.w;
+    const GLfloat hgt = rect.h;
 
     bx = x + wid * cos(rot);
     by = y + wid * sin(rot);

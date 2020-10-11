@@ -18,5 +18,4 @@ void KeyboardSystem::update_state(size_t delta)
 
     if (state[SDL_SCANCODE_ESCAPE])
         game->setRunnable(false);
-
 }

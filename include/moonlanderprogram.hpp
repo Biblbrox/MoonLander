@@ -10,10 +10,10 @@ class MoonLanderProgram: public ShaderProgram
 protected:
     static std::shared_ptr<MoonLanderProgram> instance;
 public:
+    MoonLanderProgram();
 
     //TODO: fix public constructor and make_shared problem
     //TODO: fix ugly design
-    MoonLanderProgram();
 
     static std::shared_ptr<MoonLanderProgram> getInstance()
     {
@@ -82,6 +82,7 @@ private:
     int m_isTextureRender;
 
     void remove_programs();
+    void free_buffers();
 };
 
 #endif //MOONLANDER_MOONLANDERPROGRAM_HPP

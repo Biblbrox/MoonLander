@@ -70,10 +70,10 @@ render::drawSprite(const Texture &texture,
     program->switchToTriangles();
     program->setTextureRendering(true);
 
-    GLfloat half = texture.getWidth() / 2.f;
-    GLfloat centerX = x + half;
-    GLfloat centerY = y + half;
-    GLfloat invScale = 1.f / scale_factor;
+    const GLfloat half = texture.getWidth() / 2.f;
+    const GLfloat centerX = x + half;
+    const GLfloat centerY = y + half;
+    const GLfloat invScale = 1.f / scale_factor;
 
     mat4 rotation = rotate_around(mat4(1.f), vec3(centerX, centerY, 0.f), angle);
     mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
@@ -87,7 +87,7 @@ render::drawSprite(const Texture &texture,
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 
-    translation[3] = glm::vec4(-x, -y, 0.f, 1);
+    translation[3] = glm::vec4(-x,  -y, 0.f, 1);
     rotation = rotate_around(mat4(1.f), vec3(centerX, centerY, 0.f), -angle);
     scaling[0][0] = invScale;
     scaling[1][1] = invScale;

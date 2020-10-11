@@ -30,6 +30,8 @@ using std::make_shared;
 using std::sin;
 using std::cos;
 using glm::half_pi;
+using std::find_if;
+using glm::pi;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -73,12 +75,10 @@ void World::rescale_world()
         if (pos->scallable)
             pos->scale_factor = m_scaled ? 1.f : m_scaleFactor;
     }
-    if (m_scaled)
-        m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
-                        shipPos->y + m_camera.getY() - m_frameWidth / 5.f);
-    else
-        m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
-                        shipPos->y + m_camera.getY() - m_frameHeight / 4.f);
+
+    m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
+                    shipPos->y + m_camera.getY()
+                    - m_frameWidth / (m_scaled ? 5.f : 4.f));
 
     m_scaled = !m_scaled;
     move_from_camera();
@@ -121,19 +121,19 @@ void World::update_ship()
         const vector<vec2>& platforms = levelComp->platforms;
         bool landed = false;
         assert(platforms.size() % 2 == 0);
-        GLfloat angle = shipPos->angle - shipPos->angle / (2 * glm::pi<GLfloat>());
-        for (size_t i = 0; i < platforms.size(); i += 2) {
-            if (shipPos->x >= platforms[i].x
-                && shipPos->x <= platforms[i + 1].x
-                && angle >= -glm::pi<GLfloat>() / 6.f
-                && angle <= glm::pi<GLfloat>() / 6.f
-                && std::abs(shipVel->y * 60.f) <= 20) {
-                shipVel->x = 0;
-                shipVel->y = 0;
-                shipVel->angle = 0;
-                landed = true;
-                Game::getInstance()->setState(GameStates::WIN);
-                break;
+        GLfloat angle = shipPos->angle - floor(shipPos->angle / (2 * pi<GLfloat>()));
+        if (angle >= -glm::pi<GLfloat>() / 6.f
+            && angle <= glm::pi<GLfloat>() / 6.f
+            && std::abs(shipVel->y * 60.f) <= 20) {
+
+            for (size_t i = 0; i < platforms.size(); i += 2) {
+                if (shipPos->x >= platforms[i].x
+                    && shipPos->x <= platforms[i + 1].x) {
+                    shipVel->x = shipVel->y = shipVel->angle = 0;
+                    landed = true;
+                    Game::getInstance()->setState(GameStates::WIN);
+                    break;
+                }
             }
         }
 
@@ -333,9 +333,8 @@ void World::init()
         m_camera.lookAt(0, 0);
         //move_from_camera();
         init_ship();
-        rescale_world();
-        m_scaled = false;
         m_nonStatic[1] = m_entities["ship"];
+        rescale_world();
     }
 }
 
@@ -539,8 +538,6 @@ void World::init_ship()
     };
     // Ship reference invalidate
 }
-
-
 
 void World::move_from_camera()
 {

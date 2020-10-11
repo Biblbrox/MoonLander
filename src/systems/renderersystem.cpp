@@ -7,6 +7,9 @@ using utils::log::Logger;
 using boost::format;
 using utils::program_log_file_name;
 using utils::log::Category;
+using glm::mat4;
+using glm::vec3;
+using glm::scale;
 
 void RendererSystem::drawLevel()
 {
@@ -45,9 +48,7 @@ void RendererSystem::drawLevel()
             std::abort();
         }
 
-        scaling = glm::scale(
-                glm::mat4(1.f),glm::vec3(1 / scale_factor,
-                                         1 / scale_factor,1.f));
+        scaling = scale(mat4(1.f), vec3(1 / scale_factor, 1 / scale_factor, 1.f));
         program->leftMultModel(scaling);
         program->updateModel();
     }
