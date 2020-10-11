@@ -116,6 +116,7 @@ void Sprite::generateDataBuffer()
         }
 
     } else {
+        // TODO: handle it
         if (m_textureId == 0) {
             SDL_Log("No texture to render!\n");
             std::abort();
@@ -130,8 +131,8 @@ void Sprite::generateDataBuffer()
 
 void Sprite::freeVBO()
 {
-    if (m_vao != nullptr) {
-        glDeleteBuffers(m_totSprites, m_vao);
+    if (m_vao) {
+        glDeleteVertexArrays(m_totSprites, m_vao);
         delete[] m_vao;
         m_vao = nullptr;
     }

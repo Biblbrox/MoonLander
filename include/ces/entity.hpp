@@ -23,6 +23,11 @@ class Entity
 public:
 
     Entity() : m_alive(false) {}
+    ~Entity() {};
+    Entity(Entity&& en) = default;
+    Entity(Entity& en) = default;
+    Entity& operator=(Entity&&) = default;
+    Entity& operator=(const Entity&) = default;
 
     /**
      * Create new component and return

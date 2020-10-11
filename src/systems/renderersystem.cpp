@@ -18,6 +18,7 @@ void RendererSystem::drawLevel()
     program->setTextureRendering(false);
     for (const auto& [key, en]: levelEntities) {
         GLfloat scale_factor = en->getComponent<LevelComponent>()->scale_factor;
+        GLfloat invScale = 1.f / scale_factor;
 
         glm::mat4 scaling = glm::scale(glm::mat4(1.f),
                                        glm::vec3(scale_factor, scale_factor,1.f));
@@ -48,7 +49,9 @@ void RendererSystem::drawLevel()
             std::abort();
         }
 
-        scaling = scale(mat4(1.f), vec3(1 / scale_factor, 1 / scale_factor, 1.f));
+        scaling[0][0] = invScale;
+        scaling[1][1] = invScale;
+        scaling[2][2] = invScale;
         program->leftMultModel(scaling);
         program->updateModel();
     }

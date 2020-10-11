@@ -42,11 +42,11 @@ const int crash_sound_channel = 1;
 const int engine_idx = 0;
 const int crash_idx = 1;
 
-const char* msgFont = "kenvector_future2.ttf";
+const char* const msgFont = "kenvector_future2.ttf";
 
 Entity& World::createEntity(const std::string& name)
 {
-    std::shared_ptr<Entity> ent = make_shared<Entity>();
+    std::shared_ptr ent = make_shared<Entity>();
     ent->setWorld(this);
     m_entities.insert({name, ent});
     return *m_entities[name];
@@ -162,6 +162,10 @@ void World::update_ship()
             particle->setWorld(this);
             m_entities.insert({"ship particle", particle});
 
+            //
+            std::cout << m_nonStatic[1].use_count() << std::endl;
+            //
+
             ship->kill();
 
             if (!m_audio.isChannelPlaying(crash_sound_channel))
@@ -175,8 +179,6 @@ void World::update_ship()
 
 void World::update_text()
 {
-    using boost::format;
-
     if constexpr (debug) {
         auto fpsEntity = m_entities["fpsText"];
         auto textFps = fpsEntity->getComponent<TextComponent>();
@@ -196,12 +198,12 @@ void World::update_text()
     auto game = Game::getInstance();
     if (game->getState() == GameStates::NORMAL
         || game->getState() == GameStates::WIN) {
-        auto shipEntity = m_entities["ship"];
-        auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
+        const auto shipEntity = m_entities["ship"];
+        const auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
 
-        auto shipVel = shipEntity->getComponent<VelocityComponent>();
-        auto shipPos = shipEntity->getComponent<PositionComponent>();
-        auto fuel = shipEntity->getComponent<LifeTimeComponent>();
+        const auto shipVel = shipEntity->getComponent<VelocityComponent>();
+        const auto shipPos = shipEntity->getComponent<PositionComponent>();
+        const auto fuel = shipEntity->getComponent<LifeTimeComponent>();
 
         textVelX->texture->setText((format("Horizontal speed: %3d") %
                                     floor(shipVel->x * 60.f)).str());
@@ -330,8 +332,12 @@ void World::init()
         if (m_entities.count("ship particle") != 0)
             m_entities.erase("ship particle");
 
+        auto program = MoonLanderProgram::getInstance();
         m_camera.lookAt(0, 0);
         //move_from_camera();
+        //
+        std::cout << m_nonStatic[1].use_count() << std::endl;
+        //
         init_ship();
         m_nonStatic[1] = m_entities["ship"];
         rescale_world();
@@ -476,7 +482,7 @@ void World::init_level()
     auto levelComponent = level.getComponent<LevelComponent>();
     levelComponent->points = generator.generate_lines(
             vec2(0.f, generator.height_min + generator.height_max) / 2.f);
-    GLfloat points_right_x = levelComponent->points.end()->x;
+    const GLfloat points_right_x = levelComponent->points.end()->x;
     levelComponent->stars = generator.generate_stars(0, points_right_x);
     levelComponent->platforms = generator.platforms;
     generator.extendToLeft(levelComponent->points, levelComponent->stars);

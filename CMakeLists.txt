@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-D_FORTIFY_SOURCE=2" "-D_GLIBCXX_ASSERTIONS"
         "-shared" "-fstack-clash-protection" "-fstack-protector"
         "-fstack-protector-strong" "-g" "-grecord-gcc-switches" "-fcf-protection"
         "-pipe" "-Wall" "-Werror=format-security" "-Wl,-z,defs" "-Wl,-z,now"
-        "-O0" "-Wl,-z,relro" "-std=c++17")
+        "-O0" "-Wl,-z,relro" "-std=c++17" "-fno-inline-functions")
 
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-D_FORTIFY_SOURCE=2" "-D_GLIBCXX_ASSERTIONS"
         "-fasynchronous-unwind-tables" "-fexceptions" "-fpie" "-Wl,-pie" "-fpic"
@@ -59,6 +59,6 @@ set(SDL2_TTF_LIBRARIES SDL2_ttf)
 add_executable(MoonLander ${SOURCES})
 target_link_libraries(MoonLander ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES}
         ${SDL2_TTF_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${Boost_LIBRARIES} GLEW
-        libGLEW.so libGLU.so libGL.so )
+        libGLEW.so libGLU.so libGL.so)
 
 target_include_directories(MoonLander PRIVATE include)
