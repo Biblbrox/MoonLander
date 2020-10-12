@@ -43,6 +43,7 @@ const int engine_idx = 0;
 const int crash_idx = 1;
 
 const char* const msgFont = "kenvector_future2.ttf";
+const SDL_Color fontColor = {0xFF, 0xFF, 0xFF, 0xFF};
 
 Entity& World::createEntity(const std::string& name)
 {
@@ -162,10 +163,6 @@ void World::update_ship()
             particle->setWorld(this);
             m_entities.insert({"ship particle", particle});
 
-            //
-            std::cout << m_nonStatic[1].use_count() << std::endl;
-            //
-
             ship->kill();
 
             if (!m_audio.isChannelPlaying(crash_sound_channel))
@@ -205,14 +202,14 @@ void World::update_text()
         const auto shipPos = shipEntity->getComponent<PositionComponent>();
         const auto fuel = shipEntity->getComponent<LifeTimeComponent>();
 
-        textVelX->texture->setText((format("Horizontal speed: %3d") %
+        textVelX->texture->setText((format("Horizontal speed: %5d") %
                                     floor(shipVel->x * 60.f)).str());
-        textVelY->texture->setText((format("Vertical speed: %3d") %
+        textVelY->texture->setText((format("Vertical speed: %5d") %
                                     floor(-shipVel->y * 60.f)).str());
-        textAlt->texture->setText((format("Altitude: %3d") %
+        textAlt->texture->setText((format("Altitude: %5d") %
                                    floor(altitude(points, shipPos->x, shipPos->y)
                                          - SHIP_HEIGHT)).str());
-        textFuel->texture->setText((format("Fuel: %3d") % fuel->time).str());
+        textFuel->texture->setText((format("Fuel: %5d") % fuel->time).str());
 
         if (game->getState() == GameStates::WIN
             && m_entities.count("winText") == 0) {
@@ -230,7 +227,7 @@ void World::update_text()
             winTextTexture->texture =
                     make_shared<TextTexture>("You win\nScore is 000.000\n"
                                              "To play again press Enter",
-                                             font);
+                                             font, fontColor);
 
             auto winTextPos = winText.getComponent<PositionComponent>();
             winTextPos->x = m_screenWidth / 2.f
@@ -250,14 +247,15 @@ void World::update_text()
 
         auto failTextTexture = failText.getComponent<TextComponent>();
         TTF_Font* font = TTF_OpenFont(getResourcePath(msgFont).c_str(), 14);
-        if (font == nullptr) {
+        if (!font) {
             Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                           (format("Unable to load font %s\n") % msgFont).str());
             std::abort();
         }
         failTextTexture->texture =
                 make_shared<TextTexture>("You fail\n"
-                                         "To play again press Enter", font);
+                                         "To play again press Enter", font,
+                                         fontColor);
 
         auto failTextPos = failText.getComponent<PositionComponent>();
         failTextPos->x = m_screenWidth / 2.f
@@ -332,12 +330,11 @@ void World::init()
         if (m_entities.count("ship particle") != 0)
             m_entities.erase("ship particle");
 
+        m_systems[type_id<MovementSystem>()]->start();
+
         auto program = MoonLanderProgram::getInstance();
         m_camera.lookAt(0, 0);
         //move_from_camera();
-        //
-        std::cout << m_nonStatic[1].use_count() << std::endl;
-        //
         init_ship();
         m_nonStatic[1] = m_entities["ship"];
         rescale_world();
@@ -387,7 +384,8 @@ void World::init_text()
                           (format("Unable to load font %s\n") % msgFont).str());
             std::abort();
         }
-        fspTexture->texture = make_shared<TextTexture>("FPS: 000", font);
+        fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
+                                                       fontColor);
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -408,7 +406,8 @@ void World::init_text()
         std::abort();
     }
     velxTexture->texture =
-            make_shared<TextTexture>("Horizontal speed: -000.000", font);
+            make_shared<TextTexture>("Horizontal speed: -000.000", font,
+                                     fontColor);
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -428,7 +427,8 @@ void World::init_text()
         std::abort();
     }
     velyTexture->texture =
-            make_shared<TextTexture>("Vertical speed: -000.000", font);
+            make_shared<TextTexture>("Vertical speed: -000.000", font,
+                                     fontColor);
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -446,7 +446,8 @@ void World::init_text()
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
-    altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font);
+    altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
+                                                   fontColor);
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -464,7 +465,8 @@ void World::init_text()
                       (format("Unable to load font %s\n") % msgFont).str());
         std::abort();
     }
-    fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font);
+    fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
+                                                    fontColor);
 
     auto fuelPos = fuel.getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;

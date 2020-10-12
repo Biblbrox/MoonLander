@@ -22,7 +22,7 @@ public:
     GLuint getSpritesCount() const;
 
     void generateDataBuffer() override;
-    void freeVBO() override final;
+    void freeVBO() noexcept override final;
 
     GLuint getVAO() const override;
 protected:

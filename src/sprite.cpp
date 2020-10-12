@@ -4,6 +4,8 @@
 #include <exceptions/sdlexception.h>
 #include <SDL_ttf.h>
 
+using utils::log::Category;
+
 Sprite::Sprite(const std::string& path)
 {
     load(path);
@@ -116,20 +118,21 @@ void Sprite::generateDataBuffer()
         }
 
     } else {
-        // TODO: handle it
         if (m_textureId == 0) {
-            SDL_Log("No texture to render!\n");
+            Logger::write(utils::program_log_file_name(), Category::INTERNAL_ERROR,
+                          "No texture to render\n");
             std::abort();
         }
 
         if (m_clips.empty()) {
-            SDL_Log("No data generate from!\n");
+            Logger::write(utils::program_log_file_name(), Category::INTERNAL_ERROR,
+                          "No data generate from\n");
             std::abort();
         }
     }
 }
 
-void Sprite::freeVBO()
+void Sprite::freeVBO() noexcept
 {
     if (m_vao) {
         glDeleteVertexArrays(m_totSprites, m_vao);

@@ -23,7 +23,7 @@ public:
     virtual void generateDataBuffer() = 0;
 
     virtual void freeTexture() final;
-    virtual void freeVBO() = 0;
+    virtual void freeVBO() noexcept = 0;
 
 protected:
     explicit Texture();

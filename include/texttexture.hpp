@@ -10,7 +10,7 @@ class TextTexture: public Texture
 {
 
 public:
-    TextTexture(std::string textureText, TTF_Font* font,
+    TextTexture(const std::string& textureText, TTF_Font* font,
                 SDL_Color color = {0x00, 0xFF, 0x00, 0xFF});
     ~TextTexture() override;
 
@@ -20,7 +20,8 @@ public:
     void setColor(SDL_Color color);
 
     void generateDataBuffer() override;
-    void freeVBO() override final;
+    void freeVBO() noexcept override final;
+    void freeFont();
 
     GLuint getVAO() const override;
 private:
@@ -29,6 +30,7 @@ private:
     SDL_Color m_color;
 
     GLuint m_vaoId;
+    GLuint m_vboId;
 };
 
 #endif //MOONLANDER_TEXTTEXTURE_HPP
