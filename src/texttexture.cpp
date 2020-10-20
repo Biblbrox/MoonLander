@@ -170,7 +170,7 @@ GLuint TextTexture::getVAO() const
     return m_vaoId;
 }
 
-void TextTexture::freeFont()
+void TextTexture::freeFont() noexcept
 {
     if (m_font)
         TTF_CloseFont(m_font);

@@ -21,7 +21,7 @@ public:
 
     void generateDataBuffer() override;
     void freeVBO() noexcept override final;
-    void freeFont();
+    void freeFont() noexcept;
 
     GLuint getVAO() const override;
 private:

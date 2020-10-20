@@ -2,7 +2,7 @@
 #define MOONLANDER_LEVELCOMPONENT_HPP
 
 #include "../ces/component.hpp"
-#include "levelgenerator.hpp"
+#include "level.hpp"
 
 using glm::vec2;
 

@@ -334,11 +334,10 @@ void MoonLanderProgram::updateColor()
 void MoonLanderProgram::setTextureRendering(bool isTexture)
 {
     m_isTextureRender = isTexture;
-    glBindBuffer(GL_UNIFORM_BUFFER, m_textureDataUBO); // ERROR here
+    glBindBuffer(GL_UNIFORM_BUFFER, m_textureDataUBO);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, gl_bool_size, &m_isTextureRender);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // TODO: fix strange error codes
     if (GLenum error = glGetError(); error != GL_NO_ERROR) {
         Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
                       (format("Error while updating "

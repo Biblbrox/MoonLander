@@ -15,7 +15,6 @@
 static bool imgInit = false;
 static bool mixerInit = false;
 
-
 using utils::log::Logger;
 using boost::format;
 

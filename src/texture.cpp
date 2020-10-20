@@ -1,12 +1,8 @@
 #include <GL/glew.h>
 #include "../include/texture.hpp"
 
-Texture::Texture()
+Texture::Texture() : m_textureId(0), m_textureWidth(0), m_textureHeight(0)
 {
-    m_textureId = 0;
-
-    m_textureWidth = 0;
-    m_textureHeight = 0;
 }
 
 GLuint Texture::getWidth() const

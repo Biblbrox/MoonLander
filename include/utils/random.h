@@ -87,7 +87,7 @@ namespace utils
          * @tparam T
          * @param a
          * @param b
-         * @return
+         * @return T
          */
         template<typename T>
         T generateu(T a, T b)

@@ -1,8 +1,6 @@
 #ifndef MOONLANDER_BASESYSTEM_HPP
 #define MOONLANDER_BASESYSTEM_HPP
 
-#include <memory>
-
 class World;
 
 /**

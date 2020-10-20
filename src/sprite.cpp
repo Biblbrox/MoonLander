@@ -24,9 +24,9 @@ void Sprite::load(const std::string& path)
                                    "SDL_ttf Error: %s\n")
                             % TTF_GetError()).str());
     SDL_Surface* flipped = utils::flipVertically(surface);
+    SDL_FreeSurface(surface);
     if (!flipped)
         throw SdlException((format("Unable to flip surface %p\n") % surface).str());
-    SDL_FreeSurface(surface);
 
     GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 

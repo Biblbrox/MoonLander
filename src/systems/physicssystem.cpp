@@ -9,8 +9,8 @@ void PhysicsSystem::update_state(size_t delta)
 
     auto particles = getEntitiesByTag<ParticleSpriteComponent>();
     for (auto& [key, en] : particles) {
-        auto& coords = en->getComponent<ParticleSpriteComponent>()->coords;
-        for (auto& coord: coords)
-            coord.y += gravity_force / weight;
+        auto& vels = en->getComponent<ParticleSpriteComponent>()->vel;
+        for (auto& vel: vels)
+            vel.y += gravity_force / weight;
     }
 }

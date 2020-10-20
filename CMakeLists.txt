@@ -10,10 +10,9 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-D_FORTIFY_SOURCE=2" "-D_GLIBCXX_ASSERTIONS"
         "-pipe" "-Wall" "-Werror=format-security" "-Wl,-z,defs" "-Wl,-z,now"
         "-O0" "-Wl,-z,relro" "-std=c++17" "-fno-inline-functions")
 
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-D_FORTIFY_SOURCE=2" "-D_GLIBCXX_ASSERTIONS"
-        "-fasynchronous-unwind-tables" "-fexceptions" "-fpie" "-Wl,-pie" "-fpic"
-        "-shared" "-fstack-clash-protection" "-fstack-protector"
-        "-fstack-protector-strong" "-grecord-gcc-switches" "-fcf-protection" "-pipe"
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-fasynchronous-unwind-tables" "-fexceptions"
+        "-fpie" "-Wl,-pie" "-fpic" "-shared" "-fstack-clash-protection"
+        "-fstack-protector" "-fstack-protector-strong" "-fcf-protection" "-pipe"
         "-Wall" "-Werror=format-security" "-Wl,-z,defs" "-Wl,-z,now" "-Wl,-z,relro"
         "-O3" "-std=c++17")
 
@@ -31,7 +30,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
         ${GLM_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
-set(HPP include/constants.hpp include/utils/utils.hpp include/levelgenerator.hpp
+set(HPP include/constants.hpp include/utils/utils.hpp include/level.hpp
         include/texture.hpp include/camera.hpp include/utils/timer.hpp
         include/texttexture.hpp include/sprite.hpp include/moonlanderprogram.hpp
         include/game.hpp include/abstract/shaderprogram.hpp
@@ -42,7 +41,7 @@ set(HPP include/constants.hpp include/utils/utils.hpp include/levelgenerator.hpp
         include/utils/logger.hpp include/systems/particlerendersystem.hpp
         include/exceptions/fsexception.hpp)
 
-set(CPP src/main.cpp src/utils/utils.cpp src/levelgenerator.cpp src/texture.cpp
+set(CPP src/main.cpp src/utils/utils.cpp src/level.cpp src/texture.cpp
         src/utils/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
         src/texttexture.cpp src/sprite.cpp src/game.cpp src/shaderprogram.cpp
         src/ces/component.cpp src/ces/system.cpp src/ces/world.cpp src/ces/entity.cpp

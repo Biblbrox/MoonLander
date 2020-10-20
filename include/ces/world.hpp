@@ -4,7 +4,9 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <SDL_ttf.h>
 #include <utils/fps.hpp>
+#include <level.hpp>
 #include "utils/utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"
@@ -22,7 +24,7 @@ class World
 {
 public:
     World() : m_scaled(false), m_wasInit(false) {};
-    ~World() = default;;
+    ~World() = default;
 
     void init();
     void update(size_t delta);
@@ -54,6 +56,8 @@ private:
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
 
+    utils::Timer m_timer;
+
     utils::Fps m_fps;
 
     void move_from_camera();
@@ -66,6 +70,7 @@ private:
     void init_text();
     void init_level();
     void init_ship();
+    TTF_Font* open_font(const std::string& font, size_t fontSize);
 
     /**
      * Remove all entities that not alive
@@ -75,6 +80,7 @@ private:
     bool m_scaled;
     const GLfloat m_scaleFactor = 1.5f;
     utils::audio::Audio m_audio;
+    Level level;
 
     bool m_wasInit;
 };

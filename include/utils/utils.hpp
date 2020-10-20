@@ -243,8 +243,10 @@ namespace utils
 
     namespace physics
     {
-        GLfloat altitude(const std::vector<vec2> &points, GLfloat shipX,
-                              GLfloat shipY);
+        GLfloat altitude(const std::vector<vec2>& points, GLfloat x,
+                              GLfloat y);
+        GLfloat coord_of_alt(const std::vector<vec2>& points, GLfloat x,
+                             GLfloat height);
     }
 
     /**
