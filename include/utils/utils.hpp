@@ -139,7 +139,7 @@ namespace utils
      * @return
      */
     template <class TL, class UnFunctor, class BinFunctor>
-    auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
+    constexpr auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
     {
         static_assert(Length<TL>::value >= 2,
                 "Length<TypeList<Args...>>::value >= 2");
@@ -243,8 +243,7 @@ namespace utils
 
     namespace physics
     {
-        GLfloat altitude(const std::vector<vec2>& points, GLfloat x,
-                              GLfloat y);
+        GLfloat altitude(const std::vector<vec2>& points, GLfloat x, GLfloat y);
         GLfloat coord_of_alt(const std::vector<vec2>& points, GLfloat x,
                              GLfloat height);
     }

@@ -62,24 +62,28 @@ void World::rescale_world()
 {
     m_frameWidth = m_scaled ? m_screenWidth : (m_screenWidth / m_scaleFactor);
     m_frameHeight = m_scaled ? m_screenHeight : (m_screenHeight / m_scaleFactor);
-    auto ship = m_entities["ship"];
-    auto levelEnt = m_entities["level"];
-    size_t idx = type_id<RendererSystem>();
-    auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(m_systems[idx]);
-    auto shipPos = ship->getComponent<PositionComponent>();
 
+    auto levelEnt = m_entities["level"];
     levelEnt->getComponent<LevelComponent>()->scale_factor = m_scaled ?
                                                           1.f : m_scaleFactor;
-    auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
-    for (auto& [key, en]: scaled_entities) {
-        auto pos = en->getComponent<PositionComponent>();
-        if (pos->scallable)
-            pos->scale_factor = m_scaled ? 1.f : m_scaleFactor;
-    }
 
-    m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
-                    shipPos->y + m_camera.getY()
-                    - m_frameWidth / (m_scaled ? 5.f : 4.f));
+    if (m_entities.count("ship") != 0) {
+        auto ship = m_entities["ship"];
+        size_t idx = type_id<RendererSystem>();
+        auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(
+                m_systems[idx]);
+        auto shipPos = ship->getComponent<PositionComponent>();
+        auto scaled_entities = renderSystem->getEntitiesByTag<PositionComponent>();
+        for (auto&[key, en]: scaled_entities) {
+            auto pos = en->getComponent<PositionComponent>();
+            if (pos->scallable)
+                pos->scale_factor = m_scaled ? 1.f : m_scaleFactor;
+        }
+
+        m_camera.lookAt(shipPos->x + m_camera.getX() - m_frameWidth / 2.f,
+                        shipPos->y + m_camera.getY()
+                        - m_frameWidth / (m_scaled ? 5.f : 4.f));
+    }
 
     m_scaled = !m_scaled;
     move_from_camera();
@@ -321,6 +325,9 @@ void World::init()
         m_nonStatic.push_back(m_entities["level"]);
         m_nonStatic.push_back(m_entities["ship"]);
 
+        m_camera.lookAt(0, m_entities["ship"]->getComponent<PositionComponent>()->y
+                           - m_screenHeight / 2.f);
+        move_from_camera();
         m_wasInit = true;
     } else {
         m_entities.erase("winText");
@@ -330,18 +337,19 @@ void World::init()
         m_systems[type_id<MovementSystem>()]->start();
 
         auto program = MoonLanderProgram::getInstance();
-        //move_from_camera();
+        rescale_world();
         init_ship();
         // TODO: fix this
         m_nonStatic[1] = m_entities["ship"];
-        rescale_world();
-        m_camera.lookAt(m_entities["ship"]->getComponent<PositionComponent>()->x
-                         - m_screenWidth / 2.f, m_camera.getY());
-    }
+        m_camera.lookAt(0.f, 0.f); // reset camera
+        move_from_camera();
 
-    m_camera.lookAt(0, m_entities["ship"]->getComponent<PositionComponent>()
-            ->y - m_screenHeight / 2.f);
-    move_from_camera();
+        auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
+
+        m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
+                        shipPos->y - m_screenHeight / 2.f);
+        move_from_camera();
+    }
 
     if (m_timer.isStarted() || m_timer.isPaused())
         m_timer.stop();
@@ -507,7 +515,7 @@ void World::init_ship()
     shipPos->x = m_screenWidth / 2.f;
     GLfloat alt = utils::physics::coord_of_alt(
             m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, 200.f);
+            shipPos->x, 300.f); // Problem here
     shipPos->y = alt;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();

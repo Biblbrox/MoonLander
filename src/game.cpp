@@ -101,6 +101,14 @@ void Game::initGL()
                                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 m_screenWidth, m_screenHeight,
                                 WINDOW_FLAGS);
+    if (!m_window) {
+        Logger::write(utils::program_log_file_name(),
+                      utils::log::Category::INITIALIZATION_ERROR,
+                      (format("Unable to create window! "
+                              "SDL Error: %s\n") % SDL_GetError()).str());
+        quit();
+        std::abort();
+    }
 
     m_glcontext = SDL_GL_CreateContext(m_window);
     // Init OpenGL context

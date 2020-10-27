@@ -1,12 +1,9 @@
 #ifndef MOONLANDER_LEVEL_HPP
 #define MOONLANDER_LEVEL_HPP
 
-#include <SDL_render.h>
 #include <vector>
-#include <moonlanderprogram.hpp>
-#include <camera.hpp>
-#include "constants.hpp"
-#include "utils/utils.hpp"
+#include <glm/vec2.hpp>
+#include <GL/glew.h>
 
 using glm::vec2;
 
@@ -18,8 +15,10 @@ public:
     void extendToRight();
     void extendToLeft();
 
+    // Need to be set after sdl initialized
     GLfloat height_min;
     GLfloat height_max;
+
     std::vector<vec2> platforms;
     std::vector<vec2> points;
     std::vector<vec2> stars;

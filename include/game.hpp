@@ -4,7 +4,6 @@
 #include <GL/glew.h>
 #include <ces/world.hpp>
 #include <memory>
-#include <functional>
 
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)
 #define IMG_FLAGS IMG_INIT_PNG

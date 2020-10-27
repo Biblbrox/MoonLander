@@ -1,6 +1,5 @@
 #include <utils/random.h>
 #include "level.hpp"
-#include "utils/utils.hpp"
 
 const GLfloat frame_width = 2000;
 
@@ -80,11 +79,7 @@ std::vector<vec2> generate_platforms(std::vector<vec2> &points)
 }
 
 Level::Level()
-{
-    height_min = utils::getScreenHeight<GLfloat>()
-                 - utils::getScreenHeight<GLfloat>() / 2;
-    height_max = utils::getScreenHeight<GLfloat>();
-}
+{}
 
 void Level::extendToRight()
 {
