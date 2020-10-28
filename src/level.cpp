@@ -100,7 +100,8 @@ void Level::extendToRight(const Camera& camera)
 
 void Level::extendToLeft(const Camera& camera)
 {
-    vec2 begin = vec2(points.empty() ? 0.f : points[0].x, (height_min + height_max) / 2.f);
+    vec2 begin = vec2(points.empty() ? 0.f : points[0].x,
+                      (height_min + height_max) / 2.f);
     std::vector<vec2> part_lines = generate_lines(begin);
     std::vector<vec2> part_platforms = generate_platforms(part_lines);
     GLfloat distance = part_lines.back().x - part_lines[0].x;

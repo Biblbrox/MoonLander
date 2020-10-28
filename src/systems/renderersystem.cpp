@@ -42,13 +42,6 @@ void RendererSystem::drawLevel()
         program->updateColor();
         render::drawLinen(en->getComponent<LevelComponent>()->platforms);
 
-        if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
-                          (format("\n\tRender error: %1%\n")
-                           % glewGetErrorString(error)).str());
-            std::abort();
-        }
-
         scaling[0][0] = invScale;
         scaling[1][1] = invScale;
         scaling[2][2] = invScale;
@@ -86,8 +79,26 @@ void RendererSystem::drawText()
 void RendererSystem::update_state(size_t delta)
 {
     drawLevel();
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("\n\tRender while drawing level: %1%\n")
+                       % glewGetErrorString(error)).str());
+        std::abort();
+    }
     drawSprites();
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("\n\tRender while drawing sprites: %1%\n")
+                       % glewGetErrorString(error)).str());
+        std::abort();
+    }
     drawText();
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
+                      (format("\n\tRender while drawing text objects: %1%\n")
+                       % glewGetErrorString(error)).str());
+        std::abort();
+    }
 }
 
 RendererSystem::RendererSystem()

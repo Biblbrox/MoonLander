@@ -49,7 +49,7 @@ public:
 private:
     std::unordered_map<std::string, std::shared_ptr<Entity>> m_entities;
     std::unordered_map<size_t, std::shared_ptr<BaseSystem>> m_systems;
-    std::vector<std::shared_ptr<Entity>> m_nonStatic;
+    std::unordered_map<std::string, std::shared_ptr<Entity>> m_nonStatic;
     Camera m_camera;
     GLuint m_screenHeight;
     GLuint m_screenWidth;

@@ -19,6 +19,7 @@
 #include <utils/random.h>
 #include <components/lifetimecomponent.h>
 #include <game.hpp>
+#include <exceptions/sdlexception.h>
 
 using utils::log::Logger;
 using utils::getResourcePath;
@@ -193,7 +194,6 @@ void World::update_level()
     bool nearLeft = shipCoords.x <= (levelBorder.x + m_screenWidth);
     bool nearRight = shipCoords.x >= (levelBorder.y - m_screenWidth);
 
-    std::cout << shipCoords.x << std::endl;
     std::shared_ptr<Entity> levelEnt;
     std::shared_ptr<LevelComponent> levelComp;
     if (nearLeft || nearRight) {
@@ -359,8 +359,8 @@ void World::init()
         createSystem<PhysicsSystem>();
         createSystem<ParticleRenderSystem>();
 
-        m_nonStatic.push_back(m_entities["level"]);
-        m_nonStatic.push_back(m_entities["ship"]);
+        m_nonStatic["level"] = m_entities["level"];
+        m_nonStatic["ship"] = m_entities["ship"];
 
         m_camera.lookAt(0, m_entities["ship"]->getComponent<PositionComponent>()->y
                            - m_screenHeight / 2.f);
@@ -376,8 +376,7 @@ void World::init()
         auto program = MoonLanderProgram::getInstance();
         rescale_world();
         init_ship();
-        // TODO: fix this
-        m_nonStatic[1] = m_entities["ship"];
+        m_nonStatic["ship"] = m_entities["ship"];
         m_camera.lookAt(0.f, 0.f); // reset camera
         move_from_camera();
 
@@ -411,8 +410,14 @@ void World::init_sprites()
     earth.activate();
 
     auto earthSprite = earth.getComponent<SpriteComponent>();
-    earthSprite->sprite = make_shared<Sprite>(
-            utils::getResourcePath("lunar_lander_bw.png"));
+    const std::string earthPath = "lunar_lander_bw.png";
+    try {
+        earthSprite->sprite = make_shared<Sprite>(
+                utils::getResourcePath(earthPath));
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load sprite %s") % earthPath).str());
+    }
     earthSprite->sprite->addClipSprite({200, 77, 40, 33});
     earthSprite->sprite->generateDataBuffer();
 
@@ -591,7 +596,7 @@ void World::init_ship()
 
 void World::move_from_camera()
 {
-    for (const auto& en: m_nonStatic) {
+    for (const auto& [_, en]: m_nonStatic) {
         auto pos = en->getComponent<PositionComponent>();
         if (pos != nullptr) {
             pos->x -= m_camera.deltaX();
