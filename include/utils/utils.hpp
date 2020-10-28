@@ -20,6 +20,7 @@
 #include <exceptions/fsexception.hpp>
 #include <exceptions/glexception.hpp>
 #include <sstream>
+#include <camera.hpp>
 #include "constants.hpp"
 #include "timer.hpp"
 #include "logger.hpp"
@@ -69,6 +70,11 @@ namespace utils
         std::vector<std::string> res;
         boost::split(res, str, boost::is_any_of("\n"), boost::token_compress_on);
         return res;
+    }
+
+    inline glm::vec2 fix_coords(const vec2& coords, const Camera& camera)
+    {
+        return {coords.x + camera.getX(), coords.y + camera.getY()};
     }
 
     /**

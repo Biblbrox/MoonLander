@@ -3,7 +3,10 @@
 #include <SDL2/SDL.h>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
+
+#ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>
+#endif
 
 int main(int argc, char *args[])
 {
@@ -19,8 +22,7 @@ int main(int argc, char *args[])
         auto program = MoonLanderProgram::getInstance();
         program->loadProgram();
         program->setProjection(glm::ortho<GLfloat>(
-                0.0f, screen_width, screen_height,
-                0.0f, 1.0f, -1.0f));
+                0.0f, screen_width, screen_height, 0.0f, 1.0f, -1.0f));
         program->setModel(glm::mat4(1.f));
         program->setView(glm::mat4(1.f));
         program->setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));

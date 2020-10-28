@@ -158,6 +158,7 @@ void Game::initGL()
                       (format("Warning: Unable to enable VSync. "
                               "VSync will not be used! SDL Error: %s\n")
                        % SDL_GetError()).str());
+        // If can't use vsync try set fixed fps
         SDL_GL_SetSwapInterval(0);
         vsync_supported = false;
     } else {

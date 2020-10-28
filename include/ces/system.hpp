@@ -1,7 +1,6 @@
 #ifndef MOONLANDER_SYSTEM_HPP
 #define MOONLANDER_SYSTEM_HPP
 
-#include <string>
 #include <vector>
 #include <set>
 #include <memory>
@@ -93,7 +92,7 @@ public:
                       "ComponentType class must be child of Component");
         auto filtered = m_world->getEntities();
         for (auto it = filtered.begin(); it != filtered.end();) {
-            if (it->second->getComponent<ComponentType>() == nullptr)
+            if (!it->second->getComponent<ComponentType>())
                 it = filtered.erase(it);
             else
                 ++it;

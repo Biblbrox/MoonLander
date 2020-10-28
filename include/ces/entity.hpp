@@ -1,8 +1,6 @@
 #ifndef MOONLANDER_ENTITY_HPP
 #define MOONLANDER_ENTITY_HPP
 
-#include <vector>
-#include <map>
 #include <memory>
 #include <unordered_map>
 #include "utils/utils.hpp"

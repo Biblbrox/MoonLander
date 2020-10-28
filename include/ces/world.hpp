@@ -64,6 +64,7 @@ private:
 
     void update_ship();
     void update_text();
+    void update_level();
     void rescale_world();
     void init_sound();
     void init_sprites();

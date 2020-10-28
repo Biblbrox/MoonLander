@@ -32,6 +32,7 @@ using std::cos;
 using glm::half_pi;
 using std::find_if;
 using glm::pi;
+using utils::fix_coords;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -178,6 +179,41 @@ void World::update_ship()
     }
 }
 
+void World::update_level()
+{
+    if (Game::getInstance()->getState() != GameStates::NORMAL)
+        return;
+
+    auto ship = m_entities["ship"];
+    auto shipPos = ship->getComponent<PositionComponent>();
+
+    vec2 shipCoords = fix_coords({shipPos->x, shipPos->y}, m_camera);
+    //vec2 levelBorder = fix_coords({level.max_left, level.max_right}, m_camera);
+    vec2 levelBorder = {level.max_left, level.max_right};
+    bool nearLeft = shipCoords.x <= (levelBorder.x + m_screenWidth);
+    bool nearRight = shipCoords.x >= (levelBorder.y - m_screenWidth);
+
+    std::cout << shipCoords.x << std::endl;
+    std::shared_ptr<Entity> levelEnt;
+    std::shared_ptr<LevelComponent> levelComp;
+    if (nearLeft || nearRight) {
+        levelEnt = m_entities["level"];
+        levelComp = levelEnt->getComponent<LevelComponent>();
+    }
+
+    if (nearLeft) {
+        level.extendToLeft(m_camera);
+        levelComp->points = level.points;
+        levelComp->platforms = level.platforms;
+        levelComp->stars = level.stars;
+    } else if (nearRight) {
+        level.extendToRight(m_camera);
+        levelComp->points = level.points;
+        levelComp->platforms = level.platforms;
+        levelComp->stars = level.stars;
+    }
+}
+
 void World::update_text()
 {
     if constexpr (debug) {
@@ -287,6 +323,7 @@ void World::update(size_t delta)
         update_ship();
 
     update_text();
+    update_level();
 
     filter_entities();
     for (auto &system: m_systems)
@@ -479,6 +516,7 @@ void World::init_text()
     timePos->scallable = false;
 }
 
+
 void World::init_level()
 {
     Entity& levelEnt = createEntity("level");
@@ -486,8 +524,8 @@ void World::init_level()
     levelEnt.activate();
 
     auto levelComponent = levelEnt.getComponent<LevelComponent>();
-    level.extendToLeft();
-    level.extendToRight();
+    //level.extendToLeft();
+    level.extendToRight(m_camera);
     levelComponent->points = level.points;
     levelComponent->stars = level.stars;
     levelComponent->platforms = level.platforms;
@@ -519,7 +557,7 @@ void World::init_ship()
     shipPos->y = alt;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();
-    fuel->time = 1500;
+    fuel->time = 150000000000;
 
     auto shipVel = ship.getComponent<VelocityComponent>();
     auto shipAnim = ship.getComponent<AnimationComponent>();
