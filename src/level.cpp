@@ -1,10 +1,12 @@
 #include <utils/random.h>
+#include <utils/utils.hpp>
 #include "level.hpp"
 
 const GLfloat frame_width = 2000;
 
 const int stars_initial_size = 5000;
 const int points_initial_size = 500;
+const GLfloat deviation = 20.f;
 
 using glm::vec2;
 
@@ -39,16 +41,15 @@ std::vector<vec2> generate_lines(vec2 initial_p)
     const GLfloat point_dist_min = frame_width / points_initial_size * 7.f;
     const GLfloat point_dist_max = frame_width / points_initial_size * 9.f;
 
-    utils::Random urand;
-    GLfloat deviation = 20.f;
+    utils::Random rand;
 
     std::vector<vec2> points;
     points.reserve(points_initial_size);
-    points.emplace_back(initial_p.x, urand.generaten(initial_p.y, deviation));
+    points.emplace_back(initial_p.x, rand.generaten(initial_p.y, deviation));
     for (size_t i = 1; i < points_initial_size; ++i)
-        points.emplace_back(points[i - 1].x + urand.generateu(point_dist_min, point_dist_max),
-                            urand.generaten(points[i - 1].y, deviation)
-                            + urand.generateu(-deviation, deviation));
+        points.emplace_back(points[i - 1].x + rand.generateu(point_dist_min, point_dist_max),
+                            rand.generaten(points[i - 1].y, deviation)
+                            + rand.generateu(-deviation, deviation));
 
     return points;
 }
@@ -58,11 +59,11 @@ std::vector<vec2> generate_platforms(std::vector<vec2> &points)
     const int plat_count_min = points_initial_size / 8;
     const int plat_count_max = points_initial_size / 3;
 
-    utils::Random urand;
+    utils::Random rand;
 
-    size_t platforms_count = urand.generateu(plat_count_min, plat_count_max);
+    size_t platforms_count = rand.generateu(plat_count_min, plat_count_max);
     std::vector<GLuint> plat_idx(platforms_count, 0);
-    urand.fill_unique(plat_idx.begin(), plat_idx.end(), 0UL, points.size() - 2,
+    rand.fill_unique(plat_idx.begin(), plat_idx.end(), 0UL, points.size() - 2,
                       true);
 
     std::vector<vec2> platforms;
@@ -79,12 +80,22 @@ std::vector<vec2> generate_platforms(std::vector<vec2> &points)
 }
 
 Level::Level() : max_right(0.f), max_left(0.f)
-{}
+{
+    point_dist_min = frame_width / points_initial_size * 7.f;
+    point_dist_max = frame_width / points_initial_size * 9.f;
+}
 
 void Level::extendToRight(const Camera& camera)
 {
-    vec2 begin = !points.empty()
-                 ? points.back() : vec2(0.f, (height_min + height_max) / 2.f);
+    utils::Random rand;
+    GLfloat point_x = points.empty()
+                      ? 0.f
+                      : points.back().x
+                        + rand.generateu(point_dist_min, point_dist_max);
+    GLfloat point_y = points.empty()
+                      ? (height_min + height_max) / 2.f
+                      : points.back().y + rand.generateu(-deviation, deviation);
+    vec2 begin = vec2(point_x, point_y);
     std::vector<vec2> part_lines = generate_lines(begin);
     std::vector<vec2> part_platforms = generate_platforms(part_lines);
     points.insert(points.end(), part_lines.cbegin(), part_lines.cend());
@@ -100,15 +111,17 @@ void Level::extendToRight(const Camera& camera)
 
 void Level::extendToLeft(const Camera& camera)
 {
-    vec2 begin = vec2(points.empty() ? 0.f : points[0].x,
-                      (height_min + height_max) / 2.f);
+    utils::Random rand;
+    GLfloat point_x = points.empty()
+                      ? -rand.generateu(point_dist_min, point_dist_max)
+                      : points[0].x - rand.generateu(point_dist_min, point_dist_max);
+    GLfloat point_y = points.empty()
+                      ? (height_min + height_max) / 2.f
+                      : (points[0].y + rand.generateu(-deviation, deviation));
+    vec2 begin = vec2(point_x, point_y);
     std::vector<vec2> part_lines = generate_lines(begin);
+    part_lines = utils::math::rotate_points(part_lines, 0);
     std::vector<vec2> part_platforms = generate_platforms(part_lines);
-    GLfloat distance = part_lines.back().x - part_lines[0].x;
-    std::for_each(part_lines.begin(), part_lines.end(),
-                  [distance](vec2& p) { p.x -= distance; });
-    std::for_each(part_platforms.begin(), part_platforms.end(),
-                  [distance](vec2& p) { p.x -= distance; });
     points.insert(points.begin(), part_lines.cbegin(), part_lines.cend());
     platforms.insert(platforms.begin(), part_platforms.cbegin(), part_platforms.cend());
 

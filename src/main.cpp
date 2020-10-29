@@ -8,6 +8,9 @@
 #include <valgrind/callgrind.h>
 #endif
 
+// TODO: fix marginal exit from game
+// Throw specific exception to exit
+
 int main(int argc, char *args[])
 {
     try {

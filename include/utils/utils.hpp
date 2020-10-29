@@ -346,15 +346,35 @@ namespace utils
     GLuint loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
                                    GLenum textureType = GL_RGBA);
 
-    constexpr unsigned int power_two(unsigned int val) noexcept
-    {
-        unsigned int power = 2, nextVal = power * 2;
+    namespace math {
 
-        while ((nextVal *= 2) <= val)
-            power *= 2;
+        constexpr unsigned int power_two(unsigned int val) noexcept
+        {
+            unsigned int power = 2, nextVal = power * 2;
 
-        return power * 2;
+
+            while ((nextVal *= 2) <= val)
+                power *= 2;
+
+            return power * 2;
+        }
+
+        inline std::vector<vec2> rotate_points(const std::vector<vec2>& points, size_t idx)
+        {
+            assert(idx < points.size());
+
+            std::vector<vec2> res;
+            res.reserve(points.size());
+            for (size_t i = 0; i < points.size(); ++i)
+                res.push_back(points[i] + 2.f * (points[idx] - points[i]));
+
+            std::reverse(res.begin(), res.end());
+
+            return res;
+        }
+
     }
+
 
      /**
      * Load shader from file by specific path

@@ -26,6 +26,10 @@ public:
     std::vector<vec2> platforms;
     std::vector<vec2> points;
     std::vector<vec2> stars;
+
+private:
+    GLfloat point_dist_min;
+    GLfloat point_dist_max;
 };
 
 

@@ -201,17 +201,17 @@ void World::update_level()
         levelComp = levelEnt->getComponent<LevelComponent>();
     }
 
-    if (nearLeft) {
-        level.extendToLeft(m_camera);
-        levelComp->points = level.points;
-        levelComp->platforms = level.platforms;
-        levelComp->stars = level.stars;
-    } else if (nearRight) {
-        level.extendToRight(m_camera);
-        levelComp->points = level.points;
-        levelComp->platforms = level.platforms;
-        levelComp->stars = level.stars;
-    }
+//    if (nearLeft) {
+//        level.extendToLeft(m_camera);
+//        levelComp->points = level.points;
+//        levelComp->platforms = level.platforms;
+//        levelComp->stars = level.stars;
+//    } else if (nearRight) {
+//        level.extendToRight(m_camera);
+//        levelComp->points = level.points;
+//        levelComp->platforms = level.platforms;
+//        levelComp->stars = level.stars;
+//    }
 }
 
 void World::update_text()
@@ -416,7 +416,8 @@ void World::init_sprites()
                 utils::getResourcePath(earthPath));
     } catch (SdlException &e) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load sprite %s") % earthPath).str());
+                      (format("Unable to load sprite \"%s\"") % earthPath).str());
+        std::abort();
     }
     earthSprite->sprite->addClipSprite({200, 77, 40, 33});
     earthSprite->sprite->generateDataBuffer();
@@ -437,8 +438,14 @@ void World::init_text()
 
         auto fspTexture = fpsText.getComponent<TextComponent>();
         TTF_Font *font = open_font(msgFont, 14);
-        fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
-                                                       fontColor);
+        try {
+            fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
+                                                           fontColor);
+        } catch (SdlException &e) {
+            Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                          (format("Unable to load text \"%s\"") % "fpsText").str());
+            std::abort();
+        }
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -453,9 +460,15 @@ void World::init_text()
 
     auto velxTexture = velxText.getComponent<TextComponent>();
     TTF_Font *font = open_font(msgFont, 14);
-    velxTexture->texture =
-            make_shared<TextTexture>("Horizontal speed: -000.000", font,
-                                     fontColor);
+    try {
+        velxTexture->texture =
+                make_shared<TextTexture>("Horizontal speed: -000.000", font,
+                                         fontColor);
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load text \"%s\"") % "velxText").str());
+        std::abort();
+    }
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -469,9 +482,15 @@ void World::init_text()
 
     auto velyTexture = velyText.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    velyTexture->texture =
-            make_shared<TextTexture>("Vertical speed: -000.000", font,
-                                     fontColor);
+    try {
+        velyTexture->texture =
+                make_shared<TextTexture>("Vertical speed: -000.000", font,
+                                         fontColor);
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load text \"%s\"") % "velyText").str());
+        std::abort();
+    }
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -484,8 +503,14 @@ void World::init_text()
 
     auto altTexture = altitude.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
-                                                   fontColor);
+    try {
+        altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
+                                                       fontColor);
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load text \"%s\"") % "altitude").str());
+        std::abort();
+    }
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -498,8 +523,14 @@ void World::init_text()
 
     auto fuelTexture = fuel.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
-                                                    fontColor);
+    try {
+        fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
+                                                        fontColor);
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load text \"%s\"") % "fuel").str());
+        std::abort();
+    }
 
     auto fuelPos = fuel.getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -512,8 +543,14 @@ void World::init_text()
 
     auto timeTexture = time.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    timeTexture->texture = make_shared<TextTexture>("Time: -000.000", font,
-                                                    fontColor);
+    try {
+        timeTexture->texture = make_shared<TextTexture>("Time: -000.000", font,
+                                                        fontColor);
+    } catch (SdlException &e) {
+        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
+                      (format("Unable to load text \"%s\"") % "time").str());
+        std::abort();
+    }
 
     auto timePos = time.getComponent<PositionComponent>();
     timePos->x = m_screenWidth / 15.f;
@@ -529,7 +566,7 @@ void World::init_level()
     levelEnt.activate();
 
     auto levelComponent = levelEnt.getComponent<LevelComponent>();
-    //level.extendToLeft();
+    level.extendToLeft(m_camera);
     level.extendToRight(m_camera);
     levelComponent->points = level.points;
     levelComponent->stars = level.stars;
