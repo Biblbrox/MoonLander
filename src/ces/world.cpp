@@ -189,7 +189,6 @@ void World::update_level()
     auto shipPos = ship->getComponent<PositionComponent>();
 
     vec2 shipCoords = fix_coords({shipPos->x, shipPos->y}, m_camera);
-    //vec2 levelBorder = fix_coords({level.max_left, level.max_right}, m_camera);
     vec2 levelBorder = {level.max_left, level.max_right};
     bool nearLeft = shipCoords.x <= (levelBorder.x + m_screenWidth);
     bool nearRight = shipCoords.x >= (levelBorder.y - m_screenWidth);
@@ -201,17 +200,21 @@ void World::update_level()
         levelComp = levelEnt->getComponent<LevelComponent>();
     }
 
-//    if (nearLeft) {
-//        level.extendToLeft(m_camera);
-//        levelComp->points = level.points;
-//        levelComp->platforms = level.platforms;
-//        levelComp->stars = level.stars;
-//    } else if (nearRight) {
-//        level.extendToRight(m_camera);
-//        levelComp->points = level.points;
-//        levelComp->platforms = level.platforms;
-//        levelComp->stars = level.stars;
-//    }
+    if (nearLeft) {
+        level.extendToLeft(m_camera);
+        levelComp->points = level.points;
+        levelComp->platforms = level.platforms;
+        levelComp->stars = level.stars;
+    } else if (nearRight) {
+        level.extendToRight(m_camera);
+        levelComp->points = level.points;
+        levelComp->platforms = level.platforms;
+        levelComp->stars = level.stars;
+    }
+
+    //bool nearUp = shipCoords.y <= (level.stars.back().y + m_screenWidth);
+    //if (nearUp) {
+    //}
 }
 
 void World::update_text()
@@ -549,7 +552,7 @@ void World::init_text()
     } catch (SdlException &e) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load text \"%s\"") % "time").str());
-        std::abort();
+        throw SdlException("Time text load error!");
     }
 
     auto timePos = time.getComponent<PositionComponent>();
@@ -566,7 +569,6 @@ void World::init_level()
     levelEnt.activate();
 
     auto levelComponent = levelEnt.getComponent<LevelComponent>();
-    level.extendToLeft(m_camera);
     level.extendToRight(m_camera);
     levelComponent->points = level.points;
     levelComponent->stars = level.stars;
@@ -628,7 +630,6 @@ void World::init_ship()
         if (state[SDL_SCANCODE_RIGHT])
             shipVel->angle += rot_step;
     };
-    // Ship reference invalidate
 }
 
 void World::move_from_camera()
@@ -668,7 +669,7 @@ TTF_Font* World::open_font(const std::string& fontName, size_t fontSize)
     if (!font) {
         Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
                       (format("Unable to load font %s\n") % fontName).str());
-        std::abort();
+        throw SdlException("open_font error!");
     }
 
     return font;

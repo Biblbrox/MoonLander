@@ -38,7 +38,7 @@ utils::loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height
         Logger::write(program_log_file_name(), log::Category::INTERNAL_ERROR,
                       (format("Error loading texture from %1% pixels! %2%\n")
                        % pixels % gluErrorString(error)).str());
-        std::abort();
+        throw GLException("loadTextureFromPixels32 error");
     }
 
     return textureID;

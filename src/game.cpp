@@ -173,7 +173,7 @@ void Game::initGL()
                       (format("Error initializing OpenGL! %s\n")
                        % gluErrorString(error)).str());
         quit();
-        std::abort();
+        throw GLException("Error while initGL!");
     }
 }
 

@@ -15,6 +15,8 @@ public:
     ~Level();
     void extendToRight(const Camera& camera);
     void extendToLeft(const Camera& camera);
+    void extendToUp(std::vector<vec2>::iterator left,
+                    std::vector<vec2>::iterator right);
 
     // Need to be set after sdl initialized
     GLfloat height_min;

@@ -14,20 +14,34 @@ Level::~Level()
 {
 }
 
+template <typename BidirectionalIterator>
+std::vector<vec2> generate_stars(BidirectionalIterator left,
+                                 BidirectionalIterator right, GLfloat gap = 0)
+{
+    utils::Random rand;
+    std::vector<vec2> stars;
+    size_t size = std::distance(left, right);
+    size_t line_count = size / 2;
+    for (auto it = left; it != right - 1; ++it) {
+        GLfloat lower = std::max((it + 1)->y, it->y);
+        GLfloat higher = std::min((it + 1)->y, it->y);
+        for (size_t j = 0; j < stars_initial_size / line_count; ++j)
+            stars.emplace_back(rand.generateu(it->x, (it + 1)->x),
+                               rand.generateu(lower - gap, higher - gap - frame_width));
+    }
+
+    return stars;
+}
+
 /**
  * Generate stars with x coordinate in range {left, right}
  * @param left
  * @param right
  * @return
  */
-std::vector<vec2> generate_stars(GLfloat left, GLfloat right, GLfloat bottom, GLfloat up)
+std::vector<vec2> generate_stars(const std::vector<vec2>& points, GLfloat gap = 0)
 {
-    utils::Random urand;
-    std::vector<vec2> stars;
-    for (size_t i = 0; i < stars_initial_size; ++i)
-        stars.emplace_back(urand.generateu(left, right),
-                           urand.generateu(bottom, up));
-    return stars;
+    return generate_stars(points.cbegin(), points.cend(), gap);
 }
 
 /**
@@ -104,9 +118,12 @@ void Level::extendToRight(const Camera& camera)
     max_left = points[0].x + camera.getX();
     max_right = points.back().x + camera.getX();
 
-    std::vector<vec2> part_stars = generate_stars(begin.x, points.back().x,
-                                                  0.f, height_max * 10.f);
-    stars.insert(stars.begin(), part_stars.cbegin(), part_stars.cend());
+    std::vector<vec2> part_stars = generate_stars(part_lines);
+    std::sort(part_stars.begin(), part_stars.end(),
+              [](const vec2& first, const vec2& second) {
+                  return first.y < second.y;
+    });
+    stars.insert(stars.end(), part_stars.cbegin(), part_stars.cend());
 }
 
 void Level::extendToLeft(const Camera& camera)
@@ -129,8 +146,16 @@ void Level::extendToLeft(const Camera& camera)
     max_left = points[0].x + camera.getX();
     max_right = points.back().x + camera.getX();
 
-    std::vector<vec2> part_stars = generate_stars(part_lines.begin()->x,
-                                                  part_lines.back().x,
-                                                  0.f, height_max * 10.f);
+    std::vector<vec2> part_stars = generate_stars(part_lines);
+    std::sort(part_stars.begin(), part_stars.end(),
+              [](const vec2& first, const vec2& second) {
+                  return first.y < second.y;
+              });
     stars.insert(stars.begin(), part_stars.cbegin(), part_stars.cend());
+}
+
+void Level::extendToUp(std::vector<vec2>::iterator left,
+                       std::vector<vec2>::iterator right)
+{
+
 }
