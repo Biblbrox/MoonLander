@@ -1,9 +1,10 @@
 #include "../include/render.hpp"
+#include "../include/utils/math.h"
 
 using glm::vec2;
 using glm::mat4;
 using glm::vec3;
-using utils::rotate_around;
+using utils::math::rotate_around;
 
 void render::drawLinen(const std::vector<vec2>& points, bool adjacency)
 {

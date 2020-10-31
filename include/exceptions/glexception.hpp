@@ -1,21 +1,23 @@
 #ifndef MOONLANDER_GLEXCEPTION_HPP
 #define MOONLANDER_GLEXCEPTION_HPP
 
-#include <exception>
 #include <string>
+#include "basegameexception.h"
+#include "../utils/logger.hpp"
+
+using utils::log::Category;
 
 /**
  * Exception class that can be throw when happened some error
  * with gl functions.
  */
-class GLException: public std::exception
+class GLException: public BaseGameException
 {
 public:
-    explicit GLException(std::string msg);
-    const char* what() const noexcept override;
-
-private:
-    std::string m_message;
+    explicit GLException(std::string msg,
+                         std::string fileLog = "moonlander_log.log",
+                         Category category = Category::INTERNAL_ERROR)
+            : BaseGameException(std::move(msg), std::move(fileLog), category) {}
 };
 
 

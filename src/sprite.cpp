@@ -5,6 +5,8 @@
 #include <SDL_ttf.h>
 
 using utils::log::Category;
+using utils::log::program_log_file_name;
+using utils::log::shader_log_file_name;
 
 Sprite::Sprite(const std::string& path)
 {
@@ -118,17 +120,13 @@ void Sprite::generateDataBuffer()
         }
 
     } else {
-        if (m_textureId == 0) {
-            Logger::write(utils::program_log_file_name(), Category::INTERNAL_ERROR,
-                          "No texture to render\n");
-            std::abort();
-        }
+        if (m_textureId == 0)
+            throw SdlException("No texture to render\n",
+                               program_log_file_name(), Category::INTERNAL_ERROR);
 
-        if (m_clips.empty()) {
-            Logger::write(utils::program_log_file_name(), Category::INTERNAL_ERROR,
-                          "No data generate from\n");
-            std::abort();
-        }
+        if (m_clips.empty())
+            throw SdlException("No data generate from\n",
+                               program_log_file_name(), Category::INTERNAL_ERROR);
     }
 }
 

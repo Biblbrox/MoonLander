@@ -23,6 +23,7 @@
 
 using utils::log::Logger;
 using utils::getResourcePath;
+using utils::log::program_log_file_name;
 using boost::format;
 using utils::physics::altitude;
 using std::floor;
@@ -413,14 +414,8 @@ void World::init_sprites()
 
     auto earthSprite = earth.getComponent<SpriteComponent>();
     const std::string earthPath = "lunar_lander_bw.png";
-    try {
-        earthSprite->sprite = make_shared<Sprite>(
-                utils::getResourcePath(earthPath));
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load sprite \"%s\"") % earthPath).str());
-        std::abort();
-    }
+    earthSprite->sprite = make_shared<Sprite>(
+            utils::getResourcePath(earthPath));
     earthSprite->sprite->addClipSprite({200, 77, 40, 33});
     earthSprite->sprite->generateDataBuffer();
 
@@ -440,14 +435,8 @@ void World::init_text()
 
         auto fspTexture = fpsText.getComponent<TextComponent>();
         TTF_Font *font = open_font(msgFont, 14);
-        try {
-            fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
-                                                           fontColor);
-        } catch (SdlException &e) {
-            Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                          (format("Unable to load text \"%s\"") % "fpsText").str());
-            std::abort();
-        }
+        fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
+                                                       fontColor);
 
         auto fpsPos = fpsText.getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -462,15 +451,9 @@ void World::init_text()
 
     auto velxTexture = velxText.getComponent<TextComponent>();
     TTF_Font *font = open_font(msgFont, 14);
-    try {
-        velxTexture->texture =
-                make_shared<TextTexture>("Horizontal speed: -000.000", font,
-                                         fontColor);
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load text \"%s\"") % "velxText").str());
-        std::abort();
-    }
+    velxTexture->texture =
+            make_shared<TextTexture>("Horizontal speed: -000.000", font,
+                                     fontColor);
 
     auto velxPos = velxText.getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -484,15 +467,9 @@ void World::init_text()
 
     auto velyTexture = velyText.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    try {
-        velyTexture->texture =
-                make_shared<TextTexture>("Vertical speed: -000.000", font,
-                                         fontColor);
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load text \"%s\"") % "velyText").str());
-        std::abort();
-    }
+    velyTexture->texture =
+            make_shared<TextTexture>("Vertical speed: -000.000", font,
+                                     fontColor);
 
     auto velyPos = velyText.getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -505,14 +482,8 @@ void World::init_text()
 
     auto altTexture = altitude.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    try {
-        altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
-                                                       fontColor);
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load text \"%s\"") % "altitude").str());
-        std::abort();
-    }
+    altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
+                                                   fontColor);
 
     auto altPos = altitude.getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -525,14 +496,8 @@ void World::init_text()
 
     auto fuelTexture = fuel.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    try {
-        fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
-                                                        fontColor);
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load text \"%s\"") % "fuel").str());
-        std::abort();
-    }
+    fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
+                                                    fontColor);
 
     auto fuelPos = fuel.getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
@@ -545,14 +510,8 @@ void World::init_text()
 
     auto timeTexture = time.getComponent<TextComponent>();
     font = open_font(msgFont, 14);
-    try {
-        timeTexture->texture = make_shared<TextTexture>("Time: -000.000", font,
-                                                        fontColor);
-    } catch (SdlException &e) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load text \"%s\"") % "time").str());
-        throw SdlException("Time text load error!");
-    }
+    timeTexture->texture = make_shared<TextTexture>("Time: -000.000", font,
+                                                    fontColor);
 
     auto timePos = time.getComponent<PositionComponent>();
     timePos->x = m_screenWidth / 15.f;
@@ -665,11 +624,10 @@ void World::filter_entities()
 TTF_Font* World::open_font(const std::string& fontName, size_t fontSize)
 {
     TTF_Font* font = TTF_OpenFont(getResourcePath(fontName).c_str(), fontSize);
-    if (!font) {
-        Logger::write(utils::program_log_file_name(), Category::FILE_ERROR,
-                      (format("Unable to load font %s\n") % fontName).str());
-        throw SdlException("open_font error!");
-    }
+    if (!font)
+        throw SdlException((format("Unable to load font %s\nError: %s\n")
+                            % fontName % TTF_GetError()).str(),
+                           program_log_file_name(), Category::INTERNAL_ERROR);
 
     return font;
 }

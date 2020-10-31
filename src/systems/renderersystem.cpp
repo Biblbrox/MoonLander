@@ -5,7 +5,7 @@
 
 using utils::log::Logger;
 using boost::format;
-using utils::program_log_file_name;
+using utils::log::program_log_file_name;
 using utils::log::Category;
 using glm::mat4;
 using glm::vec3;
@@ -48,6 +48,11 @@ void RendererSystem::drawLevel()
         program->leftMultModel(scaling);
         program->updateModel();
     }
+
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
 void RendererSystem::drawSprites()
@@ -61,6 +66,10 @@ void RendererSystem::drawSprites()
                            en->getComponent<PositionComponent>()->angle,
                            en->getComponent<PositionComponent>()->scale_factor);
     }
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
 void RendererSystem::drawText()
@@ -74,31 +83,17 @@ void RendererSystem::drawText()
                            en->getComponent<PositionComponent>()->angle,
                            en->getComponent<PositionComponent>()->scale_factor);
     }
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
 void RendererSystem::update_state(size_t delta)
 {
     drawLevel();
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
-                      (format("\n\tRender while drawing level: %1%\n")
-                       % glewGetErrorString(error)).str());
-        std::abort();
-    }
     drawSprites();
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
-                      (format("\n\tRender while drawing sprites: %1%\n")
-                       % glewGetErrorString(error)).str());
-        std::abort();
-    }
     drawText();
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
-                      (format("\n\tRender while drawing text objects: %1%\n")
-                       % glewGetErrorString(error)).str());
-        std::abort();
-    }
 }
 
 RendererSystem::RendererSystem()

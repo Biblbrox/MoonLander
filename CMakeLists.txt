@@ -30,27 +30,8 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIR}
         ${GLM_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
-set(HPP include/constants.hpp include/utils/utils.hpp include/level.hpp
-        include/texture.hpp include/camera.hpp include/utils/timer.hpp
-        include/texttexture.hpp include/sprite.hpp include/moonlanderprogram.hpp
-        include/game.hpp include/abstract/shaderprogram.hpp
-        include/ces/world.hpp include/ces/component.hpp include/ces/entity.hpp
-        include/ces/system.hpp include/systems/renderersystem.hpp
-        include/systems/movementsystem.hpp include/systems/animationsystem.hpp
-        include/systems/collisionsystem.hpp include/systems/physics_system.hpp
-        include/utils/logger.hpp include/systems/particlerendersystem.hpp
-        include/exceptions/fsexception.hpp)
-
-set(CPP src/main.cpp src/utils/utils.cpp src/level.cpp src/texture.cpp
-        src/utils/timer.cpp src/moonlanderprogram.cpp  src/camera.cpp
-        src/texttexture.cpp src/sprite.cpp src/game.cpp src/shaderprogram.cpp
-        src/ces/component.cpp src/ces/system.cpp src/ces/world.cpp src/ces/entity.cpp
-        src/systems/renderersystem.cpp src/systems/movementsystem.cpp
-        src/systems/keyboardsystem.cpp src/systems/animationsystem.cpp
-        src/systems/collisionsystem.cpp src/systems/physicssystem.cpp
-        src/utils/logger.cpp src/systems/particlerendersystem.cpp
-        src/audio.cpp src/render.cpp src/exceptions/fsexception.cpp
-        src/exceptions/sdlexception.cpp src/exceptions/glexception.cpp)
+FILE(GLOB_RECURSE CPP RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+FILE(GLOB_RECURSE HPP RELATIVE ${CMAKE_SOURCE_DIR} "include/*.hpp" "include/*.h")
 
 set(SOURCES ${HPP} ${CPP})
 set(SDL2_TTF_LIBRARIES SDL2_ttf)

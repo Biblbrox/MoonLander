@@ -1,5 +1,6 @@
 #include <utils/random.h>
 #include <utils/utils.hpp>
+#include <utils/math.h>
 #include "level.hpp"
 
 const GLfloat frame_width = 2000;
@@ -9,6 +10,7 @@ const int points_initial_size = 500;
 const GLfloat deviation = 20.f;
 
 using glm::vec2;
+using utils::math::rotate_points;
 
 Level::~Level()
 {
@@ -137,7 +139,7 @@ void Level::extendToLeft(const Camera& camera)
                       : (points[0].y + rand.generateu(-deviation, deviation));
     vec2 begin = vec2(point_x, point_y);
     std::vector<vec2> part_lines = generate_lines(begin);
-    part_lines = utils::math::rotate_points(part_lines, 0);
+    part_lines = rotate_points(part_lines, 0);
     std::vector<vec2> part_platforms = generate_platforms(part_lines);
     points.insert(points.begin(), part_lines.cbegin(), part_lines.cend());
     platforms.insert(platforms.begin(), part_platforms.cbegin(), part_platforms.cend());

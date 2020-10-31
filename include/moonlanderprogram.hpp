@@ -76,12 +76,17 @@ private:
     GLuint m_uniformTriangles[2];
     GLuint m_uniformLines[2];
 
+    GLuint m_vertexShader = 0;
+    GLuint m_geomShaders[4];
+    GLuint m_fragmentShader = 0;
+
     GLuint m_matricesUBO;
     GLuint m_textureDataUBO;
 
     int m_isTextureRender;
 
     void remove_programs();
+    void remove_shaders();
     void free_buffers();
 };
 

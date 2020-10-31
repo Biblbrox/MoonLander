@@ -13,6 +13,9 @@
 
 void quit();
 
+using utils::log::program_log_file_name;
+using utils::log::Category;
+
 int main(int argc, char *args[])
 {
     try {
@@ -74,10 +77,14 @@ int main(int argc, char *args[])
                 last_update_time = cur_time;
         }
 
+    } catch (const BaseGameException& e) {
+        utils::log::Logger::write(e.fileLog(), e.categoryError(), e.what());
+        quit();
+        return -1;
     } catch (const std::exception& e) {
-        utils::log::Logger::write(utils::program_log_file_name(),
-                                  utils::log::Category::UNEXPECTED_ERROR,
-                                  e.what());
+        utils::log::Logger::write(program_log_file_name(),
+                                  Category::UNEXPECTED_ERROR, e.what());
+        quit();
         return -1;
     }
 

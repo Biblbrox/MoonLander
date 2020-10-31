@@ -7,6 +7,7 @@
 #include <SDL_ttf.h>
 #include <utils/fps.hpp>
 #include <level.hpp>
+#include <utils/timer.hpp>
 #include "utils/utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"

@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <constants.hpp>
+#include <exceptions/sdlexception.h>
 
 #define FREQUENCY 44100
 #define SAMPLE_FORMAT MIX_DEFAULT_FORMAT
@@ -21,11 +22,12 @@ static GameStates state = GameStates::NORMAL;
 static GameStates prevState = GameStates::NORMAL;
 
 using utils::log::Logger;
+using utils::log::Category;
+using utils::log::program_log_file_name;
 using boost::format;
 
 void quit()
 {
-    // TODO: fix destructor call
     if (m_glcontext)
         SDL_GL_DeleteContext(m_glcontext);
     if (TTF_WasInit())
@@ -72,40 +74,33 @@ void Game::initOnceSDL2()
     static bool didInit = false;
 
     if (!didInit) {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
-            Logger::write(utils::program_log_file_name(),
-                          utils::log::Category::INITIALIZATION_ERROR,
-                          "Unable to init SDL\n");
-            std::abort();
-        }
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+            throw SdlException((format("SDL initialization error: %1%\n")
+                                % SDL_GetError()).str(),
+                               program_log_file_name(),
+                               Category::INITIALIZATION_ERROR);
 
-        if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS) {
-            Logger::write(utils::program_log_file_name(),
-                          utils::log::Category::INITIALIZATION_ERROR,
-                          "Unable to init SDL_IMG\n");
-            quit();
-            std::abort();
-        }
+        if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS)
+            throw SdlException((format("SDL_IMG initialization error: %1%\n")
+                                % IMG_GetError()).str(),
+                               program_log_file_name(),
+                               Category::INITIALIZATION_ERROR);
+
         imgInit = true;
 
-        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT,
-                          NUM_CHANNELS, CHUNK_SIZE) < 0) {
-            Logger::write(utils::program_log_file_name(),
-                          utils::log::Category::INITIALIZATION_ERROR,
-                          "Unable to init SDL_Mixer\n");
-            quit();
-            std::abort();
+        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT, NUM_CHANNELS, CHUNK_SIZE) < 0)
+            throw SdlException((format("SDL_Mixer initialization error: %1%\n")
+                                % Mix_GetError()).str(),
+                               program_log_file_name(),
+                               Category::INITIALIZATION_ERROR);
 
-        }
         mixerInit = true;
 
-        if (TTF_Init() == -1) {
-            Logger::write(utils::program_log_file_name(),
-                          utils::log::Category::INITIALIZATION_ERROR,
-                          "Can't init SDL_TTF\n");
-            quit();
-            std::abort();
-        }
+        if (TTF_Init() == -1)
+            throw SdlException((format("SDL_TTF initialization error: %1%\n")
+                                % TTF_GetError()).str(),
+                               program_log_file_name(),
+                               Category::INITIALIZATION_ERROR);
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -148,44 +143,32 @@ void Game::initGL()
                                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 m_screenWidth, m_screenHeight,
                                 WINDOW_FLAGS);
-    if (!m_window) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
-                      (format("Unable to create window! "
-                              "SDL Error: %s\n") % SDL_GetError()).str());
-        quit();
-        std::abort();
-    }
+    if (!m_window)
+        throw SdlException((format("Unable to create window. Error: %1%\n")
+                            % SDL_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
     m_glcontext = SDL_GL_CreateContext(m_window);
     // Init OpenGL context
-    if (!m_glcontext) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
-                      (format("OpenGL context could not be created! "
-                              "SDL Error: %s\n") % SDL_GetError()).str());
-        quit();
-        std::abort();
-    }
+    if (!m_glcontext)
+        throw SdlException((format("Unable to create gl context. Error: %1%\n")
+                            % SDL_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
     glewExperimental = GL_TRUE;
     GLenum error = glewInit();
-    if (error != GLEW_OK) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
-                      (format("Error when initializing GLEW: %s\n")
-                       % glewGetErrorString(error)).str());
-        quit();
-        std::abort();
-    }
+    if (error != GLEW_OK)
+        throw SdlException((format("Error when initializing GLEW: %s\n")
+                            % glewGetErrorString(error)).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
-    if (!GLEW_VERSION_2_1) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
-                      (format("Opengl 2.1 not supported\n")).str());
-        quit();
-        std::abort();
-    }
+    if (!GLEW_VERSION_2_1)
+        throw SdlException("Your opengl version too old\n",
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
     //Initialize clear color
     glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -200,8 +183,8 @@ void Game::initGL()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //Use Vsync
     if(SDL_GL_SetSwapInterval(-1) < 0) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
+        Logger::write(program_log_file_name(),
+                      Category::INITIALIZATION_ERROR,
                       (format("Warning: Unable to enable VSync. "
                               "VSync will not be used! SDL Error: %s\n")
                        % SDL_GetError()).str());
@@ -214,14 +197,11 @@ void Game::initGL()
 
     //Check for error
     error = glGetError();
-    if(error != GL_NO_ERROR) {
-        Logger::write(utils::program_log_file_name(),
-                      utils::log::Category::INITIALIZATION_ERROR,
-                      (format("Error initializing OpenGL! %s\n")
-                       % gluErrorString(error)).str());
-        quit();
-        throw GLException("Error while initGL!");
-    }
+    if(error != GL_NO_ERROR)
+        throw GLException((format("Error initializing OpenGL! %s\n")
+                           % gluErrorString(error)).str(),
+                          program_log_file_name(),
+                          Category::INITIALIZATION_ERROR);
 }
 
 void Game::flush()

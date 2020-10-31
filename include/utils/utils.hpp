@@ -1,28 +1,21 @@
 #ifndef MOONLANDER_UTILS_H
 #define MOONLANDER_UTILS_H
 
-#include <SDL_render.h>
 #include <GL/glew.h>
 #include <string>
-#include <iostream>
 #include <SDL_image.h>
-#include <random>
 #include <glm/vec3.hpp>
 #include <typeinfo>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <fstream>
 #include <boost/format.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <components/positioncomponent.hpp>
 #include <exceptions/fsexception.hpp>
 #include <exceptions/glexception.hpp>
-#include <sstream>
 #include <camera.hpp>
 #include "constants.hpp"
-#include "timer.hpp"
 #include "logger.hpp"
 
 using glm::vec2;
@@ -54,16 +47,6 @@ namespace utils
         vec2 c;
         vec2 d;
     };
-
-    constexpr const char* shader_log_file_name()
-    {
-        return "shader_log.log";
-    }
-
-    constexpr const char* program_log_file_name()
-    {
-        return "moonlander_log.log";
-    }
 
     inline std::vector<std::string> split_to_lines(const std::string& str)
     {
@@ -100,151 +83,10 @@ namespace utils
         return clips;
     }
 
-    /**
-     * TypeList declaration
-     * @tparam Args
-     */
-    template <typename... Args>
-    struct TypeList;
-
-    template <typename H, typename... T>
-    struct TypeList<H, T...>
-    {
-        using Head = H;
-        using Tail = TypeList<T...>;
-    };
-
-    template <>
-    struct TypeList<> {};
-
-    template <typename TypeList>
-    struct Length
-    {
-        static int const value = 1 + Length<typename TypeList::Tail>::value;
-    };
-
-    template <>
-    struct Length <TypeList<>>
-    {
-        static int const value = 0;
-    };
-
-    /**
-     * Apply unary functor to each element in TypeList (TL)
-     * Also apply binary functor to each pair of elements
-     * from right to left which is result of unary functor.
-     * Both unary and binary functor must return some value
-     * They can't be void.
-     * Final return value of this function is result of binary
-     * function.
-     * @tparam TL
-     * @tparam UnFunctor
-     * @tparam BinFunctor
-     * @param unfunc
-     * @param binfunc
-     * @return
-     */
-    template <class TL, class UnFunctor, class BinFunctor>
-    constexpr auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
-    {
-        static_assert(Length<TL>::value >= 2,
-                "Length<TypeList<Args...>>::value >= 2");
-
-        typename TL::Head val;
-        auto res = unfunc(val);
-
-        if constexpr (Length<TL>::value == 2) { // Base case
-            typename TL::Tail::Head tmp;
-            return binfunc(res, unfunc(tmp));
-        } else { // Recursion
-            return binfunc(res, typeListReduce<typename TL::Tail>(unfunc, binfunc));
-        }
-    }
-
     template<typename T>
     constexpr size_t type_id() noexcept
     {
         return typeid(T).hash_code();
-    }
-
-    /**
-     * Namespace for logging functions
-     */
-    namespace log
-    {
-        /**
-         * Writes shader log to shader log file and standard output
-         * @param shader
-         */
-        inline void printShaderLog(GLuint shader)
-        {
-            if (glIsShader(shader)) {
-                int infoLength = 0;
-                int maxLength = infoLength;
-
-                glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-                char *log_str = new char[maxLength];
-
-                glGetShaderInfoLog(shader, maxLength, &infoLength, log_str);
-                if (infoLength > 0) {
-                    log::Logger::write(shader_log_file_name(),
-                                       log::Category::INTERNAL_ERROR,
-                                       (boost::format("Shader log:\n\n%s")
-                                        % log_str).str());
-                }
-
-                delete[] log_str;
-            } else {
-                std::cerr << (boost::format("Name %d is not a shader\n")
-                              % shader).str() << std::endl;
-            }
-        }
-
-        /**
-         * Writes program log to shader log file and standard output
-         * @param program
-         */
-        inline void printProgramLog(GLuint program)
-        {
-            if (glIsProgram(program)) {
-                int infoLength = 0;
-                int maxLength = infoLength;
-
-                glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-                char *log_str = new char[maxLength];
-
-                glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
-                if (infoLength > 0) {
-                    Logger::write(shader_log_file_name(),
-                                  Category::INTERNAL_ERROR,
-                                  (format("Shader program log:\n\n%s")
-                                   % log_str).str());
-                }
-
-                delete[] log_str;
-            } else {
-                Logger::write(shader_log_file_name(),Category::INTERNAL_ERROR,
-                              (format("Name %1% is not a program\n")
-                               % program).str());
-            }
-        }
-    }
-
-    /**
-     *
-     * @param m
-     * @param v
-     * @param angle
-     * @return
-     */
-    inline glm::mat4
-    rotate_around(const glm::mat4 &m, const glm::vec3 &v, GLfloat angle)
-    {
-        glm::mat4 tr1 = glm::translate(m, v);
-        glm::mat4 ro = glm::rotate(tr1, angle, glm::vec3(0.f, 0.f, 1.f));
-        glm::mat4 tr2 = glm::translate(ro, -v);
-
-        return tr2;
     }
 
     namespace physics
@@ -346,35 +188,6 @@ namespace utils
     GLuint loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
                                    GLenum textureType = GL_RGBA);
 
-    namespace math {
-
-        constexpr unsigned int power_two(unsigned int val) noexcept
-        {
-            unsigned int power = 2, nextVal = power * 2;
-
-
-            while ((nextVal *= 2) <= val)
-                power *= 2;
-
-            return power * 2;
-        }
-
-        inline std::vector<vec2> rotate_points(const std::vector<vec2>& points, size_t idx)
-        {
-            assert(idx < points.size());
-
-            std::vector<vec2> res;
-            res.reserve(points.size());
-            for (size_t i = 0; i < points.size(); ++i)
-                res.push_back(points[i] + 2.f * (points[idx] - points[i]));
-
-            std::reverse(res.begin(), res.end());
-
-            return res;
-        }
-
-    }
-
 
      /**
      * Load shader from file by specific path
@@ -385,37 +198,7 @@ namespace utils
      * @param shaderType
      * @return
      */
-     inline GLuint loadShaderFromFile(const std::string &path, GLenum shaderType)
-     {
-         assert(!path.empty() && "Empty file path");
-         GLuint shaderID = 0;
-         std::string shaderString;
-         std::ifstream sourceFile(path.c_str());
-         if (!sourceFile.is_open())
-             throw FSException((format("Can't open shader source file %1%\n")
-                                % path).str());
-
-         shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
-                             std::istreambuf_iterator<char>());
-
-         shaderID = glCreateShader(shaderType);
-         const GLchar *shaderSource = shaderString.c_str();
-         glShaderSource(shaderID, 1, (const GLchar**) &shaderSource, NULL);
-         glCompileShader(shaderID);
-
-         GLint shaderCompiled = GL_FALSE;
-         glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
-         if (shaderCompiled != GL_TRUE) {
-             glDeleteShader(shaderID);
-             sourceFile.close();
-             throw GLException(
-                     (format("Unable to compile shader %1%\n\nSource:\n%2%\n")
-                      % shaderID % shaderSource).str());
-         }
-
-         sourceFile.close();
-         return shaderID;
-    }
+     GLuint loadShaderFromFile(const std::string &path, GLenum shaderType);
 
     /**
      * Return Surface format
