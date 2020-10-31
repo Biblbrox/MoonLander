@@ -10,7 +10,7 @@ class Sprite: public Texture
 public:
     explicit Sprite(const std::string& path);
     ~Sprite();
-    bool load(const std::string& path);
+    void load(const std::string& path);
     GLuint addClipSprite(utils::Rect clip);
     utils::Rect getClip(GLuint idx);
 
@@ -22,7 +22,7 @@ public:
     GLuint getSpritesCount() const;
 
     void generateDataBuffer() override;
-    void freeVBO() override final;
+    void freeVBO() noexcept override final;
 
     GLuint getVAO() const override;
 protected:

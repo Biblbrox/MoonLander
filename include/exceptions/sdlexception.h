@@ -1,16 +1,20 @@
 #ifndef MOONLANDER_SDLEXCEPTION_H
 #define MOONLANDER_SDLEXCEPTION_H
 
-#include <exception>
 #include <string>
+#include "basegameexception.h"
 
-class SdlException : public std::exception
+/**
+ * Exception class that can be throw when some error happened
+ * with sdl functions.
+ */
+class SdlException : public BaseGameException
 {
 public:
-    explicit SdlException(std::string msg);
-    const char* what() const noexcept override;
-private:
-    std::string m_message;
+    explicit SdlException(std::string msg,
+                          std::string fileLog = "moonlander_log.log",
+                          Category category = Category::INTERNAL_ERROR)
+            : BaseGameException(msg, fileLog, category) {}
 };
 
 #endif //MOONLANDER_SDLEXCEPTION_H

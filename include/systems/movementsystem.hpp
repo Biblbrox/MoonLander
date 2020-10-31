@@ -17,7 +17,7 @@ class MovementSystem: public
 public:
     explicit MovementSystem();
 
-    void update(size_t delta) override;
+    void update_state(size_t delta) override;
 };
 
 #endif //MOONLANDER_MOVEMENTSYSTEM_HPP

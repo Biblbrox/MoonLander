@@ -12,7 +12,7 @@
  */
 class AnimationSystem : public System<SpriteComponent, AnimationComponent>
 {
-    void update(size_t delta) override;
+    void update_state(size_t delta) override;
 };
 
 #endif //MOONLANDER_ANIMATIONSYSTEM_HPP

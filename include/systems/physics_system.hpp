@@ -8,7 +8,7 @@
 class PhysicsSystem : public System <VelocityComponent, ParticleSpriteComponent>
 {
 public:
-    void update(size_t delta) override;
+    void update_state(size_t delta) override;
 };
 
 #endif //MOONLANDER_PHYSICS_SYSTEM_HPP

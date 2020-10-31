@@ -14,7 +14,7 @@ class Texture
 public:
     virtual ~Texture();
 
-    virtual GLuint getTextureID();
+    virtual GLuint getTextureID() const;
 
     virtual GLuint getWidth() const;
     virtual GLuint getHeight() const;
@@ -23,7 +23,7 @@ public:
     virtual void generateDataBuffer() = 0;
 
     virtual void freeTexture() final;
-    virtual void freeVBO() = 0;
+    virtual void freeVBO() noexcept = 0;
 
 protected:
     explicit Texture();

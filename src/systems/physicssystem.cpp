@@ -1,6 +1,7 @@
+
 #include "../../include/systems/physics_system.hpp"
 
-void PhysicsSystem::update(size_t delta)
+void PhysicsSystem::update_state(size_t delta)
 {
     auto entities = getEntitiesByTag<VelocityComponent>();
     for (auto& [key, en] : entities)
@@ -8,8 +9,8 @@ void PhysicsSystem::update(size_t delta)
 
     auto particles = getEntitiesByTag<ParticleSpriteComponent>();
     for (auto& [key, en] : particles) {
-        auto& coords = en->getComponent<ParticleSpriteComponent>()->coords;
-        for (auto& coord: coords)
-            coord.y += gravity_force / weight;
+        auto& vels = en->getComponent<ParticleSpriteComponent>()->vel;
+        for (auto& vel: vels)
+            vel.y += gravity_force / weight;
     }
 }

@@ -1,16 +1,17 @@
 #ifndef MOONLANDER_ENTITY_HPP
 #define MOONLANDER_ENTITY_HPP
 
-#include <vector>
-#include <map>
 #include <memory>
 #include <unordered_map>
 #include "utils/utils.hpp"
+#include "utils/typelist.h"
 
 class World;
 class Component;
 
 using utils::type_id;
+using utils::TypeList;
+using utils::Length;
 
 /**
  * Entity class
@@ -21,6 +22,11 @@ class Entity
 public:
 
     Entity() : m_alive(false) {}
+    ~Entity() {};
+    Entity(Entity&& en) = default;
+    Entity(Entity& en) = default;
+    Entity& operator=(Entity&&) = default;
+    Entity& operator=(const Entity&) = default;
 
     /**
      * Create new component and return
@@ -37,6 +43,27 @@ public:
                 std::static_pointer_cast<Component>(std::make_shared<ComponentType>());
         return m_components[type_id<ComponentType>()];
     }
+
+    template <class ...ComponentTypes>
+    void addComponents()
+    {
+        //TODO: add static_assert check
+
+        using ComponentList = utils::TypeList<ComponentTypes...>;
+        static_assert(utils::Length<ComponentList>::value >= 2,
+                      "Length of ComponentTypes must be greeter than 2");
+
+        auto bin = [](auto x, auto y){ return 0; };
+
+        auto un = [this](auto x){
+            m_components[type_id<decltype(x)>()] =
+                    std::static_pointer_cast<Component>(std::make_shared<decltype(x)>());
+            return 0;
+        };
+
+        utils::typeListReduce<ComponentList>(un, bin);
+    }
+
 
     /**
      * Get component by type
@@ -85,7 +112,7 @@ public:
     const std::unordered_map<size_t, std::shared_ptr<Component>>&
     getComponents() const;
 
-    void setWorld(std::shared_ptr<World> world);
+    void setWorld(World* world);
 
     void activate();
     bool isActivate();
@@ -93,7 +120,7 @@ public:
 
 private:
     std::unordered_map<size_t, std::shared_ptr<Component>> m_components;
-    std::shared_ptr<World> m_world;
+    World* m_world;
     bool m_alive;
 };
 

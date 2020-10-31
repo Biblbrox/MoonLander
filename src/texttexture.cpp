@@ -25,19 +25,12 @@ void TextTexture::setColor(SDL_Color color)
     m_color = color;
 }
 
-TextTexture::TextTexture(std::string textureText, SDL_Color color,
-                         TTF_Font *font)
+TextTexture::TextTexture(const std::string& textureText,
+                         TTF_Font *font, SDL_Color color)
 {
-    if (!font) {
-        m_font = TTF_OpenFont(getResourcePath("kenvector_future2.ttf").c_str(), 14);
-        if (!m_font) {
-            SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
-            std::abort();
-        }
-    } else {
-        m_font = font;
-    }
+    assert(font != nullptr);
 
+    m_font = font;
     m_color = color;
     m_text = textureText;
     m_vaoId = 0;
@@ -48,9 +41,22 @@ TextTexture::TextTexture(std::string textureText, SDL_Color color,
 void TextTexture::load(const std::string &textureText, SDL_Color color,
                        TTF_Font* font)
 {
+    assert(!textureText.empty());
+
+    size_t old_width = m_textureWidth;
+
     freeTexture();
-    SDL_Surface* surface = TTF_RenderText_Blended(font,
-                                                  textureText.c_str(), color);
+    std::vector<std::string> lines = utils::split_to_lines(textureText);
+    std::string maxLenStr = *std::max_element(
+            lines.begin(), lines.end(),
+            [](const std::string& first, const std::string& second){
+                return first.size() < second.size();
+            });
+    int width;
+    TTF_SizeText(font, maxLenStr.c_str(), &width, nullptr);
+    SDL_Surface* surface =
+            TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), color,
+                                           width);
 
     if (!surface)
         throw SdlException((format("Unable to create blended text. "
@@ -59,21 +65,37 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
 
     SDL_Surface* flipped = utils::flipVertically(surface);
     SDL_FreeSurface(surface);
-    if (!flipped) {
+    if (!flipped)
         throw SdlException((format("Unable to flip surface %p\n") % surface).str());
-    } else {
-        GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-        m_textureWidth = flipped->w;
-        m_textureHeight = flipped->h;
+    GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-        m_textureId = utils::loadTextureFromPixels32
-                (static_cast<GLuint*>(flipped->pixels),
-                 m_textureWidth, m_textureHeight, texture_format);
-        SDL_FreeSurface(flipped);
+    m_textureWidth = flipped->w;
+    m_textureHeight = flipped->h;
 
-        generateDataBuffer();
+    m_textureId = utils::loadTextureFromPixels32
+            (static_cast<GLuint*>(flipped->pixels),
+             m_textureWidth, m_textureHeight, texture_format);
+    SDL_FreeSurface(flipped);
+
+    if (m_textureId != 0 && m_vaoId != 0
+        && m_textureWidth != old_width) { // Width update
+        GLfloat quadWidth = m_textureWidth;
+        GLfloat quadHeight = m_textureHeight;
+
+        GLfloat vertices[] = {
+                // positions            // texture coords
+                quadWidth,  0.0f,       1.0f, 1.0f, // top right
+                quadWidth, quadHeight,  1.0f, 0.0f, // bottom right
+                0.f, quadHeight,        0.0f, 0.0f, // bottom left
+                0.f,  0.f,              0.0f, 1.0f  // top left
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
+
+    generateDataBuffer();
 }
 
 void TextTexture::generateDataBuffer()
@@ -95,18 +117,17 @@ void TextTexture::generateDataBuffer()
                 3, 2, 1
         };
 
-        GLuint vbo_id;
         GLuint ibo_id;
 
         glGenVertexArrays(1, &m_vaoId);
-        glGenBuffers(1, &vbo_id);
+        glGenBuffers(1, &m_vboId);
         glGenBuffers(1, &ibo_id);
 
         glBindVertexArray(m_vaoId);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-                     GL_STATIC_DRAW);
+                     GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
@@ -126,25 +147,31 @@ void TextTexture::generateDataBuffer()
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        glDeleteBuffers(1, &vbo_id);
         glDeleteBuffers(1, &ibo_id);
     }
 }
 
-void TextTexture::freeVBO()
+void TextTexture::freeVBO() noexcept
 {
-    if (m_vaoId != 0)
+    if (m_vaoId != 0) {
         glDeleteVertexArrays(1, &m_vaoId);
+        glDeleteBuffers(1, &m_vboId);
+    }
 }
 
 TextTexture::~TextTexture()
 {
-    if (m_font)
-        TTF_CloseFont(m_font);
+    freeFont();
     freeVBO();
 }
 
 GLuint TextTexture::getVAO() const
 {
     return m_vaoId;
+}
+
+void TextTexture::freeFont() noexcept
+{
+    if (m_font)
+        TTF_CloseFont(m_font);
 }

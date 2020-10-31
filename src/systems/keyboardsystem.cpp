@@ -1,7 +1,7 @@
 #include <systems/keyboardsystem.hpp>
 #include <game.hpp>
 
-void KeyboardSystem::update(size_t delta)
+void KeyboardSystem::update_state(size_t delta)
 {
     auto handles = getEntities();
     for (auto& [key, en] : handles)
@@ -9,8 +9,12 @@ void KeyboardSystem::update(size_t delta)
                 SDL_GetKeyboardState(nullptr));
 
     const Uint8* state = SDL_GetKeyboardState(nullptr);
-    if (state[SDL_SCANCODE_ESCAPE]) {
-        auto game = Game::getInstance();
-        game->setRunnable(false);
-    }
+
+    if (state[SDL_SCANCODE_RETURN]
+        && (getGameState() == GameStates::FAIL
+            || getGameState() == GameStates::WIN))
+        setGameState(GameStates::NEED_REPLAY);
+
+    if (state[SDL_SCANCODE_ESCAPE])
+        setGameRunnable(false);
 }

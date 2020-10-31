@@ -39,10 +39,10 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
 {
     utils::RectPoints temp_rect{};
     GLfloat bx, by, cx, cy, dx, dy;
-    GLfloat x = rect.x;
-    GLfloat y = rect.y;
-    GLfloat wid = rect.w;
-    GLfloat hgt = rect.h;
+    const GLfloat x = rect.x;
+    const GLfloat y = rect.y;
+    const GLfloat wid = rect.w;
+    const GLfloat hgt = rect.h;
 
     bx = x + wid * cos(rot);
     by = y + wid * sin(rot);
@@ -65,7 +65,7 @@ buildRectPoints(const utils::Rect &rect, double rot) noexcept
     return temp_rect;
 }
 
-void CollisionSystem::update(size_t delta)
+void CollisionSystem::update_state(size_t delta)
 {
     auto levels = getEntitiesByTag<LevelComponent>();
     auto sprites = getEntitiesByTags<SpriteComponent, CollisionComponent>();
@@ -135,7 +135,6 @@ CollisionSystem::levelSpriteCollision(const Sprite &sprite, GLfloat ship_x,
     if (left || right || top || bottom)
         return true;
 
-    x = std::max({r.a.x, r.b.x, r.c.x, r.d.x});
     if (rightBound->x <= x && nextRightBound != points.end()) {
         left = lineLine(r.d, r.a, {nextX, nextY}, {nextNextX, nextNextY});
         right = lineLine(r.b, r.c, {nextX, nextY}, {nextNextX, nextNextY});

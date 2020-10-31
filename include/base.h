@@ -8,7 +8,7 @@
 #ifndef NDEBUG
 constexpr const bool debug = true;
 #else
-const bool debug = false;
+constexpr const bool debug = false;
 #endif
 
 #endif //MOONLANDER_BASE_H

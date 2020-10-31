@@ -4,48 +4,44 @@
 #include <GL/glew.h>
 #include <ces/world.hpp>
 #include <memory>
-#include <functional>
 
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)
 #define IMG_FLAGS IMG_INIT_PNG
 
+enum class GameStates {
+    NORMAL,
+    WIN,
+    FAIL,
+    NEED_REPLAY
+};
+
+void quit();
+void setGameRunnable(bool runnable);
+bool isGameRunnable();
+void setGameState(GameStates state);
+GameStates getGameState();
+GameStates getPrevGameState();
+
 class Game
 {
-private:
-    static std::shared_ptr<Game> instance;
 public:
     Game();
     ~Game();
-    static std::shared_ptr<Game> getInstance()
-    {
-        if (!instance)
-            instance = std::make_shared<Game>();
-
-        return instance;
-    }
 
     void initOnceSDL2();
     void initGL();
     void initGame();
 
     void flush();
-    void quit();
 
     void update(size_t delta);
-    void setRunnable(bool runnable);
 
-    bool isRunnable() const;
 private:
     GLuint m_screenWidth;
     GLuint m_screenHeight;
-
-    bool m_isRunnable;
-
-    SDL_GLContext m_glcontext;
 public:
     bool vsync_supported;
 private:
-    SDL_Window* m_window;
     World m_world;
 };
 

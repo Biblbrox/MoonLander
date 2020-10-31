@@ -5,8 +5,11 @@
 
 using utils::log::Logger;
 using boost::format;
-using utils::program_log_file_name;
+using utils::log::program_log_file_name;
 using utils::log::Category;
+using glm::mat4;
+using glm::vec3;
+using glm::scale;
 
 void RendererSystem::drawLevel()
 {
@@ -15,6 +18,7 @@ void RendererSystem::drawLevel()
     program->setTextureRendering(false);
     for (const auto& [key, en]: levelEntities) {
         GLfloat scale_factor = en->getComponent<LevelComponent>()->scale_factor;
+        GLfloat invScale = 1.f / scale_factor;
 
         glm::mat4 scaling = glm::scale(glm::mat4(1.f),
                                        glm::vec3(scale_factor, scale_factor,1.f));
@@ -38,19 +42,17 @@ void RendererSystem::drawLevel()
         program->updateColor();
         render::drawLinen(en->getComponent<LevelComponent>()->platforms);
 
-        if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-            Logger::write(program_log_file_name(), Category::INTERNAL_ERROR,
-                          (format("\n\tRender error: %1%\n")
-                           % glewGetErrorString(error)).str());
-            std::abort();
-        }
-
-        scaling = glm::scale(
-                glm::mat4(1.f),glm::vec3(1 / scale_factor,
-                                         1 / scale_factor,1.f));
+        scaling[0][0] = invScale;
+        scaling[1][1] = invScale;
+        scaling[2][2] = invScale;
         program->leftMultModel(scaling);
         program->updateModel();
     }
+
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
 void RendererSystem::drawSprites()
@@ -58,12 +60,16 @@ void RendererSystem::drawSprites()
     auto sprites = getEntitiesByTag<SpriteComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (const auto& [key, en]: sprites) {
-        render::drawSprite(program, *en->getComponent<SpriteComponent>()->sprite,
+        render::drawSprite(*en->getComponent<SpriteComponent>()->sprite,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,
                            en->getComponent<PositionComponent>()->scale_factor);
     }
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
 void RendererSystem::drawText()
@@ -71,16 +77,19 @@ void RendererSystem::drawText()
     auto textComponents = getEntitiesByTag<TextComponent>();
     auto program = MoonLanderProgram::getInstance();
     for (const auto& [key, en]: textComponents) {
-        render::drawSprite(program,
-                           *en->getComponent<TextComponent>()->texture,
+        render::drawSprite(*en->getComponent<TextComponent>()->texture,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,
                            en->getComponent<PositionComponent>()->scale_factor);
     }
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("\n\tRender while drawing level: %1%\n")
+                           % glewGetErrorString(error)).str(),
+                          program_log_file_name(), Category::INTERNAL_ERROR);
 }
 
-void RendererSystem::update(size_t delta)
+void RendererSystem::update_state(size_t delta)
 {
     drawLevel();
     drawSprites();

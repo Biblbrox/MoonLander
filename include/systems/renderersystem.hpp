@@ -16,7 +16,7 @@ class RendererSystem : public System<PositionComponent, TextComponent>
 public:
     explicit RendererSystem();
 
-    void update(size_t delta) override;
+    void update_state(size_t delta) override;
 private:
     void drawSprites();
     void drawLevel();

@@ -10,10 +10,10 @@ class MoonLanderProgram: public ShaderProgram
 protected:
     static std::shared_ptr<MoonLanderProgram> instance;
 public:
+    MoonLanderProgram();
 
     //TODO: fix public constructor and make_shared problem
     //TODO: fix ugly design
-    MoonLanderProgram();
 
     static std::shared_ptr<MoonLanderProgram> getInstance()
     {
@@ -70,11 +70,15 @@ private:
     GLuint m_programs[4];
     GLuint m_curProgram;
 
-    // First for TextureData, second for Matrices.
+    // Zero for TextureData, One - for Matrices.
     GLuint m_uniformPoints[2];
     GLuint m_uniformLinesAdj[2];
     GLuint m_uniformTriangles[2];
     GLuint m_uniformLines[2];
+
+    GLuint m_vertexShader = 0;
+    GLuint m_geomShaders[4];
+    GLuint m_fragmentShader = 0;
 
     GLuint m_matricesUBO;
     GLuint m_textureDataUBO;
@@ -82,6 +86,8 @@ private:
     int m_isTextureRender;
 
     void remove_programs();
+    void remove_shaders();
+    void free_buffers();
 };
 
 #endif //MOONLANDER_MOONLANDERPROGRAM_HPP

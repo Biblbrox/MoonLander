@@ -1,11 +1,11 @@
 #include "systems/movementsystem.hpp"
 
-void MovementSystem::update(size_t delta)
+void MovementSystem::update_state(size_t delta)
 {
     auto entities = getEntitiesByTags<PositionComponent, VelocityComponent>();
     for (auto& [key, en]: entities) {
         auto pos = en->getComponent<PositionComponent>();
-        auto vel = en->getComponent<VelocityComponent>();
+        const auto vel = en->getComponent<VelocityComponent>();
 
         pos->x += vel->x;
         pos->y += vel->y;
@@ -17,7 +17,7 @@ void MovementSystem::update(size_t delta)
         auto particle =  en->getComponent<ParticleSpriteComponent>();
 
         auto& coords = particle->coords;
-        auto& vel = particle->vel;
+        const auto& vel = particle->vel;
         assert(coords.size() == vel.size()
                && "Number of coordinates must be "
                   "the same as number of velocities");

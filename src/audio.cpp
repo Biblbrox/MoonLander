@@ -11,7 +11,7 @@ void utils::audio::Audio::setMusic(const std::string &musicPath)
         throw FSException((format("File %s doesn't exists\n") % musicPath).str());
 
     Mix_Music *mus = Mix_LoadMUS(musicPath.c_str());
-    if (mus == nullptr)
+    if (!mus)
         throw SdlException((format("Unable to load music %s\n") % musicPath).str());
 
     m_music = std::unique_ptr<Mix_Music, musDeleter>(mus, [](Mix_Music* mus){
@@ -25,14 +25,12 @@ utils::audio::Audio::playChunk(int channel, size_t idx, int loops, bool faded)
 {
     assert(channel >= -1);
     assert(idx < m_chunks.size());
-    if (faded) {
+    if (faded)
         Mix_FadeInChannel(channel, m_chunks[idx].get(), loops, m_fadeIn);
-    } else {
-        if (Mix_Paused(channel))
-            Mix_Resume(channel);
-        else
-            Mix_PlayChannel(channel, m_chunks[idx].get(), loops);
-    }
+    else if (Mix_Paused(channel))
+        Mix_Resume(channel);
+    else
+        Mix_PlayChannel(channel, m_chunks[idx].get(), loops);
 }
 
 void utils::audio::Audio::pauseChannel(int channel, bool faded)
@@ -53,12 +51,10 @@ void utils::audio::Audio::resumeChannel(int channel)
 
 void utils::audio::Audio::playMusic()
 {
-    if (!Mix_PlayingMusic()) {
+    if (!Mix_PlayingMusic())
         Mix_PlayMusic(m_music.get(), -1);
-    } else {
-        if (Mix_PausedMusic())
-            Mix_ResumeMusic();
-    }
+    else if (Mix_PausedMusic())
+        Mix_ResumeMusic();
 }
 
 void utils::audio::Audio::pauseMusic()
@@ -120,4 +116,3 @@ utils::audio::Audio::~Audio()
 {
 
 }
-

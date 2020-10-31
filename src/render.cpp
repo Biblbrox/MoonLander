@@ -1,9 +1,10 @@
 #include "../include/render.hpp"
+#include "../include/utils/math.h"
 
 using glm::vec2;
 using glm::mat4;
 using glm::vec3;
-using utils::rotate_around;
+using utils::math::rotate_around;
 
 void render::drawLinen(const std::vector<vec2>& points, bool adjacency)
 {
@@ -61,38 +62,39 @@ void render::drawDots(const std::vector<vec2>& dots)
 }
 
 void
-render::drawSprite(std::shared_ptr<MoonLanderProgram> program, Texture &texture,
+render::drawSprite(const Texture &texture,
                    GLfloat x, GLfloat y, GLfloat angle, GLfloat scale_factor)
 {
+    assert(texture.getVAO() != 0);
+
+    auto program = MoonLanderProgram::getInstance();
     program->switchToTriangles();
     program->setTextureRendering(true);
 
-    if (texture.getVAO() != 0) {
-        GLfloat half = texture.getWidth() / 2.f;
-        GLfloat centerX = x + half;
-        GLfloat centerY = y + half;
-        GLfloat invScale = 1.f / scale_factor;
+    const GLfloat half = texture.getWidth() / 2.f;
+    const GLfloat centerX = x + half;
+    const GLfloat centerY = y + half;
+    const GLfloat invScale = 1.f / scale_factor;
 
-        mat4 rotation = rotate_around(mat4(1.f),vec3(centerX, centerY,0.f), angle);
-        mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
-        mat4 scaling = scale(mat4(1.f), vec3(scale_factor, scale_factor, 1.f));
-        program->leftMultModel(scaling * rotation * translation);
-        program->updateModel();
+    mat4 rotation = rotate_around(mat4(1.f), vec3(centerX, centerY, 0.f), angle);
+    mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
+    mat4 scaling = scale(mat4(1.f), vec3(scale_factor, scale_factor, 1.f));
+    program->leftMultModel(scaling * rotation * translation);
+    program->updateModel();
 
-        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
-        glBindVertexArray(texture.getVAO());
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+    glBindVertexArray(texture.getVAO());
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindVertexArray(0);
 
-        translation[3] = glm::vec4(-x, -y, 0.f, 1);
-        rotation = rotate_around(mat4(1.f),vec3(centerX, centerY, 0.f), -angle);
-        scaling[0][0] = invScale;
-        scaling[1][1] = invScale;
-        scaling[2][2] = invScale;
-        program->leftMultModel(translation * rotation * scaling);
-        program->updateModel();
-    }
+    translation[3] = glm::vec4(-x,  -y, 0.f, 1);
+    rotation = rotate_around(mat4(1.f), vec3(centerX, centerY, 0.f), -angle);
+    scaling[0][0] = invScale;
+    scaling[1][1] = invScale;
+    scaling[2][2] = invScale;
+    program->leftMultModel(translation * rotation * scaling);
+    program->updateModel();
 }
 
 void render::drawTriangles(const std::vector<vec2>& points)

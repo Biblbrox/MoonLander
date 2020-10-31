@@ -1,18 +1,20 @@
 #ifndef MOONLANDER_FSEXCEPTION_HPP
 #define MOONLANDER_FSEXCEPTION_HPP
 
-#include <exception>
 #include <string>
+#include "basegameexception.h"
 
-class FSException: public std::exception
+/**
+ * Exception class that can be throw when happened some error
+ * with file system(can't open file, no access, etc..)
+ */
+class FSException: public BaseGameException
 {
 public:
-    explicit FSException(std::string  msg);
-
-    const char* what() const noexcept override;
-
-private:
-    std::string m_message;
+    explicit FSException(std::string msg,
+                         std::string fileLog = "moonlander_log.log",
+                         Category category = Category::INTERNAL_ERROR)
+                         : BaseGameException(msg, fileLog, category) {}
 };
 
 

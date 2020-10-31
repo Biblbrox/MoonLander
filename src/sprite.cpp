@@ -1,6 +1,12 @@
 #include <GL/glew.h>
 #include <sprite.hpp>
 #include <SDL_image.h>
+#include <exceptions/sdlexception.h>
+#include <SDL_ttf.h>
+
+using utils::log::Category;
+using utils::log::program_log_file_name;
+using utils::log::shader_log_file_name;
 
 Sprite::Sprite(const std::string& path)
 {
@@ -10,30 +16,29 @@ Sprite::Sprite(const std::string& path)
     m_curIdx = 0;
 }
 
-bool Sprite::load(const std::string& path)
+void Sprite::load(const std::string& path)
 {
-    if (!path.empty()) {
-        SDL_Surface* surface = IMG_Load(path.c_str());
-        //TODO: check surface and flipped for null
-        SDL_Surface* flipped = utils::flipVertically(surface);
-        SDL_FreeSurface(surface);
-        if (flipped == nullptr) {
-            SDL_Log("LoadTexture: %s\n", SDL_GetError());
-            std::abort();
-        } else {
-            GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
+    assert(!path.empty());
+    freeTexture();
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface)
+        throw SdlException((format("Unable to create blended text. "
+                                   "SDL_ttf Error: %s\n")
+                            % TTF_GetError()).str());
+    SDL_Surface* flipped = utils::flipVertically(surface);
+    SDL_FreeSurface(surface);
+    if (!flipped)
+        throw SdlException((format("Unable to flip surface %p\n") % surface).str());
 
-            m_textureWidth = flipped->w;
-            m_textureHeight = flipped->h;
+    GLenum texture_format = utils::getSurfaceFormatInfo(*flipped);
 
-            m_textureId = utils::loadTextureFromPixels32(
-                    static_cast<GLuint*>(flipped->pixels),
-                    m_textureWidth, m_textureHeight, texture_format);
-            SDL_FreeSurface(flipped);
-        }
-    }
+    m_textureWidth = flipped->w;
+    m_textureHeight = flipped->h;
 
-    return true;
+    m_textureId = utils::loadTextureFromPixels32(
+            static_cast<GLuint*>(flipped->pixels),
+            m_textureWidth, m_textureHeight, texture_format);
+    SDL_FreeSurface(flipped);
 }
 
 GLuint Sprite::addClipSprite(utils::Rect clip)
@@ -115,22 +120,21 @@ void Sprite::generateDataBuffer()
         }
 
     } else {
-        if (m_textureId == 0) {
-            SDL_Log("No texture to render!\n");
-            std::abort();
-        }
+        if (m_textureId == 0)
+            throw SdlException("No texture to render\n",
+                               program_log_file_name(), Category::INTERNAL_ERROR);
 
-        if (m_clips.empty()) {
-            SDL_Log("No data generate from!\n");
-            std::abort();
-        }
+        if (m_clips.empty())
+            throw SdlException("No data generate from\n",
+                               program_log_file_name(), Category::INTERNAL_ERROR);
     }
 }
 
-void Sprite::freeVBO()
+void Sprite::freeVBO() noexcept
 {
-    if (m_vao != nullptr) {
-        glDeleteBuffers(m_totSprites, m_vao);
+    if (m_vao) {
+        glDeleteVertexArrays(m_totSprites, m_vao);
+        delete[] m_vao;
         m_vao = nullptr;
     }
 

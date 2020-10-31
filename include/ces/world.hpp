@@ -4,7 +4,10 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <SDL_ttf.h>
 #include <utils/fps.hpp>
+#include <level.hpp>
+#include <utils/timer.hpp>
 #include "utils/utils.hpp"
 #include "basesystem.hpp"
 #include "camera.hpp"
@@ -18,17 +21,11 @@ class Component;
 
 using utils::type_id;
 
-enum class GameStates {
-    NORMAL,
-    WIN,
-    FAIL
-};
-
 class World
 {
 public:
-    World() : m_scaled(false) {};
-    ~World() {};
+    World() : m_scaled(false), m_wasInit(false) {};
+    ~World() = default;
 
     void init();
     void update(size_t delta);
@@ -42,24 +39,25 @@ public:
                       "Template parameter class must be child of BaseSystem");
 
         std::shared_ptr<SystemType> system(new SystemType());
-        system->setWorld(std::shared_ptr<World>(this));
+        system->setWorld(this);
         m_systems.insert({type_id<SystemType>(),
                         std::static_pointer_cast<BaseSystem>(system)});
         return *system;
     }
 
-    std::unordered_map<std::string, std::shared_ptr<Entity>> & getEntities();
+    std::unordered_map<std::string, std::shared_ptr<Entity>>& getEntities();
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Entity>> m_entities;
     std::unordered_map<size_t, std::shared_ptr<BaseSystem>> m_systems;
-    std::vector<std::shared_ptr<Entity>> m_nonStatic;
+    std::unordered_map<std::string, std::shared_ptr<Entity>> m_nonStatic;
     Camera m_camera;
     GLuint m_screenHeight;
     GLuint m_screenWidth;
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
-    GameStates m_state;
+
+    utils::Timer m_timer;
 
     utils::Fps m_fps;
 
@@ -67,11 +65,14 @@ private:
 
     void update_ship();
     void update_text();
+    void update_level();
     void rescale_world();
     void init_sound();
     void init_sprites();
     void init_text();
     void init_level();
+    void init_ship();
+    TTF_Font* open_font(const std::string& font, size_t fontSize);
 
     /**
      * Remove all entities that not alive
@@ -81,6 +82,9 @@ private:
     bool m_scaled;
     const GLfloat m_scaleFactor = 1.5f;
     utils::audio::Audio m_audio;
+    Level level;
+
+    bool m_wasInit;
 };
 
 #endif //MOONLANDER_WORLD_HPP
