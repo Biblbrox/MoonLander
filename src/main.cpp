@@ -11,17 +11,18 @@
 // TODO: fix marginal exit from game
 // Throw specific exception to exit
 
+void quit();
+
 int main(int argc, char *args[])
 {
     try {
-        auto game = Game::getInstance();
-        game->initOnceSDL2();
-        game->initGL();
-        game->initGame();
+        Game game;
+        game.initOnceSDL2();
+        game.initGL();
+        game.initGame();
 
         auto screen_width = utils::getScreenWidth<GLuint>();
         auto screen_height = utils::getScreenHeight<GLuint>();
-
         auto program = MoonLanderProgram::getInstance();
         program->loadProgram();
         program->setProjection(glm::ortho<GLfloat>(
@@ -48,12 +49,12 @@ int main(int argc, char *args[])
             CALLGRIND_TOGGLE_COLLECT;
         }
 
-        while (game->isRunnable()) {
+        while (isGameRunnable()) {
             glViewport(0.f, 0.f, screen_width, screen_height);
             glClearColor(0.f, 0.f, 0.f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            if (!game->vsync_supported) {
+            if (!game.vsync_supported) {
                 cur_time = SDL_GetTicks();
                 delta_time = cur_time - last_update_time;
 
@@ -64,22 +65,23 @@ int main(int argc, char *args[])
 
             while (SDL_PollEvent(&e))
                 if (e.type == SDL_QUIT)
-                    game->setRunnable(false);
+                    setGameRunnable(false);
 
-            game->update(delta_time);
-            game->flush();
+            game.update(delta_time);
+            game.flush();
 
-            if (!game->vsync_supported)
+            if (!game.vsync_supported)
                 last_update_time = cur_time;
         }
 
-        game->quit();
     } catch (const std::exception& e) {
         utils::log::Logger::write(utils::program_log_file_name(),
                                   utils::log::Category::UNEXPECTED_ERROR,
                                   e.what());
         return -1;
     }
+
+    quit();
 
     if constexpr (debug) {
         CALLGRIND_TOGGLE_COLLECT;

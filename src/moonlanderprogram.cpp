@@ -346,7 +346,7 @@ void MoonLanderProgram::setTextureRendering(bool isTexture)
         utils::log::printProgramLog(m_curProgram);
         free_buffers();
         remove_programs();
-        std::abort();
+        throw GLException("setTextureRendering() error!");
     }
 }
 

@@ -138,7 +138,7 @@ void World::update_ship()
                     && shipPos->x <= platforms[i + 1].x) {
                     shipVel->x = shipVel->y = shipVel->angle = 0;
                     landed = true;
-                    Game::getInstance()->setState(GameStates::WIN);
+                    setGameState(GameStates::WIN);
                     break;
                 }
             }
@@ -173,7 +173,8 @@ void World::update_ship()
 
             if (!m_audio.isChannelPlaying(crash_sound_channel))
                 m_audio.playChunk(crash_sound_channel, crash_idx, 0, false);
-            Game::getInstance()->setState(GameStates::FAIL);
+
+            setGameState(GameStates::FAIL);
         }
 
         m_audio.haltChannel(engine_channel, true);
@@ -182,7 +183,7 @@ void World::update_ship()
 
 void World::update_level()
 {
-    if (Game::getInstance()->getState() != GameStates::NORMAL)
+    if (getGameState() != GameStates::NORMAL)
         return;
 
     auto ship = m_entities["ship"];
@@ -237,9 +238,8 @@ void World::update_text()
     auto textFuel = fuelEntity->getComponent<TextComponent>();
     auto textTime = timeEntity->getComponent<TextComponent>();
 
-    auto game = Game::getInstance();
-    if (game->getState() == GameStates::NORMAL
-        || game->getState() == GameStates::WIN) {
+    if (getGameState() == GameStates::NORMAL
+        || getGameState() == GameStates::WIN) {
         const auto shipEntity = m_entities["ship"];
         const auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
 
@@ -258,11 +258,11 @@ void World::update_text()
         textTime->texture->setText((format("Time: %5f")
                                     % (m_timer.getTicks() / 1000.f)).str());
 
-        if ((game->getState() == GameStates::WIN
-             || game->getState() == GameStates::FAIL) && m_timer.isStarted())
+        if ((getGameState() == GameStates::WIN
+             || getGameState() == GameStates::FAIL) && m_timer.isStarted())
             m_timer.pause();
 
-        if (game->getState() == GameStates::WIN
+        if (getGameState() == GameStates::WIN
             && m_entities.count("winText") == 0) {
             Entity& winText = createEntity("winText");
             winText.addComponents<TextComponent, PositionComponent>();
@@ -284,7 +284,7 @@ void World::update_text()
                             - winTextTexture->texture->getHeight() / 2.f;
             winTextPos->scallable = false;
         }
-    } else if (game->getState() == GameStates::FAIL
+    } else if (getGameState() == GameStates::FAIL
                && m_entities.count("failText") == 0) { // Fail case
         textVelX->texture->setText((format("Horizontal speed: %3d") % 0).str());
         textVelY->texture->setText((format("Vertical speed: %3d") % 0).str());
@@ -314,15 +314,14 @@ void World::update(size_t delta)
     if constexpr (debug)
         m_fps.update();
 
-    auto game = Game::getInstance();
-    if (game->getState() == GameStates::WIN
-        && game->getPrevState() != GameStates::WIN) {
+    if (getGameState() == GameStates::WIN
+        && getPrevGameState() != GameStates::WIN) {
         m_systems[type_id<MovementSystem>()]->stop();
         m_entities["ship"]->removeComponent<KeyboardComponent>();
     }
 
-    if (game->getState() == GameStates::NORMAL
-        || game->getState() == GameStates::WIN)
+    if (getGameState() == GameStates::NORMAL
+        || getGameState() == GameStates::WIN)
         update_ship();
 
     update_text();

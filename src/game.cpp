@@ -3,8 +3,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <glm/geometric.hpp>
-#include <memory>
 #include <constants.hpp>
 
 #define FREQUENCY 44100
@@ -15,8 +13,59 @@
 static bool imgInit = false;
 static bool mixerInit = false;
 
+static SDL_Window* m_window;
+static SDL_GLContext m_glcontext;
+
+static bool isRun = true;
+static GameStates state = GameStates::NORMAL;
+static GameStates prevState = GameStates::NORMAL;
+
 using utils::log::Logger;
 using boost::format;
+
+void quit()
+{
+    // TODO: fix destructor call
+    if (m_glcontext)
+        SDL_GL_DeleteContext(m_glcontext);
+    if (TTF_WasInit())
+        TTF_Quit();
+    if (imgInit)
+        IMG_Quit();
+    if (m_window)
+        SDL_DestroyWindow(m_window);
+    if (mixerInit)
+        Mix_Quit();
+
+    SDL_Quit();
+}
+
+void setGameRunnable(bool runnable)
+{
+    isRun = runnable;
+}
+
+bool isGameRunnable()
+{
+    return isRun;
+}
+
+GameStates getGameState()
+{
+    return state;
+}
+
+void setGameState(GameStates st)
+{
+    prevState = state;
+    state = st;
+}
+
+GameStates getPrevGameState()
+{
+    return prevState;
+}
+
 
 void Game::initOnceSDL2()
 {
@@ -74,9 +123,7 @@ void Game::initOnceSDL2()
 }
 
 
-Game::Game() : m_state(GameStates::NORMAL),
-               m_prevState(GameStates::NORMAL),
-               m_isRunnable(true), vsync_supported(false)
+Game::Game() : vsync_supported(false)
 {
     m_glcontext = nullptr;
     m_window = nullptr;
@@ -84,9 +131,9 @@ Game::Game() : m_state(GameStates::NORMAL),
 
 void Game::update(size_t delta)
 {
-    if (m_state == GameStates::NEED_REPLAY) {
+    if (getGameState() == GameStates::NEED_REPLAY) {
         m_world.init(); // Reinit world
-        m_state = GameStates::NORMAL;
+        setGameState(GameStates::NORMAL);
     }
 
     m_world.update(delta);
@@ -183,56 +230,13 @@ void Game::flush()
     SDL_GL_SwapWindow(m_window);
 }
 
-void Game::quit()
-{
-    if (m_glcontext)
-        SDL_GL_DeleteContext(m_glcontext);
-    if (TTF_WasInit())
-        TTF_Quit();
-    if (imgInit)
-        IMG_Quit();
-    if (m_window)
-        SDL_DestroyWindow(m_window);
-    if (mixerInit)
-        Mix_Quit();
-
-    SDL_Quit();
-}
-
-void Game::setRunnable(bool runnable)
-{
-    m_isRunnable = runnable;
-}
-
-bool Game::isRunnable() const
-{
-    return Game::m_isRunnable;
-}
-
 void Game::initGame()
 {
     m_world.init();
 }
 
-std::shared_ptr<Game> Game::instance = nullptr;
-
 Game::~Game()
 {
-    quit();
+
 }
 
-GameStates Game::getState() const
-{
-    return m_state;
-}
-
-void Game::setState(GameStates state)
-{
-    m_prevState = m_state;
-    m_state = state;
-}
-
-GameStates Game::getPrevState() const
-{
-    return m_prevState;
-}

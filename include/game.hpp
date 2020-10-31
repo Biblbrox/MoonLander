@@ -15,49 +15,34 @@ enum class GameStates {
     NEED_REPLAY
 };
 
+void quit();
+void setGameRunnable(bool runnable);
+bool isGameRunnable();
+void setGameState(GameStates state);
+GameStates getGameState();
+GameStates getPrevGameState();
+
 class Game
 {
-private:
-    static std::shared_ptr<Game> instance;
 public:
     Game();
     ~Game();
-    static std::shared_ptr<Game> getInstance()
-    {
-        if (!instance)
-            instance = std::make_shared<Game>();
-
-        return instance;
-    }
 
     void initOnceSDL2();
     void initGL();
     void initGame();
 
     void flush();
-    void quit();
 
     void update(size_t delta);
-    void setRunnable(bool runnable);
-    void setState(GameStates state);
-    GameStates getState() const;
-    GameStates getPrevState() const;
 
-    bool isRunnable() const;
 private:
     GLuint m_screenWidth;
     GLuint m_screenHeight;
-
-    bool m_isRunnable;
-
-    SDL_GLContext m_glcontext;
 public:
     bool vsync_supported;
 private:
-    SDL_Window* m_window;
     World m_world;
-    GameStates m_state;
-    GameStates m_prevState;
 };
 
 #endif //MOONLANDER_GAME_HPP

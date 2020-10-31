@@ -9,13 +9,12 @@ void KeyboardSystem::update_state(size_t delta)
                 SDL_GetKeyboardState(nullptr));
 
     const Uint8* state = SDL_GetKeyboardState(nullptr);
-    auto game = Game::getInstance();
 
     if (state[SDL_SCANCODE_RETURN]
-        && (game->getState() == GameStates::FAIL
-            || game->getState() == GameStates::WIN))
-        game->setState(GameStates::NEED_REPLAY);
+        && (getGameState() == GameStates::FAIL
+            || getGameState() == GameStates::WIN))
+        setGameState(GameStates::NEED_REPLAY);
 
     if (state[SDL_SCANCODE_ESCAPE])
-        game->setRunnable(false);
+        setGameRunnable(false);
 }

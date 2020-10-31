@@ -157,5 +157,5 @@ void Level::extendToLeft(const Camera& camera)
 void Level::extendToUp(std::vector<vec2>::iterator left,
                        std::vector<vec2>::iterator right)
 {
-
+    // TODO: add stars extends to up
 }
