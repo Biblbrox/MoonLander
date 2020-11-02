@@ -10,8 +10,8 @@ make -j<n>
 ```
 
 Screenshots: <br>
-![Image 1](https://yadi.sk/i/x2ouj8QTSiECig)
+![Image 1](res/screenshots/1.png)
 
-![Image 2](https://yadi.sk/i/-vkPU510BjoMVg)
+![Image 2](res/screenshots/2.png)
 
-![Image 3](https://yadi.sk/i/yq5ew1dMXyDIqQ)
+![Image 3](res/screenshots/3.png)
