@@ -1,5 +1,5 @@
 # The Moon Lander game
-The clone of Lunar Lander game.
+The clone of the Lunar Lander game.
 
 Compilation with cmake: <br>
 ```cmake
