@@ -18,6 +18,7 @@ using utils::log::Category;
 
 int main(int argc, char *args[])
 {
+    int ret_code = 0;
     try {
         Game game;
         game.initOnceSDL2();
@@ -79,13 +80,11 @@ int main(int argc, char *args[])
 
     } catch (const BaseGameException& e) {
         utils::log::Logger::write(e.fileLog(), e.categoryError(), e.what());
-        quit();
-        return -1;
+        ret_code = EXIT_FAILURE;
     } catch (const std::exception& e) {
         utils::log::Logger::write(program_log_file_name(),
                                   Category::UNEXPECTED_ERROR, e.what());
-        quit();
-        return -1;
+        ret_code = EXIT_FAILURE;
     }
 
     quit();
@@ -95,5 +94,5 @@ int main(int argc, char *args[])
         CALLGRIND_STOP_INSTRUMENTATION;
     }
 
-    return 0;
+    return ret_code;
 }

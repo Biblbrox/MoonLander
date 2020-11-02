@@ -559,7 +559,7 @@ void World::init_ship()
     shipPos->y = alt;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();
-    fuel->time = 150000000000;
+    fuel->time = 1500;
 
     auto shipVel = ship.getComponent<VelocityComponent>();
     auto shipAnim = ship.getComponent<AnimationComponent>();
