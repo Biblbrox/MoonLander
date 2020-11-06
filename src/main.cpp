@@ -48,11 +48,10 @@ int main(int argc, char *args[])
         int32_t delta_time = 0;
         size_t cur_time = 0;
 
-        if constexpr (debug) {
+#ifndef NDEBUG
             CALLGRIND_START_INSTRUMENTATION;
             CALLGRIND_TOGGLE_COLLECT;
-        }
-
+#endif
         while (isGameRunnable()) {
             glViewport(0.f, 0.f, screen_width, screen_height);
             glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -89,10 +88,10 @@ int main(int argc, char *args[])
 
     quit();
 
-    if constexpr (debug) {
+#ifndef NDEBUG
         CALLGRIND_TOGGLE_COLLECT;
         CALLGRIND_STOP_INSTRUMENTATION;
-    }
+#endif
 
     return ret_code;
 }

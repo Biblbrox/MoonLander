@@ -1,5 +1,4 @@
 #include <systems/collisionsystem.hpp>
-#include "../include/utils/utils.hpp"
 
 using glm::vec2;
 
@@ -11,8 +10,8 @@ using glm::vec2;
  * @param p22
  * @return
 */
-constexpr bool lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21,
-                        const vec2 &p22) noexcept
+constexpr bool lineLine(const vec2 &p11, const vec2 &p12,
+                        const vec2 &p21, const vec2 &p22) noexcept
 {
     GLfloat x1 = p11.x;
     GLfloat x2 = p12.x;
@@ -35,50 +34,35 @@ constexpr bool lineLine(const vec2 &p11, const vec2 &p12, const vec2 &p21,
 }
 
 inline utils::RectPoints
-buildRectPoints(const utils::Rect &rect, double rot) noexcept
+buildRectPoints(const utils::Rect &rect, GLfloat alpha) noexcept
 {
-    utils::RectPoints temp_rect{};
     GLfloat bx, by, cx, cy, dx, dy;
     const GLfloat x = rect.x;
     const GLfloat y = rect.y;
-    const GLfloat wid = rect.w;
-    const GLfloat hgt = rect.h;
+    const GLfloat width = rect.w;
+    const GLfloat height = rect.h;
+    if (std::abs(alpha) > glm::half_pi<GLfloat>())
+        alpha = alpha - glm::half_pi<GLfloat>()
+                        * static_cast<int>(alpha / glm::half_pi<GLfloat>());
 
-    bx = x + wid * cos(rot);
-    by = y + wid * sin(rot);
+    alpha = -alpha;
 
-    dx = x - hgt * sin(rot);
-    dy = y + hgt * cos(rot);
+    bx = x + width * cos(alpha);
+    by = y - width * sin(alpha);
 
-    cx = bx - hgt * sin(rot);
-    cy = dy + wid * sin(rot);
+    dx = x + height * sin(alpha);
+    dy = y + height * cos(alpha);
 
-    temp_rect.a.x = x;
-    temp_rect.a.y = y;
-    temp_rect.b.x = bx;
-    temp_rect.b.y = by;
-    temp_rect.c.x = cx;
-    temp_rect.c.y = cy;
-    temp_rect.d.x = dx;
-    temp_rect.d.y = dy;
+    cx = bx + height * sin(alpha);
+    cy = by + height * cos(alpha);
 
-    return temp_rect;
+    return {{x, y}, {bx, by}, {cx, cy}, {dx, dy}};
 }
 
 void CollisionSystem::update_state(size_t delta)
 {
     auto levels = getEntitiesByTag<LevelComponent>();
     auto sprites = getEntitiesByTags<SpriteComponent, CollisionComponent>();
-
-    //for (auto it = sprites.begin(); it != sprites.end(); ++it) {
-    //    for (auto jt = sprites.begin(); jt != sprites.end(); ++jt) {
-    //        if (jt != it &&
-    //            it->second->getComponent<CollisionComponent>() != nullptr
-    //            && jt->second->getComponent<CollisionComponent>() != nullptr) {
-    //            // Code to check collision between sprites
-    //        }
-    //    }
-    //}
 
     // We need to check we have only one level (otherwise will be strange)
     assert(levels.size() == 1);
@@ -103,46 +87,43 @@ void CollisionSystem::update_state(size_t delta)
     }
 }
 
+std::vector<size_t> find_lines_under(utils::RectPoints pos,
+                                     const std::vector<vec2> &points)
+{
+    std::vector<size_t> res;
+    for (size_t i = 0; i < points.size() - 1; ++i) {
+        if ((points[i].x <= pos.a.x && points[i + 1].x >= pos.a.x)
+            || (points[i].x <= pos.b.x && points[i + 1].x >= pos.b.x)
+            || (points[i].x <= pos.c.x && points[i + 1].x >= pos.c.x)
+            || (points[i].x <= pos.d.x && points[i + 1].x >= pos.d.x)) {
+            res.push_back(i);
+        }
+    }
+
+    return res;
+}
+
+
 bool
 CollisionSystem::levelSpriteCollision(const Sprite &sprite, GLfloat ship_x,
                                       GLfloat ship_y, const std::vector<vec2> &points,
                                       const std::vector<vec2> &stars, GLfloat angle)
 {
-    utils::Rect coord = sprite.getCurrentClip();
-    coord.x = ship_x;
-    coord.y = ship_y;
-    utils::RectPoints r = buildRectPoints(coord, angle);
+    utils::Rect coords = sprite.getCurrentClip();
+    coords.x = ship_x;
+    coords.y = ship_y;
+    utils::RectPoints r = buildRectPoints(coords, angle);
 
-    GLfloat x = std::min({r.a.x, r.b.x, r.c.x, r.d.x});
-    auto rightBound = std::lower_bound(points.cbegin(), points.cend(), glm::vec2(x, 0.f),
-                                       [](const glm::vec2& pos1, const glm::vec2& pos2){
-                                           return pos1.x < pos2.x;
+    std::vector<size_t> lines_idx = find_lines_under(r, points);
+
+    return std::any_of(lines_idx.cbegin(), lines_idx.cend(), [points, r](size_t idx) {
+        vec2 p = points[idx];
+        vec2 p_right = points[idx + 1];
+        bool left = lineLine(r.d, r.a, {p.x, p.y}, {p_right.x, p_right.y});
+        bool right = lineLine(r.b, r.c, {p.x, p.y}, {p_right.x, p_right.y});
+        bool top = lineLine(r.c, r.d, {p.x, p.y}, {p_right.x, p_right.y});
+        bool bottom = lineLine(r.a, r.b, {p.x, p.y}, {p_right.x, p_right.y});
+
+        return left || right || top || bottom;
     });
-    auto leftBound = std::prev(rightBound);
-    auto nextRightBound = std::next(rightBound);
-
-    GLfloat curX = leftBound->x;
-    GLfloat curY = leftBound->y;
-    GLfloat nextX = rightBound->x;
-    GLfloat nextY = rightBound->y;
-    GLfloat nextNextX = nextRightBound == points.end() ? 0 : rightBound->x;
-    GLfloat nextNextY = nextRightBound == points.end() ? 0 : rightBound->y;
-
-    bool left = lineLine(r.d, r.a, {curX, curY}, {nextX, nextY});
-    bool right = lineLine(r.b, r.c, {curX, curY}, {nextX, nextY});
-    bool top = lineLine(r.c, r.d, {curX, curY}, {nextX, nextY});
-    bool bottom = lineLine(r.a, r.b, {curX, curY}, {nextX, nextY});
-    if (left || right || top || bottom)
-        return true;
-
-    if (rightBound->x <= x && nextRightBound != points.end()) {
-        left = lineLine(r.d, r.a, {nextX, nextY}, {nextNextX, nextNextY});
-        right = lineLine(r.b, r.c, {nextX, nextY}, {nextNextX, nextNextY});
-        top = lineLine(r.c, r.d, {nextX, nextY}, {nextNextX, nextNextY});
-        bottom = lineLine(r.a, r.b, {nextX, nextY}, {nextNextX, nextNextY});
-        if (left || right || top || bottom)
-            return true;
-    }
-
-    return false;
 }

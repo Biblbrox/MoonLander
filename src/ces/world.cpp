@@ -555,7 +555,7 @@ void World::init_ship()
     shipPos->x = m_screenWidth / 2.f;
     GLfloat alt = utils::physics::coord_of_alt(
             m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, 300.f); // Problem here
+            shipPos->x, 100.f); // TODO: fix // Problem here
     shipPos->y = alt;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();
