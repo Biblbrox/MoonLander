@@ -4,6 +4,10 @@
 #include <iostream>
 #include <fstream>
 
+#include "../include/utils/logger.hpp"
+#include "../include/exceptions/glexception.hpp"
+#include "../include/exceptions/fsexception.hpp"
+
 using utils::log::Logger;
 using utils::log::Category;
 using utils::log::program_log_file_name;

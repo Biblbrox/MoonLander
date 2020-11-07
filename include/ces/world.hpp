@@ -24,7 +24,7 @@ using utils::type_id;
 class World
 {
 public:
-    World() : m_scaled(false), m_wasInit(false) {};
+    World() : m_scaled(false), m_wasInit(false), m_realCamX(0.f) {};
     ~World() = default;
 
     void init();
@@ -56,6 +56,10 @@ private:
     GLuint m_screenWidth;
     GLfloat m_frameHeight;
     GLfloat m_frameWidth;
+
+    // Need to save camera pos after ship dead
+    // Because camera will be reset.
+    GLfloat m_realCamX;
 
     utils::Timer m_timer;
 

@@ -1,7 +1,12 @@
+#include <boost/format.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "systems/renderersystem.hpp"
 #include "components/levelcomponent.hpp"
 #include "components/spritecomponent.hpp"
 #include "render.hpp"
+#include "../include/utils/logger.hpp"
+#include "../include/exceptions/glexception.hpp"
 
 using utils::log::Logger;
 using boost::format;

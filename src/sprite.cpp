@@ -3,10 +3,12 @@
 #include <SDL_image.h>
 #include <exceptions/sdlexception.h>
 #include <SDL_ttf.h>
+#include <boost/format.hpp>
 
 using utils::log::Category;
 using utils::log::program_log_file_name;
 using utils::log::shader_log_file_name;
+using boost::format;
 
 Sprite::Sprite(const std::string& path)
 {

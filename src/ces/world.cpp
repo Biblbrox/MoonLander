@@ -1,8 +1,9 @@
-#include "../../include/base.h"
-
-#include "../include/ces/world.hpp"
-
 #include <memory>
+#include <glm/gtc/constants.hpp>
+#include <boost/format.hpp>
+
+#include "../../include/base.h"
+#include "../include/ces/world.hpp"
 #include <components/positioncomponent.hpp>
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
@@ -129,14 +130,17 @@ void World::update_ship()
         const vector<vec2>& platforms = levelComp->platforms;
         bool landed = false;
         assert(platforms.size() % 2 == 0);
-        GLfloat angle = shipPos->angle - floor(shipPos->angle / (2 * pi<GLfloat>()));
-        if (angle >= -glm::pi<GLfloat>() / 6.f
-            && angle <= glm::pi<GLfloat>() / 6.f
+        GLfloat pi2 = 2.f * pi<GLfloat>();
+        GLfloat angle = shipPos->angle -
+                        pi2 * static_cast<int>(shipPos->angle / pi2);
+        if (angle >= -pi<GLfloat>() / 6.f && angle <= pi<GLfloat>() / 6.f
             && std::abs(shipVel->y * 60.f) <= 20) {
 
-            for (size_t i = 0; i < platforms.size(); i += 2) {
+            utils::Rect shipSize = ship->getComponent<SpriteComponent>()->sprite->getCurrentClip();
+            for (size_t i = 0; i < platforms.size() - 1; ++i) {
                 if (shipPos->x >= platforms[i].x
-                    && shipPos->x <= platforms[i + 1].x) {
+                    && shipPos->x <= platforms[i + 1].x
+                    && shipPos->x + shipSize.w <= platforms[i + 1].x) {
                     shipVel->x = shipVel->y = shipVel->angle = 0;
                     landed = true;
                     setGameState(GameStates::WIN);
@@ -190,7 +194,8 @@ void World::update_level()
     auto ship = m_entities["ship"];
     auto shipPos = ship->getComponent<PositionComponent>();
 
-    vec2 shipCoords = fix_coords({shipPos->x, shipPos->y}, m_camera);
+    vec2 shipCoords = fix_coords({shipPos->x, shipPos->y},
+                                 {m_camera.getX() + m_realCamX, m_camera.getY()});
     vec2 levelBorder = {level.max_left, level.max_right};
     bool nearLeft = shipCoords.x <= (levelBorder.x + m_screenWidth);
     bool nearRight = shipCoords.x >= (levelBorder.y - m_screenWidth);
@@ -365,6 +370,7 @@ void World::init()
         m_nonStatic["level"] = m_entities["level"];
         m_nonStatic["ship"] = m_entities["ship"];
 
+        m_realCamX += m_camera.getX();
         m_camera.lookAt(0, m_entities["ship"]->getComponent<PositionComponent>()->y
                            - m_screenHeight / 2.f);
         move_from_camera();
@@ -380,6 +386,7 @@ void World::init()
         rescale_world();
         init_ship();
         m_nonStatic["ship"] = m_entities["ship"];
+        m_realCamX += m_camera.getX();
         m_camera.lookAt(0.f, 0.f); // reset camera
         move_from_camera();
 
@@ -555,7 +562,7 @@ void World::init_ship()
     shipPos->x = m_screenWidth / 2.f;
     GLfloat alt = utils::physics::coord_of_alt(
             m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, 100.f); // TODO: fix // Problem here
+            shipPos->x, 300.f);
     shipPos->y = alt;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();

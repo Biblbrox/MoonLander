@@ -1,15 +1,16 @@
-#include "../include/base.h"
-#include "../include/utils/utils.hpp"
 #include <SDL2/SDL.h>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
 
+#include "../include/utils/utils.hpp"
+#include "../include/utils/logger.hpp"
+#include "../include/exceptions/basegameexception.h"
+
 #ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>
-#endif
+#include <glm/gtc/matrix_transform.hpp>
 
-// TODO: fix marginal exit from game
-// Throw specific exception to exit
+#endif
 
 void quit();
 

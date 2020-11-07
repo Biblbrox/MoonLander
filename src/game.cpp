@@ -3,8 +3,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <boost/format.hpp>
 #include <constants.hpp>
 #include <exceptions/sdlexception.h>
+
+#include "../include/exceptions/glexception.hpp"
 
 #define FREQUENCY 44100
 #define SAMPLE_FORMAT MIX_DEFAULT_FORMAT

@@ -3,25 +3,16 @@
 
 #include <GL/glew.h>
 #include <string>
-#include <SDL_image.h>
-#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <typeinfo>
-#include <glm/geometric.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <boost/format.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <exceptions/fsexception.hpp>
-#include <exceptions/glexception.hpp>
 #include <camera.hpp>
+#include <SDL.h>
+#include <SDL_video.h>
 #include "constants.hpp"
-#include "logger.hpp"
 
 using glm::vec2;
-using boost::format;
-using utils::log::Logger;
-using utils::log::Category;
 
 namespace utils
 {
@@ -55,9 +46,9 @@ namespace utils
         return res;
     }
 
-    inline glm::vec2 fix_coords(const vec2& coords, const Camera& camera)
+    inline glm::vec2 fix_coords(const vec2& coords, const vec2& camPos)
     {
-        return {coords.x + camera.getX(), coords.y + camera.getY()};
+        return {coords.x + camPos.x, coords.y + camPos.y};
     }
 
     /**
