@@ -24,7 +24,7 @@ using utils::type_id;
 class World
 {
 public:
-    World() : m_scaled(false), m_wasInit(false), m_realCamX(0.f) {};
+    World() : m_scaled(false), m_wasInit(false), m_realCamX(0.f){};
     ~World() = default;
 
     void init();

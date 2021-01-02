@@ -65,6 +65,8 @@ void CollisionSystem::update_state(size_t delta)
     auto levels = getEntitiesByTag<LevelComponent>();
     auto sprites = getEntitiesByTags<SpriteComponent, CollisionComponent>();
 
+    const int critAlt = 250;
+
     // We need to check we have only one level (otherwise will be strange)
     assert(levels.size() == 1);
 
@@ -74,7 +76,7 @@ void CollisionSystem::update_state(size_t delta)
         auto colComponent = spriteEntity->getComponent<CollisionComponent>();
         auto sprite = spriteEntity->getComponent<SpriteComponent>()->sprite;
         auto pos = spriteEntity->getComponent<PositionComponent>();
-        if (utils::physics::altitude(level->points, pos->x, pos->y) >= 250)
+        if (utils::physics::altitude(level->points, pos->x, pos->y) >= critAlt)
             return;
 
         if (levelSpriteCollision(*sprite, pos->x, pos->y,

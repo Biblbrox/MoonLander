@@ -106,10 +106,11 @@ void World::update_ship()
             m_systems[type_id<RendererSystem>()]
     );
     auto levelComp = m_entities["level"]->getComponent<LevelComponent>();
-    const GLfloat shipHeight = altitude(levelComp->points, shipPos->x, shipPos->y);
+    GLfloat shipAlt = altitude(levelComp->points, shipPos->x, shipPos->y);
+    //const GLfloat shipAlt = altitude(levelComp->points, shipPos->x, shipPos->y);
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
-    if ((shipHeight < alt_threshold && !m_scaled) // Need to increase scale
-        || (shipHeight >= alt_threshold && m_scaled)) { // Need to decrease scale
+    if ((shipAlt < alt_threshold && !m_scaled) // Need to increase scale
+        || (shipAlt >= alt_threshold && m_scaled)) { // Need to decrease scale
         rescale_world();
     }
 
@@ -562,13 +563,15 @@ void World::init_ship()
     shipPos->x = m_screenWidth / 2.f;
     GLfloat alt = utils::physics::coord_of_alt(
             m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, 300.f);
-    shipPos->y = alt;
+            shipPos->x, 500.f);
+    shipPos->y = alt; // TODO: fix strange height
+    shipPos->angle = pi<GLfloat>() / 2.f;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();
     fuel->time = 1500;
 
     auto shipVel = ship.getComponent<VelocityComponent>();
+    shipVel->x = 2.f;
     auto shipAnim = ship.getComponent<AnimationComponent>();
 
     auto keyboardComponent = ship.getComponent<KeyboardComponent>();
