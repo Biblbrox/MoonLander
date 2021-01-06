@@ -8,10 +8,7 @@
 #ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>
 #include <glm/gtc/matrix_transform.hpp>
-
 #endif
-
-void quit();
 
 using utils::log::program_log_file_name;
 using utils::log::Category;

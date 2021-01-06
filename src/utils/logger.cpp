@@ -54,14 +54,13 @@ void utils::log::printShaderLog(GLuint shader)
         char *log_str = new char[maxLength];
 
         glGetShaderInfoLog(shader, maxLength, &infoLength, log_str);
-        if (infoLength > 0) {
+        if (infoLength > 0)
             Logger::write(shader_log_file_name(),
                           Category::SHADER_COMPILE_ERROR,
                           (format("Shader log:\n\n%s")
                            % log_str).str());
 
-            delete[] log_str;
-        }
+        delete[] log_str;
     } else {
         std::cerr << (format("Name %d is not a shader\n")
                       % shader).str() << std::endl;
@@ -78,12 +77,11 @@ void utils::log::printProgramLog(GLuint program)
         char *log_str = new char[maxLength];
 
         glGetProgramInfoLog(program, maxLength, &infoLength, log_str);
-        if (infoLength > 0) {
+        if (infoLength > 0)
             Logger::write(shader_log_file_name(),
                           Category::INTERNAL_ERROR,
                           (format("Shader program log:\n\n%s")
                            % log_str).str());
-        }
 
         delete[] log_str;
     } else {
