@@ -50,7 +50,7 @@ const int crash_idx = 1;
 const char* const msgFont = "kenvector_future2.ttf";
 const SDL_Color fontColor = {0xFF, 0xFF, 0xFF, 0xFF};
 
-const GLfloat ship_init_alt = 5000;
+const GLfloat ship_init_alt = 500;
 
 Entity& World::createEntity(const std::string& name)
 {
@@ -195,7 +195,7 @@ void World::update_level()
         return;
 
     auto ship = m_entities["ship"];
-    auto shipPos = ship->getComponent<PositionComponent>();
+    const auto shipPos = ship->getComponent<PositionComponent>();
 
     vec2 shipCoords = fix_coords({shipPos->x, shipPos->y},
                                  {m_camera.getX() + m_realCamX, m_camera.getY()});
@@ -537,6 +537,7 @@ void World::init_level()
 
     auto levelComponent = levelEnt.getComponent<LevelComponent>();
     level.extendToRight(m_camera);
+    level.extendToLeft(m_camera);
     levelComponent->points = level.points;
     levelComponent->stars = level.stars;
     levelComponent->platforms = level.platforms;
