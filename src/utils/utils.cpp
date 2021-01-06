@@ -76,15 +76,6 @@ utils::physics::altitude(const std::vector<vec2>& line_points,
     return (x - curX) / (nextX - curX) * (nextY - curY) + curY - y;
 }
 
-GLfloat utils::physics::coord_of_alt(const std::vector<vec2>& line_points,
-                                      GLfloat x, GLfloat height)
-{
-    size_t line_idx = find_if(line_points.cbegin(), line_points.cend(),
-                              [x](const vec2& point){ return point.x > x; })
-                      - line_points.cbegin();
-    return (line_points[line_idx].y + line_points[line_idx + 1].y) / 2.f - height;
-}
-
 GLuint utils::loadShaderFromFile(const std::string &path, GLenum shaderType)
 {
     assert(!path.empty() && "Empty file path");

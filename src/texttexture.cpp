@@ -29,7 +29,7 @@ void TextTexture::setColor(SDL_Color color)
 TextTexture::TextTexture(const std::string& textureText,
                          TTF_Font *font, SDL_Color color)
 {
-    assert(font != nullptr);
+    assert(font);
 
     m_font = font;
     m_color = color;

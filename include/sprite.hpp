@@ -5,6 +5,10 @@
 #include "utils/utils.hpp"
 #include "moonlanderprogram.hpp"
 
+/**
+ * Sprite class.
+ * Can contain one big texture with multiple small clips.
+ */
 class Sprite: public Texture
 {
 public:

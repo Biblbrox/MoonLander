@@ -3,7 +3,6 @@
 
 namespace utils
 {
-
 /**
     * TypeList declaration
     * @tparam Args
@@ -67,7 +66,6 @@ namespace utils
                            typeListReduce<typename TL::Tail>(unfunc, binfunc));
         }
     }
-
 }
 
 #endif //MOONLANDER_TYPELIST_H

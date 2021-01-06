@@ -39,6 +39,11 @@ namespace utils
         vec2 d;
     };
 
+    /**
+     * Split long string to multiple lines.
+     * @param str
+     * @return
+     */
     inline std::vector<std::string> split_to_lines(const std::string& str)
     {
         std::vector<std::string> res;
@@ -46,6 +51,13 @@ namespace utils
         return res;
     }
 
+    /**
+     * Return corrected cords. It's needed because when camera
+     * moves all non-static objects moves also.
+     * @param coords
+     * @param camPos
+     * @return
+     */
     inline glm::vec2 fix_coords(const vec2& coords, const vec2& camPos)
     {
         return {coords.x + camPos.x, coords.y + camPos.y};
@@ -82,9 +94,15 @@ namespace utils
 
     namespace physics
     {
+        /**
+         * Return altitude at (x, y). Can be used also to get y coordinate
+         * of altitude y at point x.
+         * @param points
+         * @param x
+         * @param y
+         * @return
+         */
         GLfloat altitude(const std::vector<vec2>& points, GLfloat x, GLfloat y);
-        GLfloat coord_of_alt(const std::vector<vec2>& points, GLfloat x,
-                             GLfloat height);
     }
 
     /**
@@ -108,7 +126,7 @@ namespace utils
     }
 
     /**
-     * Both functions getScreenWidth and getScreenHeight can
+     * Both functions getScreenWidth and getScreenHeight must
      * be called after SDL2 initialization. Otherwise 0 will be returned
      * @tparam T
      * @return
@@ -136,7 +154,7 @@ namespace utils
     }
 
     /**
-     * Flip verticaly SDL_Surface
+     * Flip vertically SDL_Surface
      * @param sfc
      * @return
      */

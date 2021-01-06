@@ -23,11 +23,17 @@ public:
             update_state(delta);
     }
 
+    /**
+     * Disactivate system
+     */
     virtual void stop() final
     {
         m_stopped = true;
     }
 
+    /**
+     * Activate system
+     */
     virtual void start() final
     {
         m_stopped = false;

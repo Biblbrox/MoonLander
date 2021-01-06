@@ -40,10 +40,23 @@ namespace utils::audio
 
         void pauseMusic();
 
+        /**
+         * Set whether chunk effects will be played immidiately or with
+         * some fade.
+         * @param fade
+         */
         void setFaded(bool fade);
 
+        /**
+         * Set fade time for chunk start
+         * @param in
+         */
         void setFadeIn(GLfloat in);
 
+        /**
+         * Set fade time for chunk end
+         * @param out
+         */
         void setFadeOut(GLfloat out);
 
     private:

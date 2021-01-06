@@ -68,7 +68,7 @@ private:
     /**
      * Update position of components
      */
-    void move_from_camera();
+    void update_movables();
 
     void update_ship();
     void update_text();

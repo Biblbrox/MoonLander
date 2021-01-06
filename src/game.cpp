@@ -117,6 +117,14 @@ void Game::initOnceSDL2()
 
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+        SDL_ShowCursor(SDL_DISABLE);
+        if (SDL_ShowCursor(SDL_QUERY) != SDL_DISABLE)
+            Logger::write(program_log_file_name(),
+                          Category::INITIALIZATION_ERROR,
+                          (format("Warning: Unable to hide cursor. "
+                                  "SDL Error: %s\n")
+                           % SDL_GetError()).str());
     }
 }
 

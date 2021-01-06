@@ -2,7 +2,6 @@
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
 
-#include "../include/utils/utils.hpp"
 #include "../include/utils/logger.hpp"
 #include "../include/exceptions/basegameexception.h"
 

@@ -93,7 +93,7 @@ void World::rescale_world()
     }
 
     m_scaled = !m_scaled;
-    move_from_camera();
+    update_movables();
 }
 
 void World::update_ship()
@@ -119,13 +119,13 @@ void World::update_ship()
     if ((shipPos->x >= m_frameWidth - m_frameWidth / 4.f)
         || (shipPos->x < m_frameWidth / 4.f)) { // Horizontal edges
         m_camera.translate(shipVel->x, 0.f);
-        move_from_camera();
+        update_movables();
     }
 
     if ((shipPos->y >= m_frameHeight - m_frameHeight / 4.f)
                || (shipPos->y < m_frameHeight / 4.f)) { // Vertical edges
         m_camera.translate(0.f, shipVel->y);
-        move_from_camera();
+        update_movables();
     }
 
     auto colShip = ship->getComponent<CollisionComponent>();
@@ -376,7 +376,7 @@ void World::init()
         auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
         m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
                         shipPos->y - m_screenHeight / 2.f);
-        move_from_camera(); // TODO: bug here
+        update_movables();
 
         m_wasInit = true;
     } else {
@@ -388,16 +388,17 @@ void World::init()
 
         rescale_world();
         init_ship();
+        
         m_nonStatic["ship"] = m_entities["ship"];
         m_realCamX += m_camera.getX();
         m_camera.lookAt(0.f, 0.f); // reset camera
-        move_from_camera();
+        update_movables();
 
         auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
 
         m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
                         shipPos->y - m_screenHeight / 2.f);
-        move_from_camera();
+        update_movables();
     }
 
     if (m_timer.isStarted() || m_timer.isPaused())
@@ -602,7 +603,7 @@ void World::init_ship()
     };
 }
 
-void World::move_from_camera()
+void World::update_movables()
 {
     for (const auto& [_, en]: m_nonStatic) {
         auto pos = en->getComponent<PositionComponent>();
