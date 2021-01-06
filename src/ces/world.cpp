@@ -21,6 +21,7 @@
 #include <components/lifetimecomponent.h>
 #include <game.hpp>
 #include <exceptions/sdlexception.h>
+#include <iostream>
 
 using utils::log::Logger;
 using utils::getResourcePath;
@@ -48,6 +49,8 @@ const int crash_idx = 1;
 
 const char* const msgFont = "kenvector_future2.ttf";
 const SDL_Color fontColor = {0xFF, 0xFF, 0xFF, 0xFF};
+
+const GLfloat ship_init_alt = 5000;
 
 Entity& World::createEntity(const std::string& name)
 {
@@ -107,7 +110,6 @@ void World::update_ship()
     );
     auto levelComp = m_entities["level"]->getComponent<LevelComponent>();
     GLfloat shipAlt = altitude(levelComp->points, shipPos->x, shipPos->y);
-    //const GLfloat shipAlt = altitude(levelComp->points, shipPos->x, shipPos->y);
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipAlt < alt_threshold && !m_scaled) // Need to increase scale
         || (shipAlt >= alt_threshold && m_scaled)) { // Need to decrease scale
@@ -138,7 +140,7 @@ void World::update_ship()
             && std::abs(shipVel->y * 60.f) <= 20) {
 
             utils::Rect shipSize = ship->getComponent<SpriteComponent>()->sprite->getCurrentClip();
-            for (size_t i = 0; i < platforms.size() - 1; ++i) {
+            for (size_t i = 0; i < platforms.size() - 1; i += 2) {
                 if (shipPos->x >= platforms[i].x
                     && shipPos->x <= platforms[i + 1].x
                     && shipPos->x + shipSize.w <= platforms[i + 1].x) {
@@ -352,14 +354,6 @@ void World::init()
         m_frameWidth = m_screenWidth;
         m_frameHeight = m_screenHeight;
 
-        // Order of initialization is matter
-        init_level();
-        init_ship();
-        init_sprites();
-        init_text();
-        init_sound();
-        init_sound();
-
         createSystem<RendererSystem>();
         createSystem<MovementSystem>();
         createSystem<KeyboardSystem>();
@@ -368,13 +362,22 @@ void World::init()
         createSystem<PhysicsSystem>();
         createSystem<ParticleRenderSystem>();
 
+        // Order of initialization is matter
+        init_level();
+        init_ship();
+        init_sprites();
+        init_text();
+        init_sound(); // TODO: fix this
+        init_sound();
+
         m_nonStatic["level"] = m_entities["level"];
         m_nonStatic["ship"] = m_entities["ship"];
 
-        m_realCamX += m_camera.getX();
-        m_camera.lookAt(0, m_entities["ship"]->getComponent<PositionComponent>()->y
-                           - m_screenHeight / 2.f);
-        move_from_camera();
+        auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
+        m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
+                        shipPos->y - m_screenHeight / 2.f);
+        move_from_camera(); // TODO: bug here
+
         m_wasInit = true;
     } else {
         m_entities.erase("winText");
@@ -383,7 +386,6 @@ void World::init()
         m_entities.erase("ship particle");
         m_systems[type_id<MovementSystem>()]->start();
 
-        auto program = MoonLanderProgram::getInstance();
         rescale_world();
         init_ship();
         m_nonStatic["ship"] = m_entities["ship"];
@@ -527,7 +529,6 @@ void World::init_text()
     timePos->scallable = false;
 }
 
-
 void World::init_level()
 {
     Entity& levelEnt = createEntity("level");
@@ -561,9 +562,9 @@ void World::init_ship()
 
     auto shipPos = ship.getComponent<PositionComponent>();
     shipPos->x = m_screenWidth / 2.f;
-    GLfloat alt = utils::physics::coord_of_alt(
+    GLfloat alt = utils::physics::altitude(
             m_entities["level"]->getComponent<LevelComponent>()->points,
-            shipPos->x, 500.f);
+            shipPos->x, ship_init_alt);
     shipPos->y = alt; // TODO: fix strange height
     shipPos->angle = pi<GLfloat>() / 2.f;
 
@@ -604,7 +605,7 @@ void World::move_from_camera()
 {
     for (const auto& [_, en]: m_nonStatic) {
         auto pos = en->getComponent<PositionComponent>();
-        if (pos != nullptr) {
+        if (pos) {
             pos->x -= m_camera.deltaX();
             pos->y -= m_camera.deltaY();
         } else {

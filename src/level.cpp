@@ -90,15 +90,6 @@ std::vector<vec2> generate_platforms(std::vector<vec2> &points)
         platforms.push_back(points[i + 1]);
     }
 
-//    for (size_t i = 0; i < points_initial_size; ++i) {
-//        if (std::count(plat_idx.begin(), plat_idx.end(), i) != 0)
-//            platforms.push_back(points[i]);
-//
-//        if (std::count(plat_idx.begin(), plat_idx.end(), i - 1) != 0) {
-//            points[i].y = points[i - 1].y;
-//            platforms.push_back(points[i]);
-//        }
-//    }
     return platforms;
 }
 

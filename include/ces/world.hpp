@@ -65,6 +65,9 @@ private:
 
     utils::Fps m_fps;
 
+    /**
+     * Update position of components
+     */
     void move_from_camera();
 
     void update_ship();
