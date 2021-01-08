@@ -3,7 +3,7 @@
 
 namespace utils
 {
-/**
+    /**
     * TypeList declaration
     * @tparam Args
     */
@@ -34,21 +34,35 @@ namespace utils
         static int const value = 0;
     };
 
-/**
- * Apply unary functor to each element in TypeList (TL)
- * Also apply binary functor to each pair of elements
- * from right to left which is result of unary functor.
- * Both unary and binary functor must return some value
- * They can't be void.
- * Final return value of this function is result of binary
- * function.
- * @tparam TL
- * @tparam UnFunctor
- * @tparam BinFunctor
- * @param unfunc
- * @param binfunc
- * @return
- */
+    template<typename Type, typename TypeList>
+    struct IsBaseOfRec
+    {
+        static const bool value =
+                std::is_base_of_v<Type, typename TypeList::Head>
+                && IsBaseOfRec<Type, typename TypeList::Tail>::value;
+    };
+
+    template<typename Type>
+    struct IsBaseOfRec<Type, TypeList<>>
+    {
+        static const bool value = true;
+    };
+
+    /**
+     * Apply unary functor to each element in TypeList (TL)
+     * Also apply binary functor to each pair of elements
+     * from right to left which is result of unary functor.
+     * Both unary and binary functor must return some value
+     * They can't be void.
+     * Final return value of this function is result of binary
+     * function.
+     * @tparam TL
+     * @tparam UnFunctor
+     * @tparam BinFunctor
+     * @param unfunc
+     * @param binfunc
+     * @return
+     */
     template<class TL, class UnFunctor, class BinFunctor>
     constexpr auto typeListReduce(UnFunctor &&unfunc, BinFunctor &&binfunc)
     {

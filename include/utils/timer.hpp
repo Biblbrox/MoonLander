@@ -1,9 +1,6 @@
 #ifndef MOONLANDER_TIMER_HPP
 #define MOONLANDER_TIMER_HPP
 
-#include <SDL_types.h>
-#include <vector>
-
 namespace utils
 {
     class Timer
@@ -16,14 +13,14 @@ namespace utils
         void pause() noexcept;
         void unpause() noexcept;
 
-        Uint32 getTicks() const noexcept;
+        uint32_t getTicks() const noexcept;
 
         bool isStarted() const noexcept;
         bool isPaused() const noexcept;
 
     private:
-        Uint32 m_startTicks;
-        Uint32 m_pausedTicks;
+        uint32_t m_startTicks;
+        uint32_t m_pausedTicks;
 
         bool m_paused;
         bool m_started;

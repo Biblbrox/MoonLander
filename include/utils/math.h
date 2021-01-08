@@ -22,6 +22,12 @@ namespace utils::math {
         return power * 2;
     }
 
+    /**
+     * Rotate(move elements) around element with idx position
+     * @param points
+     * @param idx
+     * @return
+     */
     inline std::vector<vec2> rotate_points(const std::vector<vec2>& points, size_t idx)
     {
         assert(idx < points.size());
@@ -37,7 +43,7 @@ namespace utils::math {
     }
 
     /**
-     *
+     * Rotate world around point v
      * @param m
      * @param v
      * @param angle

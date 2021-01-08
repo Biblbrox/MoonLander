@@ -49,7 +49,7 @@ GLuint Sprite::addClipSprite(utils::Rect clip)
     return m_clips.size() - 1;
 }
 
-utils::Rect Sprite::getClip(GLuint idx)
+utils::Rect Sprite::getClip(GLuint idx) noexcept
 {
     assert(idx < m_totSprites);
     return m_clips[idx];
@@ -153,12 +153,12 @@ GLuint Sprite::getVAO() const
     return m_vao[m_curIdx];
 }
 
-GLuint Sprite::getIdx() const
+GLuint Sprite::getIdx() const noexcept
 {
     return m_curIdx;
 }
 
-utils::Rect Sprite::getCurrentClip() const
+utils::Rect Sprite::getCurrentClip() const noexcept
 {
     return m_clips[m_curIdx];
 }
@@ -169,17 +169,17 @@ void Sprite::setIdx(GLuint idx)
     m_curIdx = idx;
 }
 
-GLuint Sprite::getWidth() const
+GLuint Sprite::getWidth() const noexcept
 {
     return getCurrentClip().w;
 }
 
-GLuint Sprite::getHeight() const
+GLuint Sprite::getHeight() const noexcept
 {
     return getCurrentClip().h;
 }
 
-GLuint Sprite::getSpritesCount() const
+GLuint Sprite::getSpritesCount() const noexcept
 {
     return m_totSprites;
 }

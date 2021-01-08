@@ -1,5 +1,4 @@
 #include <utils/random.h>
-#include <utils/utils.hpp>
 #include <utils/math.h>
 #include "level.hpp"
 

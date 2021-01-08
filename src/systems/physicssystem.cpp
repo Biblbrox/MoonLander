@@ -1,4 +1,3 @@
-
 #include "../../include/systems/physics_system.hpp"
 
 void PhysicsSystem::update_state(size_t delta)

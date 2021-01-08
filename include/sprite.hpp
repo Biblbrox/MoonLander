@@ -16,14 +16,14 @@ public:
     ~Sprite();
     void load(const std::string& path);
     GLuint addClipSprite(utils::Rect clip);
-    utils::Rect getClip(GLuint idx);
+    utils::Rect getClip(GLuint idx) noexcept;
 
-    GLuint getWidth() const override;
-    GLuint getHeight() const override;
-    utils::Rect getCurrentClip() const;
-    GLuint getIdx() const;
+    GLuint getWidth() const noexcept override;
+    GLuint getHeight() const noexcept override;
+    utils::Rect getCurrentClip() const noexcept;
+    GLuint getIdx() const noexcept;
     void setIdx(GLuint idx);
-    GLuint getSpritesCount() const;
+    GLuint getSpritesCount() const noexcept;
 
     void generateDataBuffer() override;
     void freeVBO() noexcept override final;

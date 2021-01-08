@@ -56,8 +56,8 @@ public:
     template <typename... ComponentTypes>
     auto getEntitiesByTags() const
     {
-        //TODO: add static_assert check
-
+        static_assert(IsBaseOfRec<Component, TypeList<ComponentTypes...>>::value,
+                      "Template parameter class must be child of Component");
         using ComponentList = utils::TypeList<ComponentTypes...>;
         static_assert(utils::Length<ComponentList>::value >= 2,
                       "Length of ComponentTypes must be greeter than 2");

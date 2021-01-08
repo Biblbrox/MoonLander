@@ -20,7 +20,7 @@ namespace utils
             m_fps = 0;
         }
 
-        void update()
+        void update() noexcept
         {
             size_t ticks = SDL_GetTicks();
             size_t frame_time = ticks - m_lastTicks;
@@ -44,7 +44,7 @@ namespace utils
             m_fps = 1000.f / m_fps;
         }
 
-        size_t get_fps() const
+        size_t get_fps() const noexcept
         {
             return m_fps;
         }

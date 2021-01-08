@@ -16,8 +16,8 @@ public:
 
     virtual GLuint getTextureID() const;
 
-    virtual GLuint getWidth() const;
-    virtual GLuint getHeight() const;
+    virtual GLuint getWidth() const noexcept;
+    virtual GLuint getHeight() const noexcept;
 
     virtual GLuint getVAO() const = 0;
     virtual void generateDataBuffer() = 0;

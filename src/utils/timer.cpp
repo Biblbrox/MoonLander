@@ -44,7 +44,7 @@ void utils::Timer::unpause() noexcept
     }
 }
 
-Uint32 utils::Timer::getTicks() const noexcept
+uint32_t utils::Timer::getTicks() const noexcept
 {
     Uint32 time = 0;
 

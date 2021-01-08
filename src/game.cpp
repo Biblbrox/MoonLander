@@ -76,56 +76,56 @@ void Game::initOnceSDL2()
 {
     static bool didInit = false;
 
-    if (!didInit) {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-            throw SdlException((format("SDL initialization error: %1%\n")
-                                % SDL_GetError()).str(),
-                               program_log_file_name(),
-                               Category::INITIALIZATION_ERROR);
+    if (didInit)
+        return;
 
-        if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS)
-            throw SdlException((format("SDL_IMG initialization error: %1%\n")
-                                % IMG_GetError()).str(),
-                               program_log_file_name(),
-                               Category::INITIALIZATION_ERROR);
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+        throw SdlException((format("SDL initialization error: %1%\n")
+                            % SDL_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
-        imgInit = true;
+    if ((IMG_Init(IMG_FLAGS) & IMG_FLAGS) != IMG_FLAGS)
+        throw SdlException((format("SDL_IMG initialization error: %1%\n")
+                            % IMG_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
-        if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT, NUM_CHANNELS, CHUNK_SIZE) < 0)
-            throw SdlException((format("SDL_Mixer initialization error: %1%\n")
-                                % Mix_GetError()).str(),
-                               program_log_file_name(),
-                               Category::INITIALIZATION_ERROR);
+    imgInit = true;
 
-        mixerInit = true;
+    if (Mix_OpenAudio(FREQUENCY, SAMPLE_FORMAT, NUM_CHANNELS, CHUNK_SIZE) < 0)
+        throw SdlException((format("SDL_Mixer initialization error: %1%\n")
+                            % Mix_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
-        if (TTF_Init() == -1)
-            throw SdlException((format("SDL_TTF initialization error: %1%\n")
-                                % TTF_GetError()).str(),
-                               program_log_file_name(),
-                               Category::INITIALIZATION_ERROR);
+    mixerInit = true;
 
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                            SDL_GL_CONTEXT_PROFILE_CORE);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    if (TTF_Init() == -1)
+        throw SdlException((format("SDL_TTF initialization error: %1%\n")
+                            % TTF_GetError()).str(),
+                           program_log_file_name(),
+                           Category::INITIALIZATION_ERROR);
 
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-        SDL_ShowCursor(SDL_DISABLE);
-        if (SDL_ShowCursor(SDL_QUERY) != SDL_DISABLE)
-            Logger::write(program_log_file_name(),
-                          Category::INITIALIZATION_ERROR,
-                          (format("Warning: Unable to hide cursor. "
-                                  "SDL Error: %s\n")
-                           % SDL_GetError()).str());
-    }
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+    SDL_ShowCursor(SDL_DISABLE);
+    if (SDL_ShowCursor(SDL_QUERY) != SDL_DISABLE)
+        Logger::write(program_log_file_name(), Category::INITIALIZATION_ERROR,
+                      (format("Warning: Unable to hide cursor. "
+                              "SDL Error: %s\n")
+                       % SDL_GetError()).str());
 }
 
 

@@ -5,12 +5,12 @@ Texture::Texture() : m_textureId(0), m_textureWidth(0), m_textureHeight(0)
 {
 }
 
-GLuint Texture::getWidth() const
+GLuint Texture::getWidth() const noexcept
 {
     return m_textureWidth;
 }
 
-GLuint Texture::getHeight() const
+GLuint Texture::getHeight() const noexcept
 {
     return m_textureHeight;
 }
