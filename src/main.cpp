@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <game.hpp>
 #include <moonlanderprogram.hpp>
 
@@ -7,7 +8,6 @@
 
 #ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>
-#include <glm/gtc/matrix_transform.hpp>
 #endif
 
 using utils::log::program_log_file_name;
