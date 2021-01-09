@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_SDLEXCEPTION_H
-#define MOONLANDER_SDLEXCEPTION_H
+#ifndef MOONLANDER_SDLEXCEPTION_HPP
+#define MOONLANDER_SDLEXCEPTION_HPP
 
 #include <string>
 #include "basegameexception.h"
@@ -17,4 +17,4 @@ public:
             : BaseGameException(msg, fileLog, category) {}
 };
 
-#endif //MOONLANDER_SDLEXCEPTION_H
+#endif //MOONLANDER_SDLEXCEPTION_HPP
