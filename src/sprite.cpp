@@ -165,7 +165,7 @@ utils::Rect Sprite::getCurrentClip() const noexcept
 
 void Sprite::setIdx(GLuint idx)
 {
-    assert(idx < this->m_totSprites);
+    assert(idx < m_totSprites);
     m_curIdx = idx;
 }
 

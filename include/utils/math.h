@@ -39,6 +39,7 @@ namespace utils::math {
             res.push_back(points[i] + 2.f * (points[idx] - points[i]));
 
         std::reverse(res.begin(), res.end());
+        res.shrink_to_fit();
 
         return res;
     }

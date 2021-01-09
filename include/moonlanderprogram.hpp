@@ -14,12 +14,10 @@ public:
 
     //TODO: fix public constructor and make_shared problem
     //TODO: fix ugly design
-
     static std::shared_ptr<MoonLanderProgram> getInstance()
     {
-        if (!instance) {
+        if (!instance)
             instance = std::make_shared<MoonLanderProgram>();
-        }
 
         return instance;
     }
@@ -33,11 +31,17 @@ public:
     void setTextureRendering(bool isTexture);
     void setTexture(int texture);
 
+    /**
+     * Choose geometry shader render mode
+     */
     void switchToLinesAdj();
     void switchToLines();
     void switchToPoints();
     void switchToTriangles();
 
+    /**
+     * Update uniform variables locations
+     */
     void rebindUniforms();
 
     glm::mat4 getView() const;
@@ -48,12 +52,18 @@ public:
     void leftMultModel(glm::mat4 matrix);
     void leftMultProjection(glm::mat4 matrix);
 
+    /**
+     * Write specific uniform to current program
+     */
     void updateProjection();
     void updateView();
     void updateModel();
     void updateColor();
 
-    bool loadProgram() override;
+    /**
+     * Init programs
+     */
+    void loadProgram() override;
 
 private:
     glm::mat4 m_projectionMatrix;
@@ -85,6 +95,9 @@ private:
 
     int m_isTextureRender;
 
+    /**
+     * Utility cleanup functions
+     */
     void remove_programs();
     void remove_shaders();
     void free_buffers();

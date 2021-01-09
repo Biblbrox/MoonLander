@@ -367,7 +367,6 @@ void World::init()
         init_ship();
         init_sprites();
         init_text();
-        init_sound(); // TODO: fix this
         init_sound();
 
         m_nonStatic["level"] = m_entities["level"];

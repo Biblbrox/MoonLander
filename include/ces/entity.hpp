@@ -116,7 +116,7 @@ public:
     void setWorld(World* world);
 
     void activate();
-    bool isActivate();
+    bool isActivate() const;
     void kill();
 
 private:

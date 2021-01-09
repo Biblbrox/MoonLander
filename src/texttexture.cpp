@@ -53,6 +53,11 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
             [](const std::string& first, const std::string& second){
                 return first.size() < second.size();
             });
+
+    // Center lines
+    for (std::string& line: lines)
+        utils::padLine(line, (line.size() - maxLenStr.size()) / 2);
+
     int width;
     TTF_SizeText(font, maxLenStr.c_str(), &width, nullptr);
     SDL_Surface* surface =

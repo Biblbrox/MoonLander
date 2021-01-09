@@ -16,21 +16,17 @@ using boost::format;
 using glm::vec2;
 using std::find_if;
 
-/**
- * Load opengl texture from pixels to GPU with specific format.
- * Result texture has RGBA format.
- * If function can't load texture exception will be thrown.
- * @param pixels
- * @param width
- * @param height
- * @param texture_format
- * @return textureID
- */
+void utils::padLine(std::string& line, size_t pad)
+{
+    line.insert(line.begin(), ' ', pad);
+    line.insert(line.end(), ' ', pad);
+}
+
 GLuint
 utils::loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
                                GLenum texture_format)
 {
-    assert(pixels != nullptr);
+    assert(pixels);
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -51,14 +47,6 @@ utils::loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height
     return textureID;
 }
 
-/**
- * Return altitude of position (x, y) respect to corresponding
- * line from line_points.
- * @param line_points
- * @param x
- * @param y
- * @return
- */
 GLfloat
 utils::physics::altitude(const std::vector<vec2>& line_points,
                               GLfloat x, GLfloat y)

@@ -126,6 +126,13 @@ namespace utils
     }
 
     /**
+     * Add padding to line
+     * @param line
+     * @param pad
+     */
+    void padLine(std::string& line, size_t pad);
+
+    /**
      * Both functions getScreenWidth and getScreenHeight must
      * be called after SDL2 initialization. Otherwise 0 will be returned
      * @tparam T
@@ -165,7 +172,7 @@ namespace utils
      */
     inline SDL_Surface* flipVertically(const SDL_Surface* const sfc)
     {
-        assert(sfc != nullptr);
+        assert(sfc);
         SDL_Surface *result =
                 SDL_CreateRGBSurface(sfc->flags, sfc->w, sfc->h,
                                      sfc->format->BytesPerPixel * 8,
@@ -190,17 +197,18 @@ namespace utils
     }
 
     /**
-     * Load opengl texture from pixels with specific format.
+     * Load opengl texture from pixels to GPU with specific format.
      * Result texture has RGBA format.
-     * If function can't load texture std::runtime_error exception will be thrown.
+     * If function can't load texture exception will be thrown.
      * @param pixels
      * @param width
      * @param height
-     * @param format
-     * @return
-     * */
-    GLuint loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
-                                   GLenum textureType = GL_RGBA);
+     * @param texture_format
+     * @return textureID
+     */
+    GLuint
+    loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
+                            GLenum textureType = GL_RGBA);
 
 
      /**
@@ -220,17 +228,16 @@ namespace utils
      * @param surface
      * @return
      */
-    inline GLenum getSurfaceFormatInfo(const SDL_Surface &surface) noexcept
+    constexpr GLenum getSurfaceFormatInfo(const SDL_Surface &surface) noexcept
     {
         GLenum format = 0;
-        GLint nOfColors;
-        nOfColors = surface.format->BytesPerPixel;
-        if (nOfColors == 4) {     // contains an alpha channel
+        GLint color_num = surface.format->BytesPerPixel;
+        if (color_num == 4) {     // contains an alpha channel
             if (surface.format->Rmask == 0x000000ff)
                 format = GL_RGBA;
             else
                 format = GL_BGRA;
-        } else if (nOfColors == 3) {     // no alpha channel
+        } else if (color_num == 3) {     // no alpha channel
             if (surface.format->Rmask == 0x000000ff)
                 format = GL_RGB;
             else

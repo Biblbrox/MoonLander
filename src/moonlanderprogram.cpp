@@ -39,7 +39,7 @@ MoonLanderProgram::MoonLanderProgram()
     std::memset(m_geomShaders, 0, 4);
 }
 
-bool MoonLanderProgram::loadProgram()
+void MoonLanderProgram::loadProgram()
 {
     for (int i = 0; i < std::size(m_programs); ++i) {
         m_programs[i] = glCreateProgram();
@@ -139,8 +139,6 @@ bool MoonLanderProgram::loadProgram()
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_textureDataUBO);
 
     switchToLinesAdj();
-
-    return true;
 }
 
 void MoonLanderProgram::setProjection(glm::mat4 matrix)

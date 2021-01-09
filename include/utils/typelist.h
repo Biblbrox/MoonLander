@@ -34,6 +34,11 @@ namespace utils
         static int const value = 0;
     };
 
+    /**
+     * Variadic arguments version of std::is_base_of
+     * @tparam Type
+     * @tparam TypeList
+     */
     template<typename Type, typename TypeList>
     struct IsBaseOfRec
     {
@@ -64,7 +69,7 @@ namespace utils
      * @return
      */
     template<class TL, class UnFunctor, class BinFunctor>
-    constexpr auto typeListReduce(UnFunctor &&unfunc, BinFunctor &&binfunc)
+    constexpr auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
     {
         static_assert(Length<TL>::value >= 2,
                       "Length<TypeList<Args...>>::value >= 2");

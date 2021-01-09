@@ -49,10 +49,9 @@ buildRectPoints(const utils::Rect &rect, GLfloat alpha) noexcept
     const GLfloat y = rect.y;
     const GLfloat width = rect.w;
     const GLfloat height = rect.h;
-    if (std::abs(alpha) > glm::half_pi<GLfloat>()) {
+    if (std::abs(alpha) > glm::half_pi<GLfloat>())
         alpha -= glm::half_pi<GLfloat>()
                  * std::floor(alpha / glm::half_pi<GLfloat>());
-    }
 
     alpha = -alpha;
 
@@ -123,6 +122,8 @@ std::vector<size_t> find_lines_under(const utils::RectPoints& rect,
             res.push_back(i);
         }
     }
+
+    res.shrink_to_fit();
 
     return res;
 }

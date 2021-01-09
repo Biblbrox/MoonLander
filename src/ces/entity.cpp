@@ -18,7 +18,7 @@ void Entity::setWorld(World* world)
     m_world = world;
 }
 
-bool Entity::isActivate()
+bool Entity::isActivate() const
 {
     return m_alive;
 }
