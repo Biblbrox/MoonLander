@@ -1,5 +1,5 @@
 # The Moon Lander game
-The clone of the Lunar Lander game.
+The clone of the Lunar Lander game written by C++ opengl 3.3 and SDL2.
 
 Compilation with cmake: <br>
 ```cmake
