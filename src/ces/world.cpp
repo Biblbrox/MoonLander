@@ -18,7 +18,7 @@
 #include <particle/particleengine.hpp>
 #include <systems/particlerendersystem.hpp>
 #include <utils/random.h>
-#include <components/lifetimecomponent.h>
+#include <components/lifetimecomponent.hpp>
 #include <game.hpp>
 #include <exceptions/sdlexception.hpp>
 #include <iostream>
