@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 #include <boost/format.hpp>
 #include <constants.hpp>
-#include <exceptions/sdlexception.h>
+#include <exceptions/sdlexception.hpp>
 
 #include "../include/exceptions/glexception.hpp"
 

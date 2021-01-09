@@ -134,6 +134,8 @@ namespace utils
     template<typename T>
     inline T getScreenWidth() noexcept
     {
+        static_assert(std::is_arithmetic_v<T>, "Template parameter "
+                                               "must be arithmetical");
         if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
             return 0;
 
@@ -145,6 +147,9 @@ namespace utils
     template<typename T>
     inline T getScreenHeight() noexcept
     {
+        static_assert(std::is_arithmetic_v<T>, "Template parameter "
+                                               "must be arithmetical");
+
         if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
             return 0;
 

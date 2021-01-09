@@ -1,13 +1,23 @@
 #ifndef MOONLANDER_RANDOM_H
 #define MOONLANDER_RANDOM_H
 
-#include <vector>
-#include <GL/glew.h>
 #include <random>
 #include <ctime>
 
 namespace utils
 {
+    /**
+     * Substitute specific uniform distribution whether for real
+     * or for integral type
+     */
+    template<class T>
+    using uniform_distribution = typename std::conditional_t<
+            std::is_floating_point_v<T>,
+            std::uniform_real_distribution<T>,
+            typename std::conditional_t<std::is_integral_v<T>,
+                    std::uniform_int_distribution<T>,
+                    void>>;
+
     class Random
     {
     public:
@@ -25,13 +35,14 @@ namespace utils
          * @param right
          * @param fix_near
          */
-        template<typename T, class ForwardIterator>
+        template<typename T, class ForwardIterator,
+                typename = std::enable_if_t<std::is_arithmetic_v<T>>>
         void fill_unique(ForwardIterator begin, ForwardIterator end, T left,
                          T right, bool fix_near = false)
         {
             std::generate(begin, end,
                           [begin, end, left, right, fix_near, this]() {
-                              GLuint val = generateu<T>(left, right);
+                              T val = generateu<T>(left, right);
                               if (fix_near) {
                                   while (std::count(begin, end, val) != 0
                                          || std::count(begin, end, val - 1) != 0
@@ -47,7 +58,7 @@ namespace utils
         }
 
         /**
-         * Fill sequence with gassian distributed numbers
+         * Fill sequence with gaussian distributed numbers
          * @tparam T
          * @tparam ForwardIterator
          * @param begin
@@ -55,7 +66,8 @@ namespace utils
          * @param mean
          * @param deviation
          */
-        template<typename T, class ForwardIterator>
+        template<typename T, class ForwardIterator,
+                typename = std::enable_if_t<std::is_floating_point_v<T>>>
         void fill_gauss(ForwardIterator begin, ForwardIterator end, T mean,
                         T deviation)
         {
@@ -73,7 +85,8 @@ namespace utils
          * @param left
          * @param right
          */
-        template<typename T, class ForwardIterator>
+        template<typename T, class ForwardIterator,
+                typename = std::enable_if_t<std::is_arithmetic_v<T>>>
         void fill(ForwardIterator begin, ForwardIterator end, T left, T right)
         {
             std::generate(begin, end, [left, right, this]() {
@@ -90,9 +103,10 @@ namespace utils
          * @return T
          */
         template<typename T>
-        T generateu(T a, T b)
+        typename std::enable_if<std::is_arithmetic_v<T>, T>::type
+        generateu(T a, T b)
         {
-            std::uniform_int_distribution<T> dist(a, b);
+            uniform_distribution<T> dist(a, b);
             return dist(this->m_generator);
         }
 
@@ -104,31 +118,16 @@ namespace utils
          * @return
          */
         template<typename T>
-        T generaten(T mean, T std)
+        typename std::enable_if<std::is_floating_point_v<T>, T>::type
+        generaten(T mean, T std)
         {
-            static_assert(std::is_floating_point_v<T>,
-                          "Template parameter of generaten must be floating point");
             std::normal_distribution<T> dist(mean, std);
-            return dist(this->m_generator);
+            return dist(m_generator);
         }
 
     private:
         std::mt19937 m_generator;
     };
-
-    template<>
-    inline GLfloat Random::generateu<GLfloat>(GLfloat a, GLfloat b)
-    {
-        std::uniform_real_distribution<GLfloat> dist(a, b);
-        return dist(m_generator);
-    }
-
-    template<>
-    inline GLdouble Random::generateu<GLdouble>(GLdouble a, GLdouble b)
-    {
-        std::uniform_real_distribution<GLdouble> dist(a, b);
-        return dist(m_generator);
-    }
 }
 
 #endif //MOONLANDER_RANDOM_H

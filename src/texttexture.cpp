@@ -3,7 +3,7 @@
 #include <string>
 #include <boost/format.hpp>
 #include <SDL_ttf.h>
-#include <exceptions/sdlexception.h>
+#include <exceptions/sdlexception.hpp>
 
 using utils::getResourcePath;
 using boost::format;

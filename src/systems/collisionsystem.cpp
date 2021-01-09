@@ -34,6 +34,13 @@ constexpr bool lineLine(const vec2 &p11, const vec2 &p12,
     return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
 }
 
+/**
+ * Build rectangle from rect with corrected coords by
+ * rotation angle
+ * @param rect
+ * @param alpha
+ * @return
+ */
 inline utils::RectPoints
 buildRectPoints(const utils::Rect &rect, GLfloat alpha) noexcept
 {
@@ -42,20 +49,24 @@ buildRectPoints(const utils::Rect &rect, GLfloat alpha) noexcept
     const GLfloat y = rect.y;
     const GLfloat width = rect.w;
     const GLfloat height = rect.h;
-    if (std::abs(alpha) > glm::half_pi<GLfloat>())
-        alpha = alpha - glm::half_pi<GLfloat>()
-                        * static_cast<int>(alpha / glm::half_pi<GLfloat>());
+    if (std::abs(alpha) > glm::half_pi<GLfloat>()) {
+        alpha -= glm::half_pi<GLfloat>()
+                 * std::floor(alpha / glm::half_pi<GLfloat>());
+    }
 
     alpha = -alpha;
 
-    bx = x + width * cos(alpha);
-    by = y - width * sin(alpha);
+    GLfloat alpha_cos = cos(alpha);
+    GLfloat alpha_sin = sin(alpha);
 
-    dx = x + height * sin(alpha);
-    dy = y + height * cos(alpha);
+    bx = x + width * alpha_cos;
+    by = y - width * alpha_sin;
 
-    cx = bx + height * sin(alpha);
-    cy = by + height * cos(alpha);
+    dx = x + height * alpha_sin;
+    dy = y + height * alpha_cos;
+
+    cx = bx + height * alpha_sin;
+    cy = by + height * alpha_cos;
 
     return {{x, y}, {bx, by}, {cx, cy}, {dx, dy}};
 }
@@ -90,15 +101,25 @@ void CollisionSystem::update_state(size_t delta)
     }
 }
 
-std::vector<size_t> find_lines_under(utils::RectPoints pos,
+/**
+ * Find lines that affected by any of points of rectangle rect
+ * @param rect
+ * @param points
+ * @return
+ */
+std::vector<size_t> find_lines_under(const utils::RectPoints& rect,
                                      const std::vector<vec2> &points)
 {
     std::vector<size_t> res;
+    GLfloat right_most = std::max({rect.a.x, rect.b.x, rect.c.x, rect.d.x});
     for (size_t i = 0; i < points.size() - 1; ++i) {
-        if ((points[i].x <= pos.a.x && points[i + 1].x >= pos.a.x)
-            || (points[i].x <= pos.b.x && points[i + 1].x >= pos.b.x)
-            || (points[i].x <= pos.c.x && points[i + 1].x >= pos.c.x)
-            || (points[i].x <= pos.d.x && points[i + 1].x >= pos.d.x)) {
+        if (points[i].x > right_most) // No need to check after
+            break;
+
+        if ((points[i].x <= rect.a.x && points[i + 1].x >= rect.a.x)
+            || (points[i].x <= rect.b.x && points[i + 1].x >= rect.b.x)
+            || (points[i].x <= rect.c.x && points[i + 1].x >= rect.c.x)
+            || (points[i].x <= rect.d.x && points[i + 1].x >= rect.d.x)) {
             res.push_back(i);
         }
     }
@@ -117,9 +138,9 @@ CollisionSystem::levelSpriteCollision(const Sprite &sprite, GLfloat ship_x,
     coords.y = ship_y;
     utils::RectPoints r = buildRectPoints(coords, angle);
 
-    std::vector<size_t> lines_idx = find_lines_under(r, points);
+    std::vector<size_t> lines = find_lines_under(r, points);
 
-    return std::any_of(lines_idx.cbegin(), lines_idx.cend(), [points, r](size_t idx) {
+    return std::any_of(lines.cbegin(), lines.cend(), [points, r](size_t idx) {
         vec2 p = points[idx];
         vec2 p_right = points[idx + 1];
         bool left = lineLine(r.d, r.a, {p.x, p.y}, {p_right.x, p_right.y});

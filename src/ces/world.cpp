@@ -20,7 +20,7 @@
 #include <utils/random.h>
 #include <components/lifetimecomponent.h>
 #include <game.hpp>
-#include <exceptions/sdlexception.h>
+#include <exceptions/sdlexception.hpp>
 #include <iostream>
 
 using utils::log::Logger;
@@ -133,9 +133,9 @@ void World::update_ship()
         const vector<vec2>& platforms = levelComp->platforms;
         bool landed = false;
         assert(platforms.size() % 2 == 0);
-        GLfloat pi2 = 2.f * pi<GLfloat>();
         GLfloat angle = shipPos->angle -
-                        pi2 * static_cast<int>(shipPos->angle / pi2);
+                        glm::two_pi<GLfloat>()
+                        * static_cast<int>(shipPos->angle / glm::two_pi<GLfloat>());
         if (angle >= -pi<GLfloat>() / 6.f && angle <= pi<GLfloat>() / 6.f
             && std::abs(shipVel->y * 60.f) <= 20) {
 

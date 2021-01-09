@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <sprite.hpp>
 #include <SDL_image.h>
-#include <exceptions/sdlexception.h>
+#include <exceptions/sdlexception.hpp>
 #include <SDL_ttf.h>
 #include <boost/format.hpp>
 

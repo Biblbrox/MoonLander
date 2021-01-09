@@ -3,11 +3,10 @@
 
 #include <SDL_mixer.h>
 #include <string>
-#include <filesystem>
 #include <vector>
-#include <cassert>
 #include <GL/glew.h>
 #include <functional>
+#include <memory>
 
 using chunkDeleter = std::function<void(Mix_Chunk*)>;
 using musDeleter = std::function<void(Mix_Music*)>;
@@ -39,13 +38,6 @@ namespace utils::audio
         void playMusic();
 
         void pauseMusic();
-
-        /**
-         * Set whether chunk effects will be played immidiately or with
-         * some fade.
-         * @param fade
-         */
-        void setFaded(bool fade);
 
         /**
          * Set fade time for chunk start
