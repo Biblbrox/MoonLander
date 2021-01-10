@@ -15,3 +15,6 @@ Screenshots: <br>
 ![Image 2](res/screenshots/2.png)
 
 ![Image 3](res/screenshots/3.png)
+
+Music used in game(Lordomi created):
+https://opengameart.org/content/ogre-3?destination=node/68976

@@ -215,7 +215,7 @@ void World::update_level()
         levelComp = levelEnt->getComponent<LevelComponent>();
     }
 
-    if (nearLeft) {
+    if (nearLeft) { // TODO: there is a bug: coordinate y jump when level extends
         level.extendToLeft(m_camera);
         levelComp->points = level.points;
         levelComp->platforms = level.platforms;
@@ -417,6 +417,9 @@ void World::init_sound()
     m_audio.addChunk(utils::getResourcePath("explosion.wav"));
     m_audio.setFadeOut(300.f);
     m_audio.setFadeIn(400.f);
+
+    m_audio.setMusic(utils::getResourcePath("mus.wav"));
+    m_audio.playMusic();
 }
 
 void World::init_sprites()
