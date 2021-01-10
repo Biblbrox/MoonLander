@@ -1,6 +1,9 @@
 # The Moon Lander game
 The clone of the Lunar Lander game written by C++ opengl 3.3 and SDL2.
 
+Music used in game(Lordomi created):
+https://opengameart.org/content/ogre-3?destination=node/68976
+
 Compilation with cmake: <br>
 ```cmake
 mkdir build
@@ -16,5 +19,3 @@ Screenshots: <br>
 
 ![Image 3](res/screenshots/3.png)
 
-Music used in game(Lordomi created):
-https://opengameart.org/content/ogre-3?destination=node/68976
