@@ -1,5 +1,8 @@
 #include <systems/collisionsystem.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/trigonometric.hpp>
+#include <numeric>
+#include <iostream>
 
 using glm::vec2;
 
@@ -49,9 +52,9 @@ buildRectPoints(const utils::Rect &rect, GLfloat alpha) noexcept
     const GLfloat y = rect.y;
     const GLfloat width = rect.w;
     const GLfloat height = rect.h;
-    if (std::abs(alpha) > glm::half_pi<GLfloat>())
-        alpha -= glm::half_pi<GLfloat>()
-                 * std::floor(alpha / glm::half_pi<GLfloat>());
+    // angle must be in range 0 - 2*pi
+    alpha -= glm::two_pi<GLfloat>()
+             * std::floor(alpha / glm::two_pi<GLfloat>());
 
     alpha = -alpha;
 
@@ -109,21 +112,16 @@ void CollisionSystem::update_state(size_t delta)
 std::vector<size_t> find_lines_under(const utils::RectPoints& rect,
                                      const std::vector<vec2> &points)
 {
-    std::vector<size_t> res;
-    GLfloat right_most = std::max({rect.a.x, rect.b.x, rect.c.x, rect.d.x});
-    for (size_t i = 0; i < points.size() - 1; ++i) {
-        if (points[i].x > right_most) // No need to check after
-            break;
+    GLfloat left_most = std::min({rect.a.x, rect.b.x, rect.c.x, rect.d.x});
+    size_t line_idx = std::prev(
+            std::lower_bound(points.cbegin(), points.cend(), left_most,
+                             [](const vec2& point, GLfloat val) {
+                                 return point.x < val;
+                             })) - points.cbegin();
 
-        if ((points[i].x <= rect.a.x && points[i + 1].x >= rect.a.x)
-            || (points[i].x <= rect.b.x && points[i + 1].x >= rect.b.x)
-            || (points[i].x <= rect.c.x && points[i + 1].x >= rect.c.x)
-            || (points[i].x <= rect.d.x && points[i + 1].x >= rect.d.x)) {
-            res.push_back(i);
-        }
-    }
-
-    res.shrink_to_fit();
+    // Assume that ship can't be place at more than 4 lines simultaneously
+    std::vector<size_t> res(4);
+    std::iota(res.begin(), res.end(), line_idx);
 
     return res;
 }

@@ -22,6 +22,7 @@
 #include <game.hpp>
 #include <exceptions/sdlexception.hpp>
 #include <iostream>
+#include <glm/trigonometric.hpp>
 
 using utils::log::Logger;
 using utils::getResourcePath;
@@ -135,15 +136,19 @@ void World::update_ship()
         assert(platforms.size() % 2 == 0);
         GLfloat angle = shipPos->angle -
                         glm::two_pi<GLfloat>()
-                        * static_cast<int>(shipPos->angle / glm::two_pi<GLfloat>());
-        if (angle >= -pi<GLfloat>() / 6.f && angle <= pi<GLfloat>() / 6.f
+                        * std::floor(shipPos->angle / glm::two_pi<GLfloat>());
+        GLfloat crit_angle = glm::pi<GLfloat>() / 6.f;
+        if (((angle >= -crit_angle && angle <= crit_angle)
+             || (angle >= glm::two_pi<GLfloat>() - crit_angle))
             && std::abs(shipVel->y * 60.f) <= 20) {
-
+            const GLfloat pad = 2;
             utils::Rect shipSize = ship->getComponent<SpriteComponent>()->sprite->getCurrentClip();
-            for (size_t i = 0; i < platforms.size() - 1; i += 2) {
-                if (shipPos->x >= platforms[i].x
-                    && shipPos->x <= platforms[i + 1].x
-                    && shipPos->x + shipSize.w <= platforms[i + 1].x) {
+            for (size_t i = 0; i < platforms.size() - 1; i += 2) { // TODO: bug on some platforms
+                GLfloat left_bound = platforms[i].x;
+                GLfloat right_bound = platforms[i + 1].x;
+                if (shipPos->x >= left_bound - pad
+                    && shipPos->x <= right_bound + pad
+                    && shipPos->x + shipSize.w <= right_bound + pad) {
                     shipVel->x = shipVel->y = shipVel->angle = 0;
                     landed = true;
                     setGameState(GameStates::WIN);
@@ -566,7 +571,7 @@ void World::init_ship()
     GLfloat alt = utils::physics::altitude(
             m_entities["level"]->getComponent<LevelComponent>()->points,
             shipPos->x, ship_init_alt);
-    shipPos->y = alt; // TODO: fix strange height
+    shipPos->y = alt;
     shipPos->angle = pi<GLfloat>() / 2.f;
 
     auto fuel = ship.getComponent<LifeTimeComponent>();

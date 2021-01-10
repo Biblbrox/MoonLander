@@ -2,7 +2,6 @@
 #define MOONLANDER_TEXTURE_HPP
 
 #include <string>
-#include <SDL_render.h>
 #include <GL/glew.h>
 
 /**

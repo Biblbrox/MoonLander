@@ -36,7 +36,7 @@ namespace utils::math {
         std::vector<vec2> res;
         res.reserve(points.size());
         for (size_t i = 0; i < points.size(); ++i)
-            res.push_back(points[i] + 2.f * (points[idx] - points[i]));
+            res.emplace_back(points[i] + 2.f * (points[idx] - points[i]));
 
         std::reverse(res.begin(), res.end());
         res.shrink_to_fit();

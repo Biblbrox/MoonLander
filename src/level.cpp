@@ -85,9 +85,10 @@ std::vector<vec2> generate_platforms(std::vector<vec2> &points)
     platforms.reserve(platforms_count);
     for (unsigned int i : plat_idx) {
         points[i + 1].y = points[i].y;
-        platforms.push_back(points[i]);
-        platforms.push_back(points[i + 1]);
+        platforms.emplace_back(points[i]);
+        platforms.emplace_back(points[i + 1]);
     }
+    platforms.shrink_to_fit();
 
     return platforms;
 }
@@ -118,10 +119,6 @@ void Level::extendToRight(const Camera& camera)
     max_right = points.back().x + camera.getX();
 
     std::vector<vec2> part_stars = generate_stars(part_lines);
-    std::sort(part_stars.begin(), part_stars.end(),
-              [](const vec2& first, const vec2& second) {
-                  return first.y < second.y;
-    });
     stars.insert(stars.end(), part_stars.cbegin(), part_stars.cend());
 }
 
@@ -146,10 +143,6 @@ void Level::extendToLeft(const Camera& camera)
     max_right = points.back().x + camera.getX();
 
     std::vector<vec2> part_stars = generate_stars(part_lines);
-    std::sort(part_stars.begin(), part_stars.end(),
-              [](const vec2& first, const vec2& second) {
-                  return first.y < second.y;
-              });
     stars.insert(stars.begin(), part_stars.cbegin(), part_stars.cend());
 }
 

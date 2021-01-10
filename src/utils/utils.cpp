@@ -52,9 +52,13 @@ utils::physics::altitude(const std::vector<vec2>& line_points,
                               GLfloat x, GLfloat y)
 {
     assert(line_points.size() >= 2 && "line_points size must be >= 2");
-    size_t line_idx = find_if(line_points.cbegin(), line_points.cend(),
-                              [x](const vec2& point){ return point.x > x; })
-                      - line_points.cbegin();
+    size_t line_idx = std::prev(std::lower_bound(line_points.cbegin(), line_points.cend(),
+                                       x, [](const vec2& point, GLfloat val) {
+                return point.x < val;
+    })) - line_points.cbegin();
+    //size_t line_idx = find_if(line_points.cbegin(), line_points.cend(),
+    //                          [x](const vec2& point){ return point.x > x; })
+    //                  - line_points.cbegin();
 
     const GLfloat curX = line_points[line_idx].x;
     const GLfloat nextX = line_points[line_idx + 1].x;

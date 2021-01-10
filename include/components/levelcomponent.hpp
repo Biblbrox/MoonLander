@@ -2,7 +2,6 @@
 #define MOONLANDER_LEVELCOMPONENT_HPP
 
 #include "../ces/component.hpp"
-#include "level.hpp"
 
 using glm::vec2;
 
