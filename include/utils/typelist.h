@@ -71,10 +71,26 @@ namespace utils
     template<class TL, class UnFunctor, class BinFunctor>
     constexpr auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
     {
+        using ArgType = typename TL::Head;
+
         static_assert(Length<TL>::value >= 2,
                       "Length<TypeList<Args...>>::value >= 2");
+        static_assert(std::is_invocable_v<UnFunctor, ArgType>,
+                      "Unary functor must be invokable");
+        static_assert(std::is_invocable_v<BinFunctor,
+                              decltype(std::invoke_result_t<UnFunctor, ArgType>()),
+                              decltype(std::invoke_result_t<UnFunctor, ArgType>())>,
+                      "Binary functor must be invokable");
+        static_assert(!std::is_same_v<
+                              decltype(std::invoke_result_t<UnFunctor, ArgType>()), void>,
+                      "Return type of unary functor can't be void");
+        static_assert(!std::is_same_v<
+                              decltype(std::invoke_result_t<BinFunctor,
+                                      decltype(std::invoke_result_t<UnFunctor, ArgType>()),
+                                      decltype(std::invoke_result_t<UnFunctor, ArgType>())>()), void>,
+                      "Return type of binary functor can't be void");
 
-        typename TL::Head val;
+        ArgType val;
         auto res = unfunc(val);
 
         if constexpr (Length<TL>::value == 2) { // Base case
