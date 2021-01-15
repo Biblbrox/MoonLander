@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_SPRITECOMPONENT_HPP
 #define MOONLANDER_SPRITECOMPONENT_HPP
 
-#include "../include/sprite.hpp"
+#include "render/sprite.hpp"
 #include "../include/ces/component.hpp"
 
 struct SpriteComponent : Component

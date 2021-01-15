@@ -7,7 +7,7 @@
 #include <typeinfo>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <camera.hpp>
+#include <render/camera.hpp>
 #include <SDL.h>
 #include <SDL_video.h>
 #include "constants.hpp"
@@ -58,9 +58,40 @@ namespace utils
      * @param camPos
      * @return
      */
-    inline glm::vec2 fix_coords(const vec2& coords, const vec2& camPos)
+    constexpr glm::vec2 fix_coords(const vec2& coords, const vec2& camPos)
     {
         return {coords.x + camPos.x, coords.y + camPos.y};
+    }
+
+    /**
+     * Return Surface format
+     * if surface format can't be recognized 0 will be returned
+     * @param surface
+     * @return
+     */
+    constexpr GLenum getSurfaceFormatInfo(const SDL_Surface &surface) noexcept
+    {
+        GLenum format = 0;
+        GLint color_num = surface.format->BytesPerPixel;
+        if (color_num == 4) {     // contains an alpha channel
+            if (surface.format->Rmask == 0x000000ff)
+                format = GL_RGBA;
+            else
+                format = GL_BGRA;
+        } else if (color_num == 3) {     // no alpha channel
+            if (surface.format->Rmask == 0x000000ff)
+                format = GL_RGB;
+            else
+                format = GL_BGR;
+        }
+
+        return format;
+    }
+
+    template<typename T>
+    constexpr size_t type_id() noexcept
+    {
+        return typeid(T).hash_code();
     }
 
     /**
@@ -71,25 +102,20 @@ namespace utils
      * @param num_y
      * @return
      */
-    std::vector<Rect>
-    inline generate_clips(Rect clip, size_t num_x, size_t num_y)
+    template <int num_x, int num_y>
+    std::array<Rect, num_x * num_y>
+    constexpr generate_clips(Rect clip)
     {
         GLfloat part_width = clip.w / num_x;
         GLfloat part_height = clip.h / num_y;
 
-        std::vector<Rect> clips;
-        clips.reserve(num_x * num_y);
+        std::array<Rect, num_x * num_y> clips;
+        size_t i = 0;
         for (GLfloat y = clip.y; y < clip.y + clip.h; y += part_height)
             for (GLfloat x = clip.x; x < clip.x + clip.w; x += part_width)
-                clips.push_back({x, y, part_width, part_height});
+                clips[++i] = {x, y, part_width, part_height};
 
         return clips;
-    }
-
-    template<typename T>
-    constexpr size_t type_id() noexcept
-    {
-        return typeid(T).hash_code();
     }
 
     namespace physics
@@ -131,6 +157,32 @@ namespace utils
      * @param pad
      */
     void padLine(std::string& line, size_t pad);
+
+    /**
+     * Load opengl texture from pixels to GPU with specific format.
+     * Result texture has RGBA format.
+     * If function can't load texture exception will be thrown.
+     * @param pixels
+     * @param width
+     * @param height
+     * @param texture_format
+     * @return textureID
+     */
+    GLuint
+    loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
+                            GLenum textureType = GL_RGBA);
+
+
+    /**
+    * Load shader from file by specific path
+    * shaderType param may of the supported shader types
+    * If shader can't be loaded (file not found or bad read access)
+    * or can't be compiled std::runtime_error exception will be thrown.
+    * @param path
+    * @param shaderType
+    * @return
+    */
+    GLuint loadShaderFromFile(const std::string &path, GLenum shaderType);
 
     /**
      * Both functions getScreenWidth and getScreenHeight must
@@ -194,57 +246,6 @@ namespace utils
         }
 
         return result;
-    }
-
-    /**
-     * Load opengl texture from pixels to GPU with specific format.
-     * Result texture has RGBA format.
-     * If function can't load texture exception will be thrown.
-     * @param pixels
-     * @param width
-     * @param height
-     * @param texture_format
-     * @return textureID
-     */
-    GLuint
-    loadTextureFromPixels32(const GLuint *pixels, GLuint width, GLuint height,
-                            GLenum textureType = GL_RGBA);
-
-
-     /**
-     * Load shader from file by specific path
-     * shaderType param may of the supported shader types
-     * If shader can't be loaded (file not found or bad read access)
-     * or can't be compiled std::runtime_error exception will be thrown.
-     * @param path
-     * @param shaderType
-     * @return
-     */
-     GLuint loadShaderFromFile(const std::string &path, GLenum shaderType);
-
-    /**
-     * Return Surface format
-     * if surface format can't be recognized 0 will be returned
-     * @param surface
-     * @return
-     */
-    constexpr GLenum getSurfaceFormatInfo(const SDL_Surface &surface) noexcept
-    {
-        GLenum format = 0;
-        GLint color_num = surface.format->BytesPerPixel;
-        if (color_num == 4) {     // contains an alpha channel
-            if (surface.format->Rmask == 0x000000ff)
-                format = GL_RGBA;
-            else
-                format = GL_BGRA;
-        } else if (color_num == 3) {     // no alpha channel
-            if (surface.format->Rmask == 0x000000ff)
-                format = GL_RGB;
-            else
-                format = GL_BGR;
-        }
-
-        return format;
     }
 }
 

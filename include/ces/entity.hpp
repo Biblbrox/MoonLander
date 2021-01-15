@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include "utils/utils.hpp"
-#include "utils/typelist.h"
+#include "utils/typelist.hpp"
 
 class World;
 class Component;

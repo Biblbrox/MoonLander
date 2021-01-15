@@ -1,10 +1,10 @@
 #include <GL/glew.h>
 #include <boost/format.hpp>
 
-#include <abstract/shaderprogram.hpp>
+#include <render/shaderprogram.hpp>
 #include <utils/utils.hpp>
-#include "../include/utils/logger.hpp"
-#include "../include/exceptions/glexception.hpp"
+#include "utils/logger.hpp"
+#include "exceptions/glexception.hpp"
 
 using boost::format;
 using utils::log::Logger;
@@ -86,4 +86,49 @@ void ShaderProgram::setFloat(const std::string &name, GLfloat value)
                 (format("Unable to set uniform variable \"%1%\"\n") % name).str(),
                 shader_log_file_name(),
                 Category::INTERNAL_ERROR);
+}
+
+void ShaderProgram::setProjection(glm::mat4 matrix)
+{
+    m_projectionMatrix = matrix;
+}
+
+void ShaderProgram::setView(glm::mat4 matrix)
+{
+    m_viewMatrix = matrix;
+}
+
+void ShaderProgram::setModel(glm::mat4 matrix)
+{
+    m_modelMatrix = matrix;
+}
+
+glm::mat4 ShaderProgram::getView() const
+{
+    return m_viewMatrix;
+}
+
+glm::mat4 ShaderProgram::getProjection() const
+{
+    return m_projectionMatrix;
+}
+
+glm::mat4 ShaderProgram::getModel() const
+{
+    return m_modelMatrix;
+}
+
+void ShaderProgram::leftMultModel(glm::mat4 matrix)
+{
+    m_modelMatrix = matrix * m_modelMatrix;
+}
+
+void ShaderProgram::leftMultView(glm::mat4 matrix)
+{
+    m_viewMatrix = matrix * m_viewMatrix;
+}
+
+void ShaderProgram::leftMultProjection(glm::mat4 matrix)
+{
+    m_projectionMatrix = matrix * m_projectionMatrix;
 }

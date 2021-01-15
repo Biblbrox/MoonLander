@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_PARTICLEENGINE_HPP
 #define MOONLANDER_PARTICLEENGINE_HPP
 
-#include <sprite.hpp>
+#include <render/sprite.hpp>
 #include <ces/entity.hpp>
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
@@ -10,6 +10,7 @@
 class ParticleEngine
 {
 public:
+
     /**
      * Return clips.size() number generated particles from specific texture
      * Each particle is Entity with SpriteComponent, ParticleComponent,
@@ -19,12 +20,13 @@ public:
      * @param clips
      * @return
      */
+    template <int Length>
     static std::shared_ptr<Entity>
     generateFromTexture(const std::string& texture_file,
-                                const std::vector<utils::Rect>& clips,
-                                const std::vector<utils::Position>& init_coords,
-                                const std::vector<utils::Position>& init_vel,
-                                GLfloat life_time)
+                        const std::array<utils::Rect, Length>& clips,
+                        const std::vector<utils::Position>& init_coords,
+                        const std::vector<utils::Position>& init_vel,
+                        GLfloat life_time)
     {
         assert(clips.size() == init_coords.size()
                && "Number of particles must be "

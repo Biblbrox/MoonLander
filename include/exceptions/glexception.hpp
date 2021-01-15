@@ -2,7 +2,7 @@
 #define MOONLANDER_GLEXCEPTION_HPP
 
 #include <string>
-#include "basegameexception.h"
+#include "basegameexception.hpp"
 #include "../utils/logger.hpp"
 
 using utils::log::Category;

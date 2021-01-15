@@ -2,7 +2,7 @@
 #define MOONLANDER_TEXTCOMPONENT_HPP
 
 #include <memory>
-#include <texttexture.hpp>
+#include <render/texttexture.hpp>
 #include "../include/ces/component.hpp"
 
 struct TextComponent : Component

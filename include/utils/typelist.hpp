@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TYPELIST_H
-#define MOONLANDER_TYPELIST_H
+#ifndef MOONLANDER_TYPELIST_HPP
+#define MOONLANDER_TYPELIST_HPP
 
 namespace utils
 {
@@ -35,7 +35,7 @@ namespace utils
     };
 
     /**
-     * Variadic arguments version of std::is_base_of
+     * Variadic version of std::is_base_of
      * @tparam Type
      * @tparam TypeList
      */
@@ -103,4 +103,4 @@ namespace utils
     }
 }
 
-#endif //MOONLANDER_TYPELIST_H
+#endif //MOONLANDER_TYPELIST_HPP

@@ -56,9 +56,6 @@ utils::physics::altitude(const std::vector<vec2>& line_points,
                                        x, [](const vec2& point, GLfloat val) {
                 return point.x < val;
     })) - line_points.cbegin();
-    //size_t line_idx = find_if(line_points.cbegin(), line_points.cend(),
-    //                          [x](const vec2& point){ return point.x > x; })
-    //                  - line_points.cbegin();
 
     const GLfloat curX = line_points[line_idx].x;
     const GLfloat nextX = line_points[line_idx + 1].x;

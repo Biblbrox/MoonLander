@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <texttexture.hpp>
+#include <render/texttexture.hpp>
 #include <string>
 #include <boost/format.hpp>
 #include <SDL_ttf.h>

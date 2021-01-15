@@ -141,85 +141,6 @@ void MoonLanderProgram::loadProgram()
     switchToLinesAdj();
 }
 
-void MoonLanderProgram::setProjection(glm::mat4 matrix)
-{
-    m_projectionMatrix = matrix;
-}
-
-void MoonLanderProgram::setView(glm::mat4 matrix)
-{
-    m_viewMatrix = matrix;
-}
-
-void MoonLanderProgram::setModel(glm::mat4 matrix)
-{
-    m_modelMatrix = matrix;
-}
-
-void MoonLanderProgram::leftMultModel(glm::mat4 matrix)
-{
-    m_modelMatrix = matrix * m_modelMatrix;
-}
-
-void MoonLanderProgram::leftMultView(glm::mat4 matrix)
-{
-    m_viewMatrix = matrix * m_viewMatrix;
-}
-
-void MoonLanderProgram::leftMultProjection(glm::mat4 matrix)
-{
-    m_projectionMatrix = matrix * m_projectionMatrix;
-}
-
-void MoonLanderProgram::updateProjection()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                    sizeof(glm::mat4), glm::value_ptr(m_projectionMatrix));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        utils::log::printProgramLog(m_curProgram);
-        throw GLException((format("Error while updating matricesUBO(m_projectionMatrix)! %s\n")
-                           % gluErrorString(error)).str(),
-                          program_log_file_name(),
-                          Category::INTERNAL_ERROR);
-    }
-}
-
-void MoonLanderProgram::updateModel()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
-                    sizeof(glm::mat4), glm::value_ptr(m_modelMatrix));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        utils::log::printProgramLog(m_curProgram);
-        throw GLException((format("Error while updating matricesUBO(m_modelMatrix)! %s\n")
-                           % gluErrorString(error)).str(),
-                          program_log_file_name(),
-                          Category::INTERNAL_ERROR);
-    }
-}
-
-void MoonLanderProgram::updateView()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4),
-                    sizeof(mat4), glm::value_ptr(m_viewMatrix));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
-        utils::log::printProgramLog(m_curProgram);
-        throw GLException((format("Error while updating"
-                                  " matricesUBO(m_viewMatrix)! %s\n")
-                           % gluErrorString(error)).str(),
-                          program_log_file_name(),
-                          Category::INTERNAL_ERROR);
-    }
-}
-
 void MoonLanderProgram::setColor(glm::vec4 color)
 {
     m_color = color;
@@ -257,21 +178,6 @@ void MoonLanderProgram::setTextureRendering(bool isTexture)
 void MoonLanderProgram::setTexture(int texture)
 {
     glUniform1i(m_texLoc, texture);
-}
-
-glm::mat4 MoonLanderProgram::getView() const
-{
-    return m_viewMatrix;
-}
-
-glm::mat4 MoonLanderProgram::getProjection() const
-{
-    return m_projectionMatrix;
-}
-
-glm::mat4 MoonLanderProgram::getModel() const
-{
-    return m_modelMatrix;
 }
 
 MoonLanderProgram::~MoonLanderProgram()
@@ -401,4 +307,53 @@ void MoonLanderProgram::remove_shaders()
 
     if (glIsShader(m_vertexShader))
         glDeleteShader(m_vertexShader);
+}
+
+void MoonLanderProgram::updateProjection()
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0,
+                    sizeof(glm::mat4), glm::value_ptr(m_projectionMatrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        utils::log::printProgramLog(m_curProgram);
+        throw GLException((format("Error while updating matricesUBO(m_projectionMatrix)! %s\n")
+                           % gluErrorString(error)).str(),
+                          program_log_file_name(),
+                          Category::INTERNAL_ERROR);
+    }
+}
+
+void MoonLanderProgram::updateModel()
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
+                    sizeof(glm::mat4), glm::value_ptr(m_modelMatrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        utils::log::printProgramLog(m_curProgram);
+        throw GLException((format("Error while updating matricesUBO(m_modelMatrix)! %s\n")
+                           % gluErrorString(error)).str(),
+                          program_log_file_name(),
+                          Category::INTERNAL_ERROR);
+    }
+}
+
+void MoonLanderProgram::updateView()
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, m_matricesUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4),
+                    sizeof(mat4), glm::value_ptr(m_viewMatrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    if (GLenum error = glGetError(); error != GL_NO_ERROR) {
+        utils::log::printProgramLog(m_curProgram);
+        throw GLException((format("Error while updating"
+                                  " matricesUBO(m_viewMatrix)! %s\n")
+                           % gluErrorString(error)).str(),
+                          program_log_file_name(),
+                          Category::INTERNAL_ERROR);
+    }
 }

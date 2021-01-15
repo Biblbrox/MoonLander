@@ -2,8 +2,8 @@
 #include <glm/gtc/constants.hpp>
 #include <boost/format.hpp>
 
-#include "../../include/base.h"
-#include "../include/ces/world.hpp"
+#include "base.hpp"
+#include "world.hpp"
 #include <components/positioncomponent.hpp>
 #include <components/spritecomponent.hpp>
 #include <components/velocitycomponent.hpp>
@@ -14,10 +14,10 @@
 #include <systems/keyboardsystem.hpp>
 #include <systems/animationsystem.hpp>
 #include <systems/collisionsystem.hpp>
-#include <systems/physics_system.hpp>
+#include <systems/physicssystem.hpp>
 #include <particle/particleengine.hpp>
 #include <systems/particlerendersystem.hpp>
-#include <utils/random.h>
+#include <utils/random.hpp>
 #include <components/lifetimecomponent.hpp>
 #include <game.hpp>
 #include <exceptions/sdlexception.hpp>
@@ -175,9 +175,9 @@ void World::update_ship()
                 };
             });
 
-            auto particle = ParticleEngine::generateFromTexture(
+            auto particle = ParticleEngine::generateFromTexture<4 * 4>(
                     utils::getResourcePath("lunar_lander_bw.png"),
-                    generate_clips(shipClip, 4, 4), coords, vel, 10000.f);
+                    generate_clips<4, 4>(shipClip), coords, vel, 10000.f);
 
             particle->setWorld(this);
             m_entities.emplace("ship particle", particle);

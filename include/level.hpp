@@ -4,7 +4,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 #include <GL/glew.h>
-#include "camera.hpp"
+#include "render/camera.hpp"
 
 using glm::vec2;
 

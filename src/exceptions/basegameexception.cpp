@@ -1,4 +1,4 @@
-#include <exceptions/basegameexception.h>
+#include <exceptions/basegameexception.hpp>
 #include <string>
 
 BaseGameException::BaseGameException(std::string msg, std::string fileLog,

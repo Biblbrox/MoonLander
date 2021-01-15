@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_PHYSICS_SYSTEM_HPP
-#define MOONLANDER_PHYSICS_SYSTEM_HPP
+#ifndef MOONLANDER_PHYSICSSYSTEM_HPP
+#define MOONLANDER_PHYSICSSYSTEM_HPP
 
 #include <components/velocitycomponent.hpp>
 #include <components/particlespritecomponent.hpp>
@@ -11,4 +11,4 @@ public:
     void update_state(size_t delta) override;
 };
 
-#endif //MOONLANDER_PHYSICS_SYSTEM_HPP
+#endif //MOONLANDER_PHYSICSSYSTEM_HPP

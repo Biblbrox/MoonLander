@@ -1,5 +1,5 @@
-#include "../include/render.hpp"
-#include "../include/utils/math.h"
+#include "render/render.hpp"
+#include "utils/math.hpp"
 
 using glm::vec2;
 using glm::mat4;
@@ -8,6 +8,9 @@ using utils::math::rotate_around;
 
 void render::drawLinen(const std::vector<vec2>& points, bool adjacency)
 {
+    if (adjacency)
+        assert(points.size() % 2 == 0);
+
     auto vertices = points.data();
 
     GLuint verticesID = 0;
@@ -24,13 +27,7 @@ void render::drawLinen(const std::vector<vec2>& points, bool adjacency)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    if (adjacency) {
-        glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, points.size());
-    } else {
-        assert(points.size() % 2 == 0);
-        glDrawArrays(GL_LINES, 0, points.size());
-    }
-
+    glDrawArrays(adjacency ? GL_LINE_STRIP_ADJACENCY : GL_LINES, 0, points.size());
 
     glDisableVertexAttribArray(0);
 
@@ -62,14 +59,10 @@ void render::drawDots(const std::vector<vec2>& dots)
 }
 
 void
-render::drawSprite(const Texture &texture,
+render::drawTexture(ShaderProgram& program, const Texture &texture,
                    GLfloat x, GLfloat y, GLfloat angle, GLfloat scale_factor)
 {
     assert(texture.getVAO() != 0);
-
-    auto program = MoonLanderProgram::getInstance();
-    program->switchToTriangles();
-    program->setTextureRendering(true);
 
     const GLfloat half = texture.getWidth() / 2.f;
     const GLfloat centerX = x + half;
@@ -79,8 +72,8 @@ render::drawSprite(const Texture &texture,
     mat4 rotation = rotate_around(mat4(1.f), vec3(centerX, centerY, 0.f), angle);
     mat4 translation = translate(mat4(1.f), vec3(x, y, 0.f));
     mat4 scaling = scale(mat4(1.f), vec3(scale_factor, scale_factor, 1.f));
-    program->leftMultModel(scaling * rotation * translation);
-    program->updateModel();
+    program.leftMultModel(scaling * rotation * translation);
+    program.updateModel();
 
     glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
     glBindVertexArray(texture.getVAO());
@@ -93,8 +86,8 @@ render::drawSprite(const Texture &texture,
     scaling[0][0] = invScale;
     scaling[1][1] = invScale;
     scaling[2][2] = invScale;
-    program->leftMultModel(translation * rotation * scaling);
-    program->updateModel();
+    program.leftMultModel(translation * rotation * scaling);
+    program.updateModel();
 }
 
 void render::drawTriangles(const std::vector<vec2>& points)

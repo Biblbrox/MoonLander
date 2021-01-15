@@ -2,7 +2,7 @@
 #define MOONLANDER_MOONLANDERPROGRAM_HPP
 
 #include <glm/mat4x4.hpp>
-#include "abstract/shaderprogram.hpp"
+#include "render/shaderprogram.hpp"
 #include <memory>
 
 class MoonLanderProgram: public ShaderProgram
@@ -24,9 +24,6 @@ public:
 
     ~MoonLanderProgram();
 
-    void setProjection(glm::mat4 matrix);
-    void setModel(glm::mat4 matrix);
-    void setView(glm::mat4 matrix);
     void setColor(glm::vec4 color);
     void setTextureRendering(bool isTexture);
     void setTexture(int texture);
@@ -44,21 +41,13 @@ public:
      */
     void rebindUniforms();
 
-    glm::mat4 getView() const;
-    glm::mat4 getModel() const;
-    glm::mat4 getProjection() const;
-
-    void leftMultView(glm::mat4 matrix);
-    void leftMultModel(glm::mat4 matrix);
-    void leftMultProjection(glm::mat4 matrix);
-
     /**
      * Write specific uniform to current program
      */
-    void updateProjection();
-    void updateView();
-    void updateModel();
     void updateColor();
+    void updateProjection() override;
+    void updateView() override;
+    void updateModel() override;
 
     /**
      * Init programs
@@ -66,12 +55,6 @@ public:
     void loadProgram() override;
 
 private:
-    glm::mat4 m_projectionMatrix;
-
-    glm::mat4 m_modelMatrix;
-
-    glm::mat4 m_viewMatrix;
-
     glm::vec4 m_color;
 
     GLint m_texLoc;

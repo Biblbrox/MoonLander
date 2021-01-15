@@ -24,7 +24,7 @@ public:
     }
 
     /**
-     * Disactivate system
+     * Deactivate system
      */
     virtual void stop() final
     {

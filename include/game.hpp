@@ -2,7 +2,7 @@
 #define MOONLANDER_GAME_HPP
 
 #include <GL/glew.h>
-#include <ces/world.hpp>
+#include <world.hpp>
 #include <memory>
 
 #define WINDOW_FLAGS (SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN)

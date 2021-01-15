@@ -9,9 +9,9 @@
 #include <level.hpp>
 #include <utils/timer.hpp>
 #include "utils/utils.hpp"
-#include "basesystem.hpp"
-#include "camera.hpp"
-#include "audio.hpp"
+#include "ces/basesystem.hpp"
+#include "render/camera.hpp"
+#include "utils/audio.hpp"
 
 /**
  * To avoid circular including

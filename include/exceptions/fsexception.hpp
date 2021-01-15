@@ -2,7 +2,7 @@
 #define MOONLANDER_FSEXCEPTION_HPP
 
 #include <string>
-#include "basegameexception.h"
+#include "basegameexception.hpp"
 
 /**
  * Exception class that can be throw when happened some error

@@ -2,6 +2,7 @@
 #define MOONLANDER_CAMERA_HPP
 
 #include <GL/glew.h>
+#include <functional>
 
 class Camera
 {

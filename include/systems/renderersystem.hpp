@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <moonlanderprogram.hpp>
-#include <camera.hpp>
+#include <render/camera.hpp>
 #include <components/textcomponent.hpp>
 #include "ces/system.hpp"
 #include "components/positioncomponent.hpp"

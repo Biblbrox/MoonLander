@@ -3,7 +3,7 @@
 
 #include <ces/component.hpp>
 #include <GL/glew.h>
-#include <sprite.hpp>
+#include <render/sprite.hpp>
 
 /**
  * Particle Sprite Component. Each particle is clip of one sprite.

@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <exceptions/fsexception.hpp>
 #include <exceptions/sdlexception.hpp>
-#include <audio.hpp>
+#include <utils/audio.hpp>
 
 using boost::format;
 

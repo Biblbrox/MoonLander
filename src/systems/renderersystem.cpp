@@ -4,7 +4,7 @@
 #include "systems/renderersystem.hpp"
 #include "components/levelcomponent.hpp"
 #include "components/spritecomponent.hpp"
-#include "render.hpp"
+#include "render/render.hpp"
 #include "../include/utils/logger.hpp"
 #include "../include/exceptions/glexception.hpp"
 
@@ -64,8 +64,10 @@ void RendererSystem::drawSprites()
 {
     auto sprites = getEntitiesByTag<SpriteComponent>();
     auto program = MoonLanderProgram::getInstance();
+    program->switchToTriangles();
+    program->setTextureRendering(true);
     for (const auto& [key, en]: sprites) {
-        render::drawSprite(*en->getComponent<SpriteComponent>()->sprite,
+        render::drawTexture(*program, *en->getComponent<SpriteComponent>()->sprite,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,
@@ -81,8 +83,10 @@ void RendererSystem::drawText()
 {
     auto textComponents = getEntitiesByTag<TextComponent>();
     auto program = MoonLanderProgram::getInstance();
+    program->switchToTriangles();
+    program->setTextureRendering(true);
     for (const auto& [key, en]: textComponents) {
-        render::drawSprite(*en->getComponent<TextComponent>()->texture,
+        render::drawTexture(*program, *en->getComponent<TextComponent>()->texture,
                            en->getComponent<PositionComponent>()->x,
                            en->getComponent<PositionComponent>()->y,
                            en->getComponent<PositionComponent>()->angle,

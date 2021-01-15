@@ -1,6 +1,6 @@
 #include <systems/particlerendersystem.hpp>
 #include <cstdlib>
-#include <render.hpp>
+#include <render/render.hpp>
 
 void ParticleRenderSystem::update_state(size_t delta)
 {
@@ -12,7 +12,7 @@ void ParticleRenderSystem::update_state(size_t delta)
         auto coords = particleComp->coords;
         for (size_t i = 0; i < sprite->getSpritesCount(); ++i) {
             sprite->setIdx(i);
-            render::drawSprite(*sprite, coords[i].x,
+            render::drawTexture(*program, *sprite, coords[i].x,
                                coords[i].y, coords[i].angle, 1.5f);
         }
     }

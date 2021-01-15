@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_RANDOM_H
-#define MOONLANDER_RANDOM_H
+#ifndef MOONLANDER_RANDOM_HPP
+#define MOONLANDER_RANDOM_HPP
 
 #include <random>
 #include <ctime>
@@ -107,7 +107,7 @@ namespace utils
         generateu(T a, T b)
         {
             uniform_distribution<T> dist(a, b);
-            return dist(this->m_generator);
+            return dist(m_generator);
         }
 
         /**
@@ -130,4 +130,4 @@ namespace utils
     };
 }
 
-#endif //MOONLANDER_RANDOM_H
+#endif //MOONLANDER_RANDOM_HPP

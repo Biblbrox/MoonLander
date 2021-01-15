@@ -4,7 +4,7 @@
 #include <moonlanderprogram.hpp>
 
 #include "../include/utils/logger.hpp"
-#include "../include/exceptions/basegameexception.h"
+#include "../include/exceptions/basegameexception.hpp"
 
 #ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>
