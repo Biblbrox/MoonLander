@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_COMPONENT_HPP
 #define MOONLANDER_COMPONENT_HPP
 
-class World;
+class CesManager;
 
 /**
  * Base class for component
@@ -9,13 +9,13 @@ class World;
 class Component
 {
 public:
-    Component() : m_world(nullptr) {};
+    Component() : m_cesManager(nullptr) {};
     virtual ~Component() = default;
 
-    virtual void setWorld(World* world) final;
+    virtual void setCesManager(CesManager* cesMan) final;
 
 private:
-    World* m_world;
+    CesManager* m_cesManager;
 };
 
 #endif //MOONLANDER_COMPONENT_HPP

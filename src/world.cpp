@@ -53,19 +53,6 @@ const SDL_Color fontColor = {0xFF, 0xFF, 0xFF, 0xFF};
 
 const GLfloat ship_init_alt = 500;
 
-Entity& World::createEntity(const std::string& name)
-{
-    std::shared_ptr ent = make_shared<Entity>();
-    ent->setWorld(this);
-    m_entities.emplace(name, ent);
-    return *m_entities[name];
-}
-
-std::unordered_map<std::string, std::shared_ptr<Entity>>& World::getEntities()
-{
-    return m_entities;
-}
-
 void World::rescale_world()
 {
     m_frameWidth = m_scaled ? m_screenWidth : (m_screenWidth / m_scaleFactor);
@@ -179,7 +166,7 @@ void World::update_ship()
                     utils::getResourcePath("lunar_lander_bw.png"),
                     generate_clips<4, 4>(shipClip), coords, vel, 10000.f);
 
-            particle->setWorld(this);
+            particle->setCesManager(this);
             m_entities.emplace("ship particle", particle);
 
             ship->kill();

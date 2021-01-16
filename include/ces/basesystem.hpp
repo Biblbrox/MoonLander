@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_BASESYSTEM_HPP
 #define MOONLANDER_BASESYSTEM_HPP
 
-class World;
+class CesManager;
 
 /**
  * System base class
@@ -9,12 +9,12 @@ class World;
 class BaseSystem
 {
 public:
-    BaseSystem(): m_stopped(false), m_world(nullptr) {};
+    BaseSystem(): m_stopped(false), m_cesManager(nullptr) {};
     virtual ~BaseSystem() = default;
 
-    virtual void setWorld(World* world) final
+    virtual void setCesManager(CesManager* cesMan) final
     {
-        m_world = world;
+        m_cesManager = cesMan;
     }
 
     virtual void update(size_t delta) final
@@ -42,7 +42,7 @@ public:
 protected:
     virtual void update_state(size_t delta) = 0;
 
-    World* m_world;
+    CesManager* m_cesManager;
     bool m_stopped;
 };
 

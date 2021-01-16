@@ -6,7 +6,7 @@
 #include "utils/utils.hpp"
 #include "utils/typelist.hpp"
 
-class World;
+class CesManager;
 class Component;
 
 using utils::type_id;
@@ -113,7 +113,7 @@ public:
     const std::unordered_map<size_t, std::shared_ptr<Component>>&
     getComponents() const;
 
-    void setWorld(World* world);
+    void setCesManager(CesManager* cesMan);
 
     void activate();
     bool isActivate() const;
@@ -121,7 +121,7 @@ public:
 
 private:
     std::unordered_map<size_t, std::shared_ptr<Component>> m_components;
-    World* m_world;
+    CesManager* m_cesManager;
     bool m_alive;
 };
 

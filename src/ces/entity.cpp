@@ -1,6 +1,6 @@
-#include "../include/ces/entity.hpp"
 #include <memory>
-#include <ces/component.hpp>
+#include "../../include/ces/component.hpp"
+#include "../include/ces/entity.hpp"
 
 void Entity::activate()
 {
@@ -13,9 +13,9 @@ Entity::getComponents() const
     return m_components;
 }
 
-void Entity::setWorld(World* world)
+void Entity::setCesManager(CesManager* cesMan)
 {
-    m_world = world;
+    m_cesManager = cesMan;
 }
 
 bool Entity::isActivate() const

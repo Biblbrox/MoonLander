@@ -5,11 +5,9 @@
 #include <set>
 #include <memory>
 #include "utils/utils.hpp"
-#include "world.hpp"
 #include "basesystem.hpp"
 #include "entity.hpp"
-
-class World;
+#include "cesmanager.hpp"
 
 using utils::type_id;
 
@@ -33,7 +31,7 @@ public:
      */
     auto getEntities() const
     {
-        auto filtered = m_world->getEntities();
+        auto filtered = m_cesManager->getEntities();
         for (auto it = filtered.begin(); it != filtered.end();) {
             auto components = it->second->getComponents();
             if (std::any_of(m_componentTypes.begin(), m_componentTypes.end(),
@@ -64,7 +62,7 @@ public:
 
         auto bin = [](bool x, bool y){ return x && y; };
 
-        auto filtered = m_world->getEntities();
+        auto filtered = m_cesManager->getEntities();
         for (auto it = filtered.begin(); it != filtered.end();) {
             // Lambda to check that current entity (it) has
             // each of ComponentTypes
@@ -90,7 +88,7 @@ public:
     {
         static_assert(std::is_base_of_v<Component, ComponentType>,
                       "ComponentType class must be child of Component");
-        auto filtered = m_world->getEntities();
+        auto filtered = m_cesManager->getEntities();
         for (auto it = filtered.begin(); it != filtered.end();) {
             if (!it->second->getComponent<ComponentType>())
                 it = filtered.erase(it);

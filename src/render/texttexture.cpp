@@ -44,6 +44,9 @@ void TextTexture::load(const std::string &textureText, SDL_Color color,
 {
     assert(!textureText.empty());
 
+    if (m_textureId != 0 && m_text == textureText)
+        return;
+
     size_t old_width = m_textureWidth;
 
     freeTexture();

@@ -1,7 +1,8 @@
-#include <ces/component.hpp>
+#include "../../include/ces/cesmanager.hpp"
+#include "../../include/ces/component.hpp"
 
-void Component::setWorld(World* world)
+void Component::setCesManager(CesManager* cesMan)
 {
-    m_world = world;
+    m_cesManager = cesMan;
 }
 

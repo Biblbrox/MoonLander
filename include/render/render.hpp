@@ -2,7 +2,7 @@
 #define MOONLANDER_RENDER_HPP
 
 #include <GL/glew.h>
-#include "moonlanderprogram.hpp"
+#include "shaderprogram.hpp"
 #include "sprite.hpp"
 
 using glm::vec2;

@@ -8,10 +8,12 @@
 #include <utils/fps.hpp>
 #include <level.hpp>
 #include <utils/timer.hpp>
+
 #include "utils/utils.hpp"
 #include "ces/basesystem.hpp"
 #include "render/camera.hpp"
 #include "utils/audio.hpp"
+#include "../include/ces/cesmanager.hpp"
 
 /**
  * To avoid circular including
@@ -21,35 +23,16 @@ class Component;
 
 using utils::type_id;
 
-class World
+class World: public CesManager
 {
 public:
     World() : m_scaled(false), m_wasInit(false), m_realCamX(0.f){};
     ~World() = default;
 
-    void init();
-    void update(size_t delta);
-
-    Entity& createEntity(const std::string& name);
-
-    template <typename SystemType>
-    SystemType& createSystem()
-    {
-        static_assert(std::is_base_of_v<BaseSystem, SystemType>,
-                      "Template parameter class must be child of BaseSystem");
-
-        std::shared_ptr<SystemType> system(new SystemType());
-        system->setWorld(this);
-        m_systems.insert({type_id<SystemType>(),
-                        std::static_pointer_cast<BaseSystem>(system)});
-        return *system;
-    }
-
-    std::unordered_map<std::string, std::shared_ptr<Entity>>& getEntities();
+    void init() override;
+    void update(size_t delta) override;
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<Entity>> m_entities;
-    std::unordered_map<size_t, std::shared_ptr<BaseSystem>> m_systems;
     std::unordered_map<std::string, std::shared_ptr<Entity>> m_nonStatic;
     Camera m_camera;
     GLuint m_screenHeight;
