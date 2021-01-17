@@ -1,9 +1,10 @@
 #include <GL/glew.h>
-#include <render/sprite.hpp>
 #include <SDL_image.h>
-#include <exceptions/sdlexception.hpp>
 #include <SDL_ttf.h>
 #include <boost/format.hpp>
+
+#include "exceptions/sdlexception.hpp"
+#include "render/sprite.hpp"
 
 using utils::log::Category;
 using utils::log::program_log_file_name;
@@ -171,12 +172,12 @@ void Sprite::setIdx(GLuint idx)
 
 GLuint Sprite::getWidth() const noexcept
 {
-    return getCurrentClip().w;
+    return m_clips[m_curIdx].w;
 }
 
 GLuint Sprite::getHeight() const noexcept
 {
-    return getCurrentClip().h;
+    return m_clips[m_curIdx].h;
 }
 
 GLuint Sprite::getSpritesCount() const noexcept

@@ -1,4 +1,4 @@
-#include <render/camera.hpp>
+#include "../../include/render/camera.hpp"
 
 void Camera::lookAt(GLfloat x, GLfloat y)
 {

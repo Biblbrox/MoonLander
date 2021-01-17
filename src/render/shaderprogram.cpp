@@ -1,8 +1,8 @@
 #include <GL/glew.h>
 #include <boost/format.hpp>
 
-#include <render/shaderprogram.hpp>
-#include <utils/utils.hpp>
+#include "render/shaderprogram.hpp"
+#include "utils/utils.hpp"
 #include "utils/logger.hpp"
 #include "exceptions/glexception.hpp"
 

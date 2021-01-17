@@ -2,6 +2,7 @@
 #define MOONLANDER_SDLEXCEPTION_HPP
 
 #include <string>
+
 #include "basegameexception.hpp"
 
 /**

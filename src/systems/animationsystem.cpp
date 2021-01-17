@@ -1,4 +1,4 @@
-#include <systems/animationsystem.hpp>
+#include "systems/animationsystem.hpp"
 
 void AnimationSystem::update_state(size_t delta)
 {

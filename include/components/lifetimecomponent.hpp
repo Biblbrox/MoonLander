@@ -1,8 +1,9 @@
 #ifndef MOONLANDER_LIFETIMECOMPONENT_PPH
 #define MOONLANDER_LIFETIMECOMPONENT_PPH
 
-#include <ces/component.hpp>
 #include <GL/glew.h>
+
+#include "ces/component.hpp"
 
 struct LifeTimeComponent : Component
 {

@@ -2,8 +2,9 @@
 #define MOONLANDER_MOONLANDERPROGRAM_HPP
 
 #include <glm/mat4x4.hpp>
-#include "render/shaderprogram.hpp"
 #include <memory>
+
+#include "render/shaderprogram.hpp"
 
 class MoonLanderProgram: public ShaderProgram
 {

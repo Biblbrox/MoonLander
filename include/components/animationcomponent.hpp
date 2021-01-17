@@ -1,8 +1,9 @@
 #ifndef MOONLANDER_ANIMATIONCOMPONENT_HPP
 #define MOONLANDER_ANIMATIONCOMPONENT_HPP
 
-#include <ces/component.hpp>
 #include <GL/glew.h>
+
+#include "ces/component.hpp"
 
 struct AnimationComponent : Component
 {

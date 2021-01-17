@@ -2,6 +2,7 @@
 #define MOONLANDER_TEXTTEXTURE_HPP
 
 #include <SDL_ttf.h>
+
 #include "texture.hpp"
 #include "utils/utils.hpp"
 

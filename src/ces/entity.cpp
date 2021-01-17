@@ -1,6 +1,6 @@
 #include <memory>
-#include "../../include/ces/component.hpp"
-#include "../include/ces/entity.hpp"
+#include "ces/component.hpp"
+#include "ces/entity.hpp"
 
 void Entity::activate()
 {

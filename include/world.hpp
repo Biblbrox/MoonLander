@@ -5,15 +5,15 @@
 #include <memory>
 #include <string>
 #include <SDL_ttf.h>
-#include <utils/fps.hpp>
-#include <level.hpp>
-#include <utils/timer.hpp>
 
+#include "utils/fps.hpp"
+#include "level.hpp"
+#include "utils/timer.hpp"
 #include "utils/utils.hpp"
 #include "ces/basesystem.hpp"
 #include "render/camera.hpp"
 #include "utils/audio.hpp"
-#include "../include/ces/cesmanager.hpp"
+#include "ces/cesmanager.hpp"
 
 /**
  * To avoid circular including

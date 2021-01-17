@@ -40,10 +40,7 @@ namespace coll
         cx = bx + height * alpha_sin;
         cy = by + height * alpha_cos;
 
-        return {{x,  y},
-                {bx, by},
-                {cx, cy},
-                {dx, dy}};
+        return {{x,  y}, {bx, by}, {cx, cy}, {dx, dy}};
     }
 
     /**

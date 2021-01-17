@@ -1,9 +1,10 @@
 #ifndef MOONLANDER_KEYBOARDCOMPONENT_HPP
 #define MOONLANDER_KEYBOARDCOMPONENT_HPP
 
-#include <ces/component.hpp>
 #include <functional>
 #include <SDL_quit.h>
+
+#include "ces/component.hpp"
 
 struct KeyboardComponent : Component
 {

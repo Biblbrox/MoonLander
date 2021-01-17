@@ -1,10 +1,11 @@
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <utils/utils.hpp>
-#include <boost/format.hpp>
-#include "../include/exceptions/glexception.hpp"
-#include "../include/utils/logger.hpp"
-#include "../include/moonlanderprogram.hpp"
+
+#include "utils/utils.hpp"
+#include "boost/format.hpp"
+#include "exceptions/glexception.hpp"
+#include "utils/logger.hpp"
+#include "moonlanderprogram.hpp"
 
 using utils::getShaderPath;
 using utils::loadShaderFromFile;

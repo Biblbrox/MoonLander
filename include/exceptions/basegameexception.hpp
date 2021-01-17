@@ -3,7 +3,8 @@
 
 #include <exception>
 #include <string>
-#include <utils/logger.hpp>
+
+#include "utils/logger.hpp"
 
 using utils::log::Category;
 using utils::log::program_log_file_name;

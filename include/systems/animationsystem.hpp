@@ -1,9 +1,9 @@
 #ifndef MOONLANDER_ANIMATIONSYSTEM_HPP
 #define MOONLANDER_ANIMATIONSYSTEM_HPP
 
-#include "../../include/ces/system.hpp"
-#include "../components/spritecomponent.hpp"
-#include "../components/animationcomponent.hpp"
+#include "ces/system.hpp"
+#include "components/spritecomponent.hpp"
+#include "components/animationcomponent.hpp"
 
 /**
  * Animation system class.

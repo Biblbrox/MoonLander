@@ -1,5 +1,5 @@
-#include <utils/random.hpp>
-#include <utils/math.hpp>
+#include "utils/random.hpp"
+#include "utils/math.hpp"
 #include "level.hpp"
 
 const GLfloat frame_width = 2000;

@@ -1,9 +1,10 @@
 #include <GL/glew.h>
-#include <render/texttexture.hpp>
 #include <string>
 #include <boost/format.hpp>
 #include <SDL_ttf.h>
-#include <exceptions/sdlexception.hpp>
+
+#include "exceptions/sdlexception.hpp"
+#include "render/texttexture.hpp"
 
 using utils::getResourcePath;
 using boost::format;

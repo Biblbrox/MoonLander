@@ -2,8 +2,9 @@
 #define MOONLANDER_CESMANAGER_HPP
 
 #include <string>
-#include "../../include/ces/entity.hpp"
-#include "../../include/ces/basesystem.hpp"
+
+#include "ces/entity.hpp"
+#include "ces/basesystem.hpp"
 
 class CesManager
 {

@@ -1,9 +1,9 @@
 #ifndef MOONLANDER_PHYSICSSYSTEM_HPP
 #define MOONLANDER_PHYSICSSYSTEM_HPP
 
-#include <components/velocitycomponent.hpp>
-#include <components/particlespritecomponent.hpp>
-#include "../ces/system.hpp"
+#include "components/velocitycomponent.hpp"
+#include "components/particlespritecomponent.hpp"
+#include "ces/system.hpp"
 
 class PhysicsSystem : public System <VelocityComponent, ParticleSpriteComponent>
 {

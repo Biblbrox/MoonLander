@@ -3,7 +3,6 @@
 
 #include "texture.hpp"
 #include "utils/utils.hpp"
-#include "moonlanderprogram.hpp"
 
 /**
  * Sprite class.

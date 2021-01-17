@@ -2,6 +2,7 @@
 #define MOONLANDER_RENDER_HPP
 
 #include <GL/glew.h>
+
 #include "shaderprogram.hpp"
 #include "sprite.hpp"
 

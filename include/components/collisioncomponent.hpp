@@ -1,7 +1,7 @@
 #ifndef MOONLANDER_COLLISIONCOMPONENT_HPP
 #define MOONLANDER_COLLISIONCOMPONENT_HPP
 
-#include <ces/component.hpp>
+#include "ces/component.hpp"
 
 struct CollisionComponent : Component
 {

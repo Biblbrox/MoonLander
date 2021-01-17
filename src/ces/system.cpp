@@ -1,2 +1,2 @@
-#include "../../include/ces/system.hpp"
-#include "../../include/ces/entity.hpp"
+#include "ces/system.hpp"
+#include "ces/entity.hpp"

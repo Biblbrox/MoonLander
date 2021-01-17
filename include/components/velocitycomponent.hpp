@@ -2,6 +2,7 @@
 #define MOONLANDER_VELOCITYCOMPONENT_HPP
 
 #include <GL/glew.h>
+
 #include "ces/component.hpp"
 
 struct VelocityComponent : Component

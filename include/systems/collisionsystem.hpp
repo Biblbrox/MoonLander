@@ -1,11 +1,11 @@
 #ifndef MOONLANDER_COLLISIONSYSTEM_HPP
 #define MOONLANDER_COLLISIONSYSTEM_HPP
 
-#include <components/collisioncomponent.hpp>
-#include <components/spritecomponent.hpp>
-#include <components/levelcomponent.hpp>
-#include <components/positioncomponent.hpp>
-#include "../ces/system.hpp"
+#include "components/collisioncomponent.hpp"
+#include "components/spritecomponent.hpp"
+#include "components/levelcomponent.hpp"
+#include "components/positioncomponent.hpp"
+#include "ces/system.hpp"
 
 using glm::vec2;
 

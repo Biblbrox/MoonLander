@@ -1,13 +1,13 @@
 #include <GL/glew.h>
-#include <game.hpp>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <boost/format.hpp>
-#include <constants.hpp>
-#include <exceptions/sdlexception.hpp>
 
-#include "../include/exceptions/glexception.hpp"
+#include "game.hpp"
+#include "constants.hpp"
+#include "exceptions/sdlexception.hpp"
+#include "exceptions/glexception.hpp"
 
 #define FREQUENCY 44100
 #define SAMPLE_FORMAT MIX_DEFAULT_FORMAT

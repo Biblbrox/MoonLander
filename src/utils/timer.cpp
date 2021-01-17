@@ -1,4 +1,5 @@
 #include <SDL_timer.h>
+
 #include "utils/timer.hpp"
 
 utils::Timer::Timer() noexcept : m_startTicks(0), m_pausedTicks(0),

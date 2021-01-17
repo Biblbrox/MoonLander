@@ -2,7 +2,7 @@
 #define MOONLANDER_SPRITECOMPONENT_HPP
 
 #include "render/sprite.hpp"
-#include "../include/ces/component.hpp"
+#include "ces/component.hpp"
 
 struct SpriteComponent : Component
 {

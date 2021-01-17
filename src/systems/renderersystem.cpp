@@ -5,8 +5,8 @@
 #include "components/levelcomponent.hpp"
 #include "components/spritecomponent.hpp"
 #include "render/render.hpp"
-#include "../include/utils/logger.hpp"
-#include "../include/exceptions/glexception.hpp"
+#include "utils/logger.hpp"
+#include "exceptions/glexception.hpp"
 
 using utils::log::Logger;
 using boost::format;

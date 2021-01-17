@@ -2,9 +2,10 @@
 #define MOONLANDER_RENDERERSYSTEM_HPP
 
 #include <GL/glew.h>
-#include <moonlanderprogram.hpp>
-#include <render/camera.hpp>
-#include <components/textcomponent.hpp>
+
+#include "moonlanderprogram.hpp"
+#include "render/camera.hpp"
+#include "components/textcomponent.hpp"
 #include "ces/system.hpp"
 #include "components/positioncomponent.hpp"
 

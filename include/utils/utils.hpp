@@ -7,9 +7,10 @@
 #include <typeinfo>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <render/camera.hpp>
 #include <SDL.h>
 #include <SDL_video.h>
+
+#include "render/camera.hpp"
 #include "constants.hpp"
 
 using glm::vec2;

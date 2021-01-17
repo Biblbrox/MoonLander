@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+
 #include "render/texture.hpp"
 
 Texture::Texture() : m_textureId(0), m_textureWidth(0), m_textureHeight(0)

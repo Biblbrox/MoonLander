@@ -2,8 +2,9 @@
 #define MOONLANDER_MOVEMENTSYSTEM_HPP
 
 #include <GL/glew.h>
-#include <components/velocitycomponent.hpp>
-#include <components/particlespritecomponent.hpp>
+
+#include "components/velocitycomponent.hpp"
+#include "components/particlespritecomponent.hpp"
 #include "ces/system.hpp"
 #include "components/positioncomponent.hpp"
 

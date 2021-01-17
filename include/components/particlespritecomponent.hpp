@@ -1,9 +1,10 @@
 #ifndef MOONLANDER_PARTICLESPRITECOMPONENT_HPP
 #define MOONLANDER_PARTICLESPRITECOMPONENT_HPP
 
-#include <ces/component.hpp>
 #include <GL/glew.h>
-#include <render/sprite.hpp>
+
+#include "ces/component.hpp"
+#include "render/sprite.hpp"
 
 /**
  * Particle Sprite Component. Each particle is clip of one sprite.

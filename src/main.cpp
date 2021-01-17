@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <game.hpp>
-#include <moonlanderprogram.hpp>
 
-#include "../include/utils/logger.hpp"
-#include "../include/exceptions/basegameexception.hpp"
+#include "game.hpp"
+#include "moonlanderprogram.hpp"
+#include "utils/logger.hpp"
+#include "exceptions/basegameexception.hpp"
 
 #ifndef NDEBUG // use callgrind profiler
 #include <valgrind/callgrind.h>

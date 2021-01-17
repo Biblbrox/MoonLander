@@ -1,7 +1,8 @@
-#include <systems/collisionsystem.hpp>
-#include "../../include/utils/collision.hpp"
 #include <numeric>
 #include <iostream>
+
+#include "systems/collisionsystem.hpp"
+#include "utils/collision.hpp"
 
 using glm::vec2;
 

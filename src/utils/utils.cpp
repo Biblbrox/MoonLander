@@ -1,12 +1,12 @@
 #include <ctime>
-#include "utils/utils.hpp"
 #include <boost/format.hpp>
 #include <iostream>
 #include <fstream>
 
-#include "../include/utils/logger.hpp"
-#include "../include/exceptions/glexception.hpp"
-#include "../include/exceptions/fsexception.hpp"
+#include "utils/logger.hpp"
+#include "utils/utils.hpp"
+#include "exceptions/glexception.hpp"
+#include "exceptions/fsexception.hpp"
 
 using utils::log::Logger;
 using utils::log::Category;

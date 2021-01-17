@@ -2,6 +2,7 @@
 #define MOONLANDER_POSITIONCOMPONENT_HPP
 
 #include <GL/glew.h>
+
 #include "ces/component.hpp"
 
 struct PositionComponent : Component
