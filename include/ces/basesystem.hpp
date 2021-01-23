@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_BASESYSTEM_HPP
-#define MOONLANDER_BASESYSTEM_HPP
+#ifndef BASESYSTEM_HPP
+#define BASESYSTEM_HPP
 
 class CesManager;
 
@@ -46,4 +46,4 @@ protected:
     bool m_stopped;
 };
 
-#endif //MOONLANDER_BASESYSTEM_HPP
+#endif //BASESYSTEM_HPP

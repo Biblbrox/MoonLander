@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_SYSTEM_HPP
-#define MOONLANDER_SYSTEM_HPP
+#ifndef SYSTEM_HPP
+#define SYSTEM_HPP
 
 #include <vector>
 #include <set>
@@ -105,4 +105,4 @@ private:
     std::set<size_t> m_componentTypes;
 };
 
-#endif //MOONLANDER_SYSTEM_HPP
+#endif //SYSTEM_HPP

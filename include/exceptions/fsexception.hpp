@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_FSEXCEPTION_HPP
-#define MOONLANDER_FSEXCEPTION_HPP
+#ifndef FSEXCEPTION_HPP
+#define FSEXCEPTION_HPP
 
 #include <string>
 

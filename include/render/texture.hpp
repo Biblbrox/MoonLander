@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TEXTURE_HPP
-#define MOONLANDER_TEXTURE_HPP
+#ifndef TEXTURE_HPP
+#define TEXTURE_HPP
 
 #include <string>
 #include <GL/glew.h>
@@ -33,4 +33,4 @@ protected:
     GLuint m_textureHeight = 0;
 };
 
-#endif //MOONLANDER_TEXTURE_HPP
+#endif //TEXTURE_HPP

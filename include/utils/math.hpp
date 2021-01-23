@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_MATH_HPP
-#define MOONLANDER_MATH_HPP
+#ifndef MATH_HPP
+#define MATH_HPP
 
 #include <vector>
 #include <glm/vec2.hpp>
@@ -63,4 +63,4 @@ namespace utils::math {
 
 }
 
-#endif //MOONLANDER_MATH_HPP
+#endif //MATH_HPP

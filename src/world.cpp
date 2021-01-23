@@ -129,7 +129,7 @@ void World::update_ship()
             && std::abs(shipVel->y * 60.f) <= 20) {
             const GLfloat pad = 2;
             utils::Rect shipSize = ship->getComponent<SpriteComponent>()->sprite->getCurrentClip();
-            for (size_t i = 0; i < platforms.size() - 1; i += 2) { // TODO: bug on some platforms
+            for (size_t i = 0; i < platforms.size() - 1; i += 2) {
                 GLfloat left_bound = platforms[i].x;
                 GLfloat right_bound = platforms[i + 1].x;
                 if (shipPos->x >= left_bound - pad

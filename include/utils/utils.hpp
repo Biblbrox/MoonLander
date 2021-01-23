@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_UTILS_H
-#define MOONLANDER_UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <GL/glew.h>
 #include <string>
@@ -250,4 +250,4 @@ namespace utils
     }
 }
 
-#endif //MOONLANDER_UTILS_H
+#endif //UTILS_H

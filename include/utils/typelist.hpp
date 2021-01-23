@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TYPELIST_HPP
-#define MOONLANDER_TYPELIST_HPP
+#ifndef TYPELIST_HPP
+#define TYPELIST_HPP
 
 namespace utils
 {
@@ -103,4 +103,4 @@ namespace utils
     }
 }
 
-#endif //MOONLANDER_TYPELIST_HPP
+#endif //TYPELIST_HPP

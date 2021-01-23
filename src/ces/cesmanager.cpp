@@ -1,4 +1,5 @@
 #include <memory>
+
 #include "ces/cesmanager.hpp"
 
 Entity& CesManager::createEntity(const std::string& name)

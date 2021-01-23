@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_RENDER_HPP
-#define MOONLANDER_RENDER_HPP
+#ifndef RENDER_HPP
+#define RENDER_HPP
 
 #include <GL/glew.h>
 
@@ -29,4 +29,4 @@ namespace render
     void drawTriangles(const std::vector<vec2> &points);
 };
 
-#endif //MOONLANDER_RENDER_HPP
+#endif //RENDER_HPP

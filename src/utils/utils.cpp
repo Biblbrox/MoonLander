@@ -68,7 +68,6 @@ utils::physics::altitude(const std::vector<vec2>& line_points,
 GLuint utils::loadShaderFromFile(const std::string &path, GLenum shaderType)
 {
     assert(!path.empty() && "Empty file path");
-    GLuint shaderID = 0;
     std::string shaderString;
     std::ifstream sourceFile(path.c_str());
     if (!sourceFile.is_open())
@@ -79,7 +78,7 @@ GLuint utils::loadShaderFromFile(const std::string &path, GLenum shaderType)
     shaderString.assign(std::istreambuf_iterator<char>(sourceFile),
                         std::istreambuf_iterator<char>());
 
-    shaderID = glCreateShader(shaderType);
+    GLint shaderID = glCreateShader(shaderType);
     const GLchar *shaderSource = shaderString.c_str();
     glShaderSource(shaderID, 1, (const GLchar**) &shaderSource, NULL);
     glCompileShader(shaderID);
@@ -87,9 +86,9 @@ GLuint utils::loadShaderFromFile(const std::string &path, GLenum shaderType)
     GLint shaderCompiled = GL_FALSE;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
     if (shaderCompiled != GL_TRUE) {
-        glDeleteShader(shaderID);
         sourceFile.close();
         utils::log::printShaderLog(shaderID);
+        glDeleteShader(shaderID);
         throw GLException(
                 "Error while compiling shader(see shader log)!",
                 program_log_file_name(),

@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_LOGGER_HPP
-#define MOONLANDER_LOGGER_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 
 #include <string>
 #include <GL/glew.h>
@@ -46,4 +46,4 @@ namespace utils::log
     };
 }
 
-#endif //MOONLANDER_LOGGER_HPP
+#endif //LOGGER_HPP

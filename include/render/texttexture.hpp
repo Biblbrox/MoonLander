@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TEXTTEXTURE_HPP
-#define MOONLANDER_TEXTTEXTURE_HPP
+#ifndef TEXTTEXTURE_HPP
+#define TEXTTEXTURE_HPP
 
 #include <SDL_ttf.h>
 
@@ -33,4 +33,4 @@ private:
     GLuint m_vboId;
 };
 
-#endif //MOONLANDER_TEXTTEXTURE_HPP
+#endif //TEXTTEXTURE_HPP

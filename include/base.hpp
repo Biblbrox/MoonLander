@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_BASE_HPP
-#define MOONLANDER_BASE_HPP
+#ifndef BASE_HPP
+#define BASE_HPP
 
 // Define NDEBUG here when release
 
@@ -11,4 +11,4 @@ constexpr const bool debug = true;
 constexpr const bool debug = false;
 #endif
 
-#endif //MOONLANDER_BASE_HPP
+#endif //BASE_HPP

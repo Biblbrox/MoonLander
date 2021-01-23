@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_RANDOM_HPP
-#define MOONLANDER_RANDOM_HPP
+#ifndef RANDOM_HPP
+#define RANDOM_HPP
 
 #include <random>
 #include <ctime>
@@ -130,4 +130,4 @@ namespace utils
     };
 }
 
-#endif //MOONLANDER_RANDOM_HPP
+#endif //RANDOM_HPP

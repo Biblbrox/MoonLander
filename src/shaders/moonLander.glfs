@@ -3,13 +3,12 @@
 // Texture coords
 in vec2 TexToFrag;
 in vec4 FragColor;
+
 // Texture number
 uniform sampler2D ourTexture;
 
 layout (std140) uniform TextureData
 {
-    // Primitives color
-    //vec4 inColor;
     // Wheter draw texture or primitives
     bool renderTexture;
 };

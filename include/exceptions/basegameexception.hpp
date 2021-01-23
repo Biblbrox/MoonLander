@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_BASEGAMEEXCEPTION_HPP
-#define MOONLANDER_BASEGAMEEXCEPTION_HPP
+#ifndef BASEGAMEEXCEPTION_HPP
+#define BASEGAMEEXCEPTION_HPP
 
 #include <exception>
 #include <string>
@@ -26,4 +26,4 @@ private:
     Category m_category;
 };
 
-#endif //MOONLANDER_BASEGAMEEXCEPTION_HPP
+#endif //BASEGAMEEXCEPTION_HPP

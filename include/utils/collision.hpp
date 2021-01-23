@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_COLLISION_HPP
-#define MOONLANDER_COLLISION_HPP
+#ifndef COLLISION_HPP
+#define COLLISION_HPP
 
 #include <cmath>
 #include <glm/gtc/constants.hpp>
@@ -75,4 +75,4 @@ namespace coll
     }
 }
 
-#endif //MOONLANDER_COLLISION_HPP
+#endif //COLLISION_HPP

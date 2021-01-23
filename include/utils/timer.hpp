@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_TIMER_HPP
-#define MOONLANDER_TIMER_HPP
+#ifndef TIMER_HPP
+#define TIMER_HPP
 
 namespace utils
 {
@@ -28,4 +28,4 @@ namespace utils
 }
 
 
-#endif //MOONLANDER_TIMER_HPP
+#endif //TIMER_HPP

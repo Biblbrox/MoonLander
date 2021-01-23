@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_CAMERA_HPP
-#define MOONLANDER_CAMERA_HPP
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
 
 #include <GL/glew.h>
 #include <functional>
@@ -29,4 +29,4 @@ private:
     GLfloat m_prevY;
 };
 
-#endif //MOONLANDER_CAMERA_HPP
+#endif //CAMERA_HPP

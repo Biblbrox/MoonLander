@@ -207,8 +207,7 @@ void Game::initGL()
     }
 
     //Check for error
-    error = glGetError();
-    if(error != GL_NO_ERROR)
+    if((error = glGetError()) != GL_NO_ERROR)
         throw GLException((format("Error initializing OpenGL! %s\n")
                            % gluErrorString(error)).str(),
                           program_log_file_name(),

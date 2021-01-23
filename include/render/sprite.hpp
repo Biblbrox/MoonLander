@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_SPRITE_HPP
-#define MOONLANDER_SPRITE_HPP
+#ifndef SPRITE_HPP
+#define SPRITE_HPP
 
 #include "texture.hpp"
 #include "utils/utils.hpp"
@@ -36,4 +36,4 @@ protected:
     GLuint m_curIdx = 0;
 };
 
-#endif //MOONLANDER_SPRITE_HPP
+#endif //SPRITE_HPP

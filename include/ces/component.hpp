@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_COMPONENT_HPP
-#define MOONLANDER_COMPONENT_HPP
+#ifndef COMPONENT_HPP
+#define COMPONENT_HPP
 
 class CesManager;
 
@@ -18,4 +18,4 @@ private:
     CesManager* m_cesManager;
 };
 
-#endif //MOONLANDER_COMPONENT_HPP
+#endif //COMPONENT_HPP

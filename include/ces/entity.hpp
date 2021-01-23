@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_ENTITY_HPP
-#define MOONLANDER_ENTITY_HPP
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
 
 #include <memory>
 #include <unordered_map>
@@ -126,4 +126,4 @@ private:
     bool m_alive;
 };
 
-#endif //MOONLANDER_ENTITY_HPP
+#endif //ENTITY_HPP

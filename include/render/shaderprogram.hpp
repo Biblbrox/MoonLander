@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_SHADERPROGRAM_HPP
-#define MOONLANDER_SHADERPROGRAM_HPP
+#ifndef SHADERPROGRAM_HPP
+#define SHADERPROGRAM_HPP
 
 #include <GL/glew.h>
 #include <string>
@@ -45,4 +45,4 @@ protected:
     glm::mat4 m_viewMatrix;
 };
 
-#endif //MOONLANDER_SHADERPROGRAM_HPP
+#endif //SHADERPROGRAM_HPP

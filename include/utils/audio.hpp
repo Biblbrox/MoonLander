@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_AUDIO_HPP
-#define MOONLANDER_AUDIO_HPP
+#ifndef AUDIO_HPP
+#define AUDIO_HPP
 
 #include <SDL_mixer.h>
 #include <string>
@@ -59,4 +59,4 @@ namespace utils::audio
     };
 }
 
-#endif //MOONLANDER_AUDIO_HPP
+#endif //AUDIO_HPP

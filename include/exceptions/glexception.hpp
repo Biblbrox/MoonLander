@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_GLEXCEPTION_HPP
-#define MOONLANDER_GLEXCEPTION_HPP
+#ifndef GLEXCEPTION_HPP
+#define GLEXCEPTION_HPP
 
 #include <string>
 

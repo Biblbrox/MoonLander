@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_CESMANAGER_HPP
-#define MOONLANDER_CESMANAGER_HPP
+#ifndef CESMANAGER_HPP
+#define CESMANAGER_HPP
 
 #include <string>
 
@@ -34,4 +34,4 @@ protected:
     std::unordered_map<size_t, std::shared_ptr<BaseSystem>> m_systems;
 };
 
-#endif //MOONLANDER_CESMANAGER_HPP
+#endif //CESMANAGER_HPP

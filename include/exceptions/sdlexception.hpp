@@ -1,5 +1,5 @@
-#ifndef MOONLANDER_SDLEXCEPTION_HPP
-#define MOONLANDER_SDLEXCEPTION_HPP
+#ifndef SDLEXCEPTION_HPP
+#define SDLEXCEPTION_HPP
 
 #include <string>
 
@@ -18,4 +18,4 @@ public:
             : BaseGameException(msg, fileLog, category) {}
 };
 
-#endif //MOONLANDER_SDLEXCEPTION_HPP
+#endif //SDLEXCEPTION_HPP
