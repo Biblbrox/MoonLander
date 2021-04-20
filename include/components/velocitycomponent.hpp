@@ -3,9 +3,9 @@
 
 #include <GL/glew.h>
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 
-struct VelocityComponent : Component
+struct VelocityComponent : ecs::Component
 {
     GLfloat x = 0.f;
     GLfloat y = 0.f;

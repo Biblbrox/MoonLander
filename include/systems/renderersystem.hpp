@@ -6,13 +6,13 @@
 #include "moonlanderprogram.hpp"
 #include "render/camera.hpp"
 #include "components/textcomponent.hpp"
-#include "ces/system.hpp"
+#include "ecs/system.hpp"
 #include "components/positioncomponent.hpp"
 
 /**
  * System that can handle level surface
  */
-class RendererSystem : public System<PositionComponent, TextComponent>
+class RendererSystem : public ecs::System<PositionComponent, TextComponent>
 {
 public:
     explicit RendererSystem();

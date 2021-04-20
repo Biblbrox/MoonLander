@@ -3,9 +3,9 @@
 
 #include "components/velocitycomponent.hpp"
 #include "components/particlespritecomponent.hpp"
-#include "ces/system.hpp"
+#include "ecs/system.hpp"
 
-class PhysicsSystem : public System <VelocityComponent, ParticleSpriteComponent>
+class PhysicsSystem : public ecs::System <VelocityComponent, ParticleSpriteComponent>
 {
 public:
     void update_state(size_t delta) override;

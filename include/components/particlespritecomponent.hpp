@@ -3,13 +3,13 @@
 
 #include <GL/glew.h>
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 #include "render/sprite.hpp"
 
 /**
  * Particle Sprite Component. Each particle is clip of one sprite.
  */
-struct ParticleSpriteComponent : Component
+struct ParticleSpriteComponent : ecs::Component
 {
     bool is_alive = false;
     GLfloat life_time;

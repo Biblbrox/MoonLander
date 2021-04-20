@@ -37,6 +37,7 @@ using glm::half_pi;
 using std::find_if;
 using glm::pi;
 using utils::fix_coords;
+using ecs::types::type_id;
 
 const int SHIP_WIDTH = 20;
 const int SHIP_HEIGHT = 21;
@@ -52,18 +53,31 @@ const SDL_Color fontColor = {0xFF, 0xFF, 0xFF, 0xFF};
 
 const GLfloat ship_init_alt = 500;
 
+const size_t ship_id =          0;
+const size_t level_id =         1;
+const size_t ship_particle_id = 2;
+const size_t fps_id =           3;
+const size_t velx_id = 		4;
+const size_t vely_id = 		5;
+const size_t alt_id = 		6;
+const size_t fuel_id =		7;
+const size_t time_id =		8;
+const size_t earth_id =         9;
+const size_t fail_id =          10;
+const size_t win_id =           11;
+
 void World::rescale_world()
 {
     m_frameWidth = m_scaled ? m_screenWidth : (m_screenWidth / m_scaleFactor);
     m_frameHeight = m_scaled ? m_screenHeight : (m_screenHeight / m_scaleFactor);
 
-    auto levelEnt = m_entities["level"];
+    auto levelEnt = m_entities[level_id];
     levelEnt->getComponent<LevelComponent>()->scale_factor = m_scaled ?
                                                           1.f : m_scaleFactor;
 
-    if (m_entities.count("ship") != 0) {
-        auto ship = m_entities["ship"];
-        size_t idx = type_id<RendererSystem>();
+    if (m_entities.count(ship_id) != 0) {
+        auto ship = m_entities[ship_id];
+        size_t idx = type_id<RendererSystem>;
         auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(
                 m_systems[idx]);
         auto shipPos = ship->getComponent<PositionComponent>();
@@ -88,14 +102,14 @@ void World::update_ship()
     using utils::physics::altitude;
     using utils::Position;
 
-    auto ship = m_entities["ship"];
+    auto ship = m_entities[ship_id];
     auto shipPos = ship->getComponent<PositionComponent>();
     auto shipVel = ship->getComponent<VelocityComponent>();
 
     auto renderSystem = std::dynamic_pointer_cast<RendererSystem>(
-            m_systems[type_id<RendererSystem>()]
+            m_systems[type_id<RendererSystem>]
     );
-    auto levelComp = m_entities["level"]->getComponent<LevelComponent>();
+    auto levelComp = m_entities[level_id]->getComponent<LevelComponent>();
     GLfloat shipAlt = altitude(levelComp->points, shipPos->x, shipPos->y);
     const GLfloat alt_threshold = 100.f; // Threshold when world will be scaled
     if ((shipAlt < alt_threshold && !m_scaled) // Need to increase scale
@@ -165,8 +179,7 @@ void World::update_ship()
                     utils::getResourcePath("lunar_lander_bw.png"),
                     generate_clips<4, 4>(shipClip), coords, vel, 10000.f);
 
-            particle->setCesManager(this);
-            m_entities.emplace("ship particle", particle);
+            m_entities.emplace(ship_particle_id, particle);
 
             ship->kill();
 
@@ -185,7 +198,7 @@ void World::update_level()
     if (getGameState() != GameStates::NORMAL)
         return;
 
-    auto ship = m_entities["ship"];
+    auto ship = m_entities[ship_id];
     const auto shipPos = ship->getComponent<PositionComponent>();
 
     vec2 shipCoords = fix_coords({shipPos->x, shipPos->y},
@@ -197,7 +210,7 @@ void World::update_level()
     std::shared_ptr<Entity> levelEnt;
     std::shared_ptr<LevelComponent> levelComp;
     if (nearLeft || nearRight) {
-        levelEnt = m_entities["level"];
+        levelEnt = m_entities[level_id];
         levelComp = levelEnt->getComponent<LevelComponent>();
     }
 
@@ -221,16 +234,16 @@ void World::update_level()
 void World::update_text()
 {
     if constexpr (debug) {
-        auto fpsEntity = m_entities["fpsText"];
+        auto fpsEntity = m_entities[fps_id];
         auto textFps = fpsEntity->getComponent<TextComponent>();
         textFps->texture->setText((format("FPS: %+3d") % m_fps.get_fps()).str());
     }
 
-    auto velxEntity = m_entities["velxText"];
-    auto velyEntity = m_entities["velyText"];
-    auto altEntity = m_entities["altitude"];
-    auto fuelEntity = m_entities["fuel"];
-    auto timeEntity = m_entities["time"];
+    auto velxEntity = m_entities[velx_id];
+    auto velyEntity = m_entities[vely_id];
+    auto altEntity = m_entities[alt_id];
+    auto fuelEntity = m_entities[fuel_id];
+    auto timeEntity = m_entities[time_id];
 
     auto textVelX = velxEntity->getComponent<TextComponent>();
     auto textVelY = velyEntity->getComponent<TextComponent>();
@@ -240,8 +253,8 @@ void World::update_text()
 
     if (getGameState() == GameStates::NORMAL
         || getGameState() == GameStates::WIN) {
-        const auto shipEntity = m_entities["ship"];
-        const auto points = m_entities["level"]->getComponent<LevelComponent>()->points;
+        const auto shipEntity = m_entities[ship_id];
+        const auto points = m_entities[level_id]->getComponent<LevelComponent>()->points;
 
         const auto shipVel = shipEntity->getComponent<VelocityComponent>();
         const auto shipPos = shipEntity->getComponent<PositionComponent>();
@@ -263,12 +276,12 @@ void World::update_text()
             m_timer.pause();
 
         if (getGameState() == GameStates::WIN
-            && m_entities.count("winText") == 0) {
-            Entity& winText = createEntity("winText");
-            winText.addComponents<TextComponent, PositionComponent>();
-            winText.activate();
+            && m_entities.count(win_id) == 0) {
+            auto winText = createEntity(win_id);
+            winText->addComponents<TextComponent, PositionComponent>();
+            winText->activate();
 
-            auto winTextTexture = winText.getComponent<TextComponent>();
+            auto winTextTexture = winText->getComponent<TextComponent>();
             TTF_Font* font = open_font(msgFont, 14);
             GLfloat score = fuel->time * 1.f / m_timer.getTicks() * 1000.f;
             std::string winMsg = (format("You landed\nScore is %.3f\n"
@@ -277,7 +290,7 @@ void World::update_text()
             winTextTexture->texture =
                     make_shared<TextTexture>(winMsg, font, fontColor);
 
-            auto winTextPos = winText.getComponent<PositionComponent>();
+            auto winTextPos = winText->getComponent<PositionComponent>();
             winTextPos->x = m_screenWidth / 2.f
                             - winTextTexture->texture->getWidth() / 2.f;
             winTextPos->y = m_screenHeight / 2.f
@@ -285,22 +298,22 @@ void World::update_text()
             winTextPos->scallable = false;
         }
     } else if (getGameState() == GameStates::FAIL
-               && m_entities.count("failText") == 0) { // Fail case
+               && m_entities.count(fail_id) == 0) { // Fail case
         textVelX->texture->setText((format("Horizontal speed: %3d") % 0).str());
         textVelY->texture->setText((format("Vertical speed: %3d") % 0).str());
 
-        Entity& failText = createEntity("failText");
-        failText.addComponents<TextComponent, PositionComponent>();
-        failText.activate();
+        auto failText = createEntity(fail_id);
+        failText->addComponents<TextComponent, PositionComponent>();
+        failText->activate();
 
-        auto failTextTexture = failText.getComponent<TextComponent>();
+        auto failTextTexture = failText->getComponent<TextComponent>();
         TTF_Font* font = open_font(msgFont, 14);
         failTextTexture->texture =
                 make_shared<TextTexture>("You fail\n"
                                          "To play again press Enter", font,
                                          fontColor);
 
-        auto failTextPos = failText.getComponent<PositionComponent>();
+        auto failTextPos = failText->getComponent<PositionComponent>();
         failTextPos->x = m_screenWidth / 2.f
                          - failTextTexture->texture->getWidth() / 2.f;
         failTextPos->y = m_screenHeight / 2.f
@@ -316,8 +329,8 @@ void World::update(size_t delta)
 
     if (getGameState() == GameStates::WIN
         && getPrevGameState() != GameStates::WIN) {
-        m_systems[type_id<MovementSystem>()]->stop();
-        m_entities["ship"]->removeComponent<KeyboardComponent>();
+        m_systems[type_id<MovementSystem>]->stop();
+        m_entities[ship_id]->removeComponent<KeyboardComponent>();
     }
 
     if (getGameState() == GameStates::NORMAL
@@ -360,31 +373,31 @@ void World::init()
         init_text();
         init_sound();
 
-        m_nonStatic["level"] = m_entities["level"];
-        m_nonStatic["ship"] = m_entities["ship"];
+        m_nonStatic[level_id] = m_entities[level_id];
+        m_nonStatic[ship_id] = m_entities[ship_id];
 
-        auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
+        auto shipPos = m_entities[ship_id]->getComponent<PositionComponent>();
         m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
                         shipPos->y - m_screenHeight / 2.f);
         update_movables();
 
         m_wasInit = true;
     } else {
-        m_entities.erase("winText");
-        m_entities.erase("failText");
-        m_entities.erase("ship");
-        m_entities.erase("ship particle");
-        m_systems[type_id<MovementSystem>()]->start();
+        m_entities.erase(win_id);
+        m_entities.erase(fail_id);
+        m_entities.erase(ship_id);
+        m_entities.erase(ship_particle_id);
+        m_systems[type_id<MovementSystem>]->start();
 
         rescale_world();
         init_ship();
         
-        m_nonStatic["ship"] = m_entities["ship"];
+        m_nonStatic[ship_id] = m_entities[ship_id];
         m_realCamX += m_camera.getX();
         m_camera.lookAt(0.f, 0.f); // reset camera
         update_movables();
 
-        auto shipPos = m_entities["ship"]->getComponent<PositionComponent>();
+        auto shipPos = m_entities[ship_id]->getComponent<PositionComponent>();
 
         m_camera.lookAt(shipPos->x - m_screenWidth / 2.f,
                         shipPos->y - m_screenHeight / 2.f);
@@ -412,18 +425,18 @@ void World::init_sprites()
 {
     using namespace utils::physics;
 
-    Entity &earth = createEntity("earth");
-    earth.addComponents<PositionComponent, SpriteComponent>();
-    earth.activate();
+    auto earth = createEntity(earth_id);
+    earth->addComponents<PositionComponent, SpriteComponent>();
+    earth->activate();
 
-    auto earthSprite = earth.getComponent<SpriteComponent>();
+    auto earthSprite = earth->getComponent<SpriteComponent>();
     const std::string earthPath = "lunar_lander_bw.png";
     earthSprite->sprite = make_shared<Sprite>(
             utils::getResourcePath(earthPath));
     earthSprite->sprite->addClipSprite({200, 77, 40, 33});
     earthSprite->sprite->generateDataBuffer();
 
-    auto earthPos = earth.getComponent<PositionComponent>();
+    auto earthPos = earth->getComponent<PositionComponent>();
     earthPos->x = m_screenWidth / 10.f;
     earthPos->y = m_screenHeight / 10.f;
     earthPos->scallable = false;
@@ -433,91 +446,91 @@ void World::init_text()
 {
     if constexpr (debug) {
         // Fps entity
-        Entity &fpsText = createEntity("fpsText");
-        fpsText.addComponents<TextComponent, PositionComponent>();
-        fpsText.activate();
+        auto fpsText = createEntity(fps_id);
+        fpsText->addComponents<TextComponent, PositionComponent>();
+        fpsText->activate();
 
-        auto fspTexture = fpsText.getComponent<TextComponent>();
+        auto fspTexture = fpsText->getComponent<TextComponent>();
         TTF_Font *font = open_font(msgFont, 14);
         fspTexture->texture = make_shared<TextTexture>("FPS: 000", font,
                                                        fontColor);
 
-        auto fpsPos = fpsText.getComponent<PositionComponent>();
+        auto fpsPos = fpsText->getComponent<PositionComponent>();
         fpsPos->x = m_screenWidth - m_screenWidth / 4.2f;
         fpsPos->y = m_screenHeight / 15.f;
         fpsPos->scallable = false;
     }
 
     // Velocity x entity
-    Entity &velxText = createEntity("velxText");
-    velxText.addComponents<TextComponent, PositionComponent>();
-    velxText.activate();
+    auto velxText = createEntity(velx_id);
+    velxText->addComponents<TextComponent, PositionComponent>();
+    velxText->activate();
 
-    auto velxTexture = velxText.getComponent<TextComponent>();
+    auto velxTexture = velxText->getComponent<TextComponent>();
     TTF_Font *font = open_font(msgFont, 14);
     velxTexture->texture =
             make_shared<TextTexture>("Horizontal speed: -000.000", font,
                                      fontColor);
 
-    auto velxPos = velxText.getComponent<PositionComponent>();
+    auto velxPos = velxText->getComponent<PositionComponent>();
     velxPos->x = m_screenWidth - m_screenWidth / 4.2f;
     velxPos->y = m_screenHeight / 10.f;
     velxPos->scallable = false;
 
     // Velocity y entity
-    Entity &velyText = createEntity("velyText");
-    velyText.addComponents<TextComponent, PositionComponent>();
-    velyText.activate();
+    auto velyText = createEntity(vely_id);
+    velyText->addComponents<TextComponent, PositionComponent>();
+    velyText->activate();
 
-    auto velyTexture = velyText.getComponent<TextComponent>();
+    auto velyTexture = velyText->getComponent<TextComponent>();
     font = open_font(msgFont, 14);
     velyTexture->texture =
             make_shared<TextTexture>("Vertical speed: -000.000", font,
                                      fontColor);
 
-    auto velyPos = velyText.getComponent<PositionComponent>();
+    auto velyPos = velyText->getComponent<PositionComponent>();
     velyPos->x = m_screenWidth - m_screenWidth / 4.2f;
     velyPos->y = m_screenHeight / 8.f;
     velyPos->scallable = false;
 
-    Entity &altitude = createEntity("altitude");
-    altitude.addComponents<TextComponent, PositionComponent>();
-    altitude.activate();
+    auto altitude = createEntity(alt_id);
+    altitude->addComponents<TextComponent, PositionComponent>();
+    altitude->activate();
 
-    auto altTexture = altitude.getComponent<TextComponent>();
+    auto altTexture = altitude->getComponent<TextComponent>();
     font = open_font(msgFont, 14);
     altTexture->texture = make_shared<TextTexture>("Altitude: -000.000", font,
                                                    fontColor);
 
-    auto altPos = altitude.getComponent<PositionComponent>();
+    auto altPos = altitude->getComponent<PositionComponent>();
     altPos->x = m_screenWidth - m_screenWidth / 4.2f;
     altPos->y = m_screenHeight / 7.f;
     altPos->scallable = false;
 
-    Entity &fuel = createEntity("fuel");
-    fuel.addComponents<PositionComponent, TextComponent>();
-    fuel.activate();
+    auto fuel = createEntity(fuel_id);
+    fuel->addComponents<PositionComponent, TextComponent>();
+    fuel->activate();
 
-    auto fuelTexture = fuel.getComponent<TextComponent>();
+    auto fuelTexture = fuel->getComponent<TextComponent>();
     font = open_font(msgFont, 14);
     fuelTexture->texture = make_shared<TextTexture>("Fuel: -000.000", font,
                                                     fontColor);
 
-    auto fuelPos = fuel.getComponent<PositionComponent>();
+    auto fuelPos = fuel->getComponent<PositionComponent>();
     fuelPos->x = m_screenWidth - m_screenWidth / 4.2f;
     fuelPos->y = m_screenHeight / 6.f;
     fuelPos->scallable = false;
 
-    Entity& time = createEntity("time");
-    time.addComponents<PositionComponent, TextComponent>();
-    time.activate();
+    auto time = createEntity(time_id);
+    time->addComponents<PositionComponent, TextComponent>();
+    time->activate();
 
-    auto timeTexture = time.getComponent<TextComponent>();
+    auto timeTexture = time->getComponent<TextComponent>();
     font = open_font(msgFont, 14);
     timeTexture->texture = make_shared<TextTexture>("Time: -000.000", font,
                                                     fontColor);
 
-    auto timePos = time.getComponent<PositionComponent>();
+    auto timePos = time->getComponent<PositionComponent>();
     timePos->x = m_screenWidth / 15.f;
     timePos->y = m_screenHeight / 15.f;
     timePos->scallable = false;
@@ -525,11 +538,11 @@ void World::init_text()
 
 void World::init_level()
 {
-    Entity& levelEnt = createEntity("level");
-    levelEnt.addComponents<LevelComponent, CollisionComponent>();
-    levelEnt.activate();
+    auto levelEnt = createEntity(level_id);
+    levelEnt->addComponents<LevelComponent, CollisionComponent>();
+    levelEnt->activate();
 
-    auto levelComponent = levelEnt.getComponent<LevelComponent>();
+    auto levelComponent = levelEnt->getComponent<LevelComponent>();
     level.extendToRight(m_camera);
     level.extendToLeft(m_camera);
     levelComponent->points = level.points;
@@ -541,13 +554,13 @@ void World::init_ship()
 {
     using namespace utils::physics;
     // Ship entity
-    Entity &ship = createEntity("ship");
-    ship.addComponents<PositionComponent, SpriteComponent, VelocityComponent,
+    auto ship = createEntity(ship_id);
+    ship->addComponents<PositionComponent, SpriteComponent, VelocityComponent,
             KeyboardComponent, AnimationComponent, CollisionComponent,
             /*fuel*/ LifeTimeComponent>();
-    ship.activate();
+    ship->activate();
 
-    auto shipSprite = ship.getComponent<SpriteComponent>();
+    auto shipSprite = ship->getComponent<SpriteComponent>();
     shipSprite->sprite = make_shared<Sprite>(
             utils::getResourcePath("lunar_lander_bw.png"));
     shipSprite->sprite->addClipSprite({0, 32, SHIP_WIDTH, SHIP_HEIGHT});
@@ -555,22 +568,22 @@ void World::init_ship()
     shipSprite->sprite->addClipSprite({40, 32, SHIP_WIDTH, SHIP_HEIGHT});
     shipSprite->sprite->generateDataBuffer();
 
-    auto shipPos = ship.getComponent<PositionComponent>();
+    auto shipPos = ship->getComponent<PositionComponent>();
     shipPos->x = m_screenWidth / 2.f;
     GLfloat alt = utils::physics::altitude(
-            m_entities["level"]->getComponent<LevelComponent>()->points,
+            m_entities[level_id]->getComponent<LevelComponent>()->points,
             shipPos->x, ship_init_alt);
     shipPos->y = alt;
     shipPos->angle = pi<GLfloat>() / 2.f;
 
-    auto fuel = ship.getComponent<LifeTimeComponent>();
+    auto fuel = ship->getComponent<LifeTimeComponent>();
     fuel->time = 1500;
 
-    auto shipVel = ship.getComponent<VelocityComponent>();
+    auto shipVel = ship->getComponent<VelocityComponent>();
     shipVel->x = 2.f;
-    auto shipAnim = ship.getComponent<AnimationComponent>();
+    auto shipAnim = ship->getComponent<AnimationComponent>();
 
-    auto keyboardComponent = ship.getComponent<KeyboardComponent>();
+    auto keyboardComponent = ship->getComponent<KeyboardComponent>();
     keyboardComponent->event_handler = [shipVel, shipPos, shipAnim, fuel, this]
             (const Uint8 *state) {
         if (state[SDL_SCANCODE_UP] && fuel->time > 0) {

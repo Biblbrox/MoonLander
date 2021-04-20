@@ -1,9 +1,9 @@
 #ifndef MOONLANDER_COLLISIONCOMPONENT_HPP
 #define MOONLANDER_COLLISIONCOMPONENT_HPP
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 
-struct CollisionComponent : Component
+struct CollisionComponent : ecs::Component
 {
     bool has_collision = false;
 };

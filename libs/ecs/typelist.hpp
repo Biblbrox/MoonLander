@@ -1,7 +1,7 @@
 #ifndef TYPELIST_HPP
 #define TYPELIST_HPP
 
-namespace utils
+namespace ecs::types
 {
     /**
     * TypeList declaration
@@ -20,6 +20,39 @@ namespace utils
     template<>
     struct TypeList<>
     {
+    };
+
+    /**
+     * Insert Type to TypeList
+     * @tparam H
+     * @tparam TypeList
+     */
+    template<typename... Args>
+    struct AddToTypeList;
+
+    template<typename H, typename... T>
+    struct AddToTypeList<H, TypeList<T...>>
+    {
+        using TL = TypeList<T..., H>;
+    };
+
+    template<size_t counter, typename... Args>
+    struct GetFromTypeListHelper
+    {
+        using TL = GetFromTypeListHelper<
+                counter - 1, typename TypeList<Args...>::Tail>;
+    };
+
+    template<typename... Args>
+    struct GetFromTypeListHelper<0, TypeList<Args...>>
+    {
+        using TL = typename TypeList<Args...>::Head;
+    };
+
+    template<size_t idx, typename... Args>
+    struct GetFromTypeList
+    {
+        using Type = typename GetFromTypeListHelper<idx, TypeList<Args...>>::TL;
     };
 
     template<typename TypeList>
@@ -69,7 +102,7 @@ namespace utils
      * @return
      */
     template<class TL, class UnFunctor, class BinFunctor>
-    constexpr auto typeListReduce(UnFunctor&& unfunc, BinFunctor&& binfunc)
+    constexpr auto typeListReduce(UnFunctor &&unfunc, BinFunctor &&binfunc)
     {
         using ArgType = typename TL::Head;
 
@@ -101,6 +134,15 @@ namespace utils
                            typeListReduce<typename TL::Tail>(unfunc, binfunc));
         }
     }
-}
+
+
+    inline int type_id_seq = 0;
+    template< typename T > inline const int type_id = type_id_seq++;
+//    template<typename T>
+//    constexpr size_t type_id() noexcept
+//    {
+//        return typeid(T).hash_code();
+//    }
+};
 
 #endif //TYPELIST_HPP

@@ -1,11 +1,11 @@
 #ifndef MOONLANDER_LEVELCOMPONENT_HPP
 #define MOONLANDER_LEVELCOMPONENT_HPP
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 
 using glm::vec2;
 
-struct LevelComponent : Component
+struct LevelComponent : ecs::Component
 {
     std::vector<vec2> points;
     std::vector<vec2> stars;

@@ -94,6 +94,16 @@ void MoonLanderProgram::loadProgram()
         }
     }
 
+    for (auto gs: m_geomShaders)
+        if (glIsShader(gs))
+            glDeleteShader(gs);
+
+    if (glIsShader(m_fragmentShader))
+        glDeleteShader(m_fragmentShader);
+
+    if (glIsShader(m_vertexShader))
+        glDeleteShader(m_vertexShader);
+
     m_curProgram = m_programs[1];
 
     // Get block indices
@@ -183,7 +193,6 @@ void MoonLanderProgram::setTexture(int texture)
 
 MoonLanderProgram::~MoonLanderProgram()
 {
-    remove_shaders();
     remove_programs();
     free_buffers();
 }
@@ -297,18 +306,6 @@ void MoonLanderProgram::free_buffers()
     m_matricesUBO = m_textureDataUBO = 0;
 }
 
-void MoonLanderProgram::remove_shaders()
-{
-    for (auto gs: m_geomShaders)
-        if (glIsShader(gs))
-            glDeleteShader(gs);
-
-    if (glIsShader(m_fragmentShader))
-        glDeleteShader(m_fragmentShader);
-
-    if (glIsShader(m_vertexShader))
-        glDeleteShader(m_vertexShader);
-}
 
 void MoonLanderProgram::updateProjection()
 {

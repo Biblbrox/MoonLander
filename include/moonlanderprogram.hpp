@@ -83,7 +83,6 @@ private:
      * Utility cleanup functions
      */
     void remove_programs();
-    void remove_shaders();
     void free_buffers();
 };
 

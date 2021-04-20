@@ -3,9 +3,9 @@
 
 #include <GL/glew.h>
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 
-struct PositionComponent : Component
+struct PositionComponent : ecs::Component
 {
     GLfloat x;
     GLfloat y;

@@ -10,20 +10,14 @@
 #include "level.hpp"
 #include "utils/timer.hpp"
 #include "utils/utils.hpp"
-#include "ces/basesystem.hpp"
+#include "ecs/basesystem.hpp"
 #include "render/camera.hpp"
 #include "utils/audio.hpp"
-#include "ces/cesmanager.hpp"
+#include "ecs/ecsmanager.hpp"
 
-/**
- * To avoid circular including
- */
-class Entity;
-class Component;
+using ecs::Entity;
 
-using utils::type_id;
-
-class World: public CesManager
+class World: public ecs::EcsManager
 {
 public:
     World() : m_scaled(false), m_wasInit(false), m_realCamX(0.f){};
@@ -33,7 +27,7 @@ public:
     void update(size_t delta) override;
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<Entity>> m_nonStatic;
+    std::unordered_map<size_t, std::shared_ptr<Entity>> m_nonStatic;
     Camera m_camera;
     GLuint m_screenHeight;
     GLuint m_screenWidth;

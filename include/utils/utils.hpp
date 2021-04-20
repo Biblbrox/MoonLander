@@ -89,12 +89,6 @@ namespace utils
         return format;
     }
 
-    template<typename T>
-    constexpr size_t type_id() noexcept
-    {
-        return typeid(T).hash_code();
-    }
-
     /**
      * Divide clip by multiple small clips.
      * Number of clips = num_x * num_y.

@@ -3,9 +3,9 @@
 
 #include <GL/glew.h>
 
-#include "ces/component.hpp"
+#include "ecs/component.hpp"
 
-struct LifeTimeComponent : Component
+struct LifeTimeComponent : ecs::Component
 {
     GLfloat time;
 };
