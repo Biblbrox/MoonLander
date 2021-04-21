@@ -30,12 +30,25 @@ public:
     void setTexture(int texture);
 
     /**
+     * Framebuffer programs
      * Choose geometry shader render mode
      */
     void switchToLinesAdj();
     void switchToLines();
     void switchToPoints();
     void switchToTriangles();
+
+    /*
+     * Switch to screen program.
+     * Render framebuffer to screen
+     */
+    void useScreenProgram();
+
+    /*
+     * Switch to final program
+     * Concat scene with blured version to achieve glowing.
+     */
+    void useFinalProgram();
 
     /**
      * Update uniform variables locations
@@ -61,8 +74,9 @@ private:
     GLint m_texLoc;
     GLint m_colorLoc;
 
-    GLuint m_programs[4];
-    GLuint m_curProgram;
+    GLuint m_fbprograms[4];
+    GLuint m_screenProgram;
+    GLuint m_finalProgram;
 
     // Zero for TextureData, One - for Matrices.
     GLuint m_uniformPoints[2];

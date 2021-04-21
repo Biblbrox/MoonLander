@@ -1,0 +1,23 @@
+#version 330 core
+
+// Texture coords
+in vec2 tex_coords;
+
+uniform sampler2D image;
+uniform sampler2D blured_image;
+
+out vec4 outColor;
+
+void main()
+{
+    const float gamma = 2.2;
+    const float exposure = 1;
+    vec3 im_color = texture(image, tex_coords).rgb;
+    vec3 blur_color = texture(blured_image, tex_coords).rgb;
+
+    im_color += blur_color;
+    vec3 result = vec3(1.0) - exp(-im_color * exposure);
+    result = pow(result, vec3(1.0 / gamma));
+
+    outColor = vec4(result, 1.0);
+}

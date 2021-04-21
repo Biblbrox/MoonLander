@@ -32,6 +32,7 @@ public:
     virtual void freeProgram() final;
     virtual void setFloat(const std::string& str, GLfloat value);
     virtual void setInt(const std::string &name, GLint value);
+    virtual void setBool(const std::string &name, GLboolean value);
 
     void bind() const;
     void unbind();

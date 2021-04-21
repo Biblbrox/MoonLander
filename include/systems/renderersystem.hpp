@@ -22,6 +22,14 @@ private:
     void drawSprites();
     void drawLevel();
     void drawText();
+    void renderSceneQuad();
+
+    GLuint m_blurBuffer;
+    GLuint m_directBuffer;
+    GLuint m_blurTexture;
+    GLuint m_directTexture;
+    GLuint m_pingpongFBO[2];
+    GLuint m_pingpongTextures[2];
 };
 
 #endif //MOONLANDER_RENDERERSYSTEM_HPP

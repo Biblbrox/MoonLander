@@ -68,6 +68,25 @@ void ShaderProgram::setInt(const std::string& name, GLint value)
                           Category::INTERNAL_ERROR);
 }
 
+void ShaderProgram::setBool(const std::string& name, GLboolean value)
+{
+    using utils::log::Logger;
+
+    assert(!name.empty());
+    GLint loc = glGetUniformLocation(m_programID, name.c_str());
+    if (loc == -1)
+        throw GLException((format("Unable to set uniform variable %1%\n") %
+                           name).str(),
+                          shader_log_file_name(),
+                          Category::INTERNAL_ERROR);
+
+    glUniform1i(loc, value);
+    if (GLenum error = glGetError(); error != GL_NO_ERROR)
+        throw GLException((format("Unable to set uniform variable \"%1%\"\n") % name).str(),
+                          shader_log_file_name(),
+                          Category::INTERNAL_ERROR);
+}
+
 void ShaderProgram::setFloat(const std::string &name, GLfloat value)
 {
     using utils::log::Logger;

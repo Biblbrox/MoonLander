@@ -8,13 +8,13 @@ uniform vec4 inColor;
 in mat4 GeomProjectionMatrix[3];
 in vec2 TexToGeom[3];
 
-out vec2 TexToFrag;
+out vec2 tex_coords;
 out vec4 FragColor;
 
 void main()
 {
     for (int i = 0; i < 3; ++i) {
-        TexToFrag = TexToGeom[i];
+        tex_coords = TexToGeom[i];
         FragColor = inColor;
         gl_Position = GeomProjectionMatrix[i] * gl_in[i].gl_Position;
         EmitVertex();
