@@ -1,0 +1,21 @@
+#version 330 core
+
+layout (std140) uniform Matrices
+{
+    mat4 ProjectionMatrix;
+    mat4 ViewMatrix;
+    mat4 ModelMatrix;
+};
+
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 inTexCoord;
+
+out vec2 TexToGeom;
+out mat4 GeomProjectionMatrix;
+
+void main()
+{
+    TexToGeom = inTexCoord;
+    GeomProjectionMatrix = ProjectionMatrix;
+    gl_Position = ViewMatrix * ModelMatrix * vec4(position, 0.0, 1.0);
+}
